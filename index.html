@@ -397,12 +397,33 @@ function stopRec(){
 
 function procAudio(){
   appendTx("sys","Transcrevendo áudio com Whisper...");
-  var mimeType = audioChunks[0] ? audioChunks[0].type : "audio/webm";
-  var blob=new Blob(audioChunks,{type:mimeType});
+
+  if(!audioChunks || audioChunks.length === 0){
+    appendTx("sys","⚠ Nenhum áudio capturado. Tente gravar novamente.");
+    return;
+  }
+
+  var mimeType = "audio/webm";
+  if(audioChunks[0] && audioChunks[0].type) mimeType = audioChunks[0].type;
+
+  var blob = new Blob(audioChunks, {type: mimeType});
+  appendTx("sys","Áudio capturado: "+Math.round(blob.size/1024)+"KB");
 
   var reader = new FileReader();
-  reader.onloadend = function(){
-    var base64 = reader.result.split(",")[1];
+  reader.onerror = function(){ appendTx("sys","⚠ Erro ao ler o áudio."); };
+  reader.onload = function(){
+    var result = reader.result;
+    if(!result || result.indexOf(",") === -1){
+      appendTx("sys","⚠ Erro ao converter áudio.");
+      return;
+    }
+    var base64 = result.split(",")[1];
+    if(!base64 || base64.length < 100){
+      appendTx("sys","⚠ Áudio muito curto ou vazio.");
+      return;
+    }
+
+    appendTx("sys","Enviando para transcrição ("+Math.round(base64.length/1024)+"KB)...");
 
     fetch("/api/transcribe",{
       method:"POST",
@@ -410,19 +431,25 @@ function procAudio(){
       body:JSON.stringify({audio:base64, phase:phase, mimeType:mimeType})
     })
     .then(function(r){
-      if(!r.ok) return r.json().then(function(e){throw new Error(e.error||"Erro na transcrição");});
+      if(!r.ok) return r.json().then(function(e){throw new Error(e.error||"Erro "+r.status);});
       return r.json();
     })
     .then(function(data){
+      if(!data.transcript){
+        appendTx("sys","⚠ Transcrição vazia.");
+        return;
+      }
       var box=document.getElementById("txBox"); box.innerHTML="";
       var lines=data.transcript.split("\n");
       lines.forEach(function(line){
-        if(line.startsWith("[MEDICO]:")){
-          appendTx("med", line.replace("[MEDICO]: ","").replace("[MEDICO]:","").trim());
-        } else if(line.startsWith("[PACIENTE]:")){
-          appendTx("pac", line.replace("[PACIENTE]: ","").replace("[PACIENTE]:","").trim());
-        } else if(line.trim()){
-          appendTx("sys", line.trim());
+        line=line.trim();
+        if(!line) return;
+        if(line.indexOf("[MEDICO]:")===0){
+          appendTx("med", line.replace(/^\[MEDICO\]:\s*/,""));
+        } else if(line.indexOf("[PACIENTE]:")===0){
+          appendTx("pac", line.replace(/^\[PACIENTE\]:\s*/,""));
+        } else {
+          appendTx("sys", line);
         }
       });
       fullTx+=(fullTx?"\n":"")+data.transcript;
@@ -430,7 +457,7 @@ function procAudio(){
       appendTx("sys","✓ Transcrição concluída!");
     })
     .catch(function(err){
-      appendTx("sys","⚠ Erro na transcrição: "+err.message);
+      appendTx("sys","⚠ Erro: "+err.message);
     });
   };
   reader.readAsDataURL(blob);
