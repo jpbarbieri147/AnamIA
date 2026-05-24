@@ -1,0 +1,12 @@
+{
+  "name": "anamia",
+  "version": "1.0.0",
+  "description": "AnamIA — Prontuário Inteligente",
+  "private": true,
+  "dependencies": {
+    "openai": "^4.0.0",
+    "@anthropic-ai/sdk": "^0.24.0",
+    "multer": "^1.4.5-lts.1",
+    "form-data": "^4.0.0"
+  }
+}
