@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { Readable } from "stream";
+import { toFile } from "openai/uploads";
 
 export const config = {
   api: {
@@ -19,7 +19,6 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    // Handle both parsed and unparsed body
     let body = req.body;
     if (typeof body === "string") {
       try { body = JSON.parse(body); } catch(e) { body = {}; }
@@ -29,7 +28,7 @@ export default async function handler(req, res) {
     const { audio, phase, mimeType } = body;
 
     if (!audio) {
-      return res.status(400).json({ error: "Nenhum áudio recebido. Verifique se o microfone está funcionando." });
+      return res.status(400).json({ error: "Nenhum áudio recebido." });
     }
 
     // Convert base64 to buffer
@@ -37,20 +36,16 @@ export default async function handler(req, res) {
     const mime = mimeType || "audio/webm";
     const ext = mime.includes("mp4") ? "mp4" : mime.includes("ogg") ? "ogg" : "webm";
 
-    // Create readable stream
-    const stream = new Readable();
-    stream.push(buffer);
-    stream.push(null);
-    stream.path = `audio.${ext}`;
+    // Use OpenAI's toFile helper - this is the correct way
+    const file = await toFile(buffer, `audio.${ext}`, { type: mime });
 
     const transcription = await openai.audio.transcriptions.create({
-      file: stream,
+      file: file,
       model: "whisper-1",
       language: "pt",
       response_format: "verbose_json",
     });
 
-    // Format with speaker labels
     let formattedTranscript = "";
     const segments = transcription.segments || [];
 
