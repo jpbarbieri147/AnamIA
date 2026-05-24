@@ -347,22 +347,27 @@ function setPhase(p){
   document.getElementById("pt-an").classList.toggle("active",p==="an");
   document.getElementById("pt-ef").classList.toggle("active",p==="ef");
 }
-
-// ── RECORDING ──
 function toggleRec(){ isRec ? stopRec() : startRec(); }
 
 function startRec(){
-  if(!navigator.mediaDevices){
-    appendTx("sys","Microfone não disponível neste browser.");
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    appendTx("sys","Microfone nao disponivel. Use Chrome ou Edge.");
     return;
   }
-  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
-    mediaRec=new MediaRecorder(stream);
+  navigator.mediaDevices.getUserMedia({audio:true,video:false}).then(function(stream){
     audioChunks=[];
-    mediaRec.ondataavailable=function(e){audioChunks.push(e.data);};
-    mediaRec.onstop=procAudio;
-    mediaRec.start(250); // collect every 250ms for better capture
-    isRec=true; secs=0;
+    var options={};
+    if(MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) options={mimeType:"audio/webm;codecs=opus"};
+    else if(MediaRecorder.isTypeSupported("audio/webm")) options={mimeType:"audio/webm"};
+    else if(MediaRecorder.isTypeSupported("audio/ogg")) options={mimeType:"audio/ogg"};
+    mediaRec=new MediaRecorder(stream,options);
+    mediaRec.ondataavailable=function(e){if(e.data&&e.data.size>0)audioChunks.push(e.data);};
+    mediaRec.onstop=function(){
+      appendTx("sys","Chunks: "+audioChunks.length);
+      procAudio();
+    };
+    mediaRec.start(1000);
+    isRec=true;secs=0;
     document.getElementById("recBtn").classList.add("rec");
     document.getElementById("recArea").classList.add("rec");
     document.getElementById("micIco").style.display="none";
@@ -372,32 +377,25 @@ function startRec(){
     document.getElementById("timer").classList.add("rec");
     timerInt=setInterval(function(){
       secs++;
-      var m=String(Math.floor(secs/60)).padStart(2,"0");
-      var s=String(secs%60).padStart(2,"0");
+      var m=String(Math.floor(secs/60)).padStart(2,"0"),s=String(secs%60).padStart(2,"0");
       document.getElementById("timer").textContent=m+":"+s;
     },1000);
-    appendTx("sys","Gravando: "+(phase==="an"?"Anamnese":"Exame Físico"));
-  }).catch(function(e){ appendTx("sys","Erro: "+e.message); });
+    appendTx("sys","Gravando: "+(phase==="an"?"Anamnese":"Exame Fisico"));
+  }).catch(function(e){appendTx("sys","Erro microfone: "+e.message);});
 }
 
 function stopRec(){
-  isRec=false; clearInterval(timerInt);
+  isRec=false;clearInterval(timerInt);
   document.getElementById("recBtn").classList.remove("rec");
   document.getElementById("recArea").classList.remove("rec");
   document.getElementById("micIco").style.display="block";
   document.getElementById("stopIco").style.display="none";
-  document.getElementById("recSt").textContent="Processando...";
+  document.getElementById("recSt").textContent="Gravacao encerrada";
   document.getElementById("recSt").classList.remove("rec");
   document.getElementById("timer").classList.remove("rec");
-
-  if(mediaRec && mediaRec.state!=="inactive"){
-    // Request final data chunk before stopping
-    mediaRec.requestData();
-    setTimeout(function(){
-      mediaRec.stop();
-      mediaRec.stream.getTracks().forEach(function(t){t.stop();});
-      document.getElementById("recSt").textContent="Gravação encerrada";
-    }, 500);
+  if(mediaRec&&mediaRec.state==="recording"){
+    mediaRec.stop();
+    if(mediaRec.stream)mediaRec.stream.getTracks().forEach(function(t){t.stop();});
   }
 }
 
