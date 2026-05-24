@@ -19,17 +19,28 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    const { audio, phase, mimeType } = req.body;
+    // Handle both parsed and unparsed body
+    let body = req.body;
+    if (typeof body === "string") {
+      try { body = JSON.parse(body); } catch(e) { body = {}; }
+    }
+    if (!body) body = {};
 
-    if (!audio) return res.status(400).json({ error: "Nenhum áudio recebido" });
+    const { audio, phase, mimeType } = body;
+
+    if (!audio) {
+      return res.status(400).json({ error: "Nenhum áudio recebido. Verifique se o microfone está funcionando." });
+    }
 
     // Convert base64 to buffer
     const buffer = Buffer.from(audio, "base64");
     const mime = mimeType || "audio/webm";
     const ext = mime.includes("mp4") ? "mp4" : mime.includes("ogg") ? "ogg" : "webm";
 
-    // Create a readable stream from buffer
-    const stream = Readable.from(buffer);
+    // Create readable stream
+    const stream = new Readable();
+    stream.push(buffer);
+    stream.push(null);
     stream.path = `audio.${ext}`;
 
     const transcription = await openai.audio.transcriptions.create({
@@ -41,26 +52,26 @@ export default async function handler(req, res) {
 
     // Format with speaker labels
     let formattedTranscript = "";
-    if (phase === "ef") {
-      formattedTranscript = transcription.segments
-        .map((s) => "[MEDICO]: " + s.text.trim())
-        .join("\n");
+    const segments = transcription.segments || [];
+
+    if (segments.length === 0) {
+      formattedTranscript = (phase === "ef" ? "[MEDICO]: " : "[PACIENTE]: ") + transcription.text;
+    } else if (phase === "ef") {
+      formattedTranscript = segments.map(s => "[MEDICO]: " + s.text.trim()).join("\n");
     } else {
-      formattedTranscript = transcription.segments
-        .map((s) => {
-          const txt = s.text.trim();
-          const isQuestion =
-            txt.endsWith("?") ||
-            /^(qual|como|quando|onde|há quanto|tem |faz |já |algum|sente|apresenta|refere|possui|existe)/i.test(txt);
-          return (isQuestion ? "[MEDICO]" : "[PACIENTE]") + ": " + txt;
-        })
-        .join("\n");
+      formattedTranscript = segments.map(s => {
+        const txt = s.text.trim();
+        const isQuestion = txt.endsWith("?") ||
+          /^(qual|como|quando|onde|há quanto|tem |faz |já |algum|sente|apresenta|refere|possui)/i.test(txt);
+        return (isQuestion ? "[MEDICO]" : "[PACIENTE]") + ": " + txt;
+      }).join("\n");
     }
 
     return res.status(200).json({
       transcript: formattedTranscript,
       raw: transcription.text,
     });
+
   } catch (error) {
     console.error("Whisper error:", error);
     return res.status(500).json({ error: error.message || "Erro na transcrição" });
