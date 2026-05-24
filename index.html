@@ -361,7 +361,7 @@ function startRec(){
     audioChunks=[];
     mediaRec.ondataavailable=function(e){audioChunks.push(e.data);};
     mediaRec.onstop=procAudio;
-    mediaRec.start(1000);
+    mediaRec.start(250); // collect every 250ms for better capture
     isRec=true; secs=0;
     document.getElementById("recBtn").classList.add("rec");
     document.getElementById("recArea").classList.add("rec");
@@ -381,18 +381,24 @@ function startRec(){
 }
 
 function stopRec(){
-  if(mediaRec && mediaRec.state!=="inactive"){
-    mediaRec.stop();
-    mediaRec.stream.getTracks().forEach(function(t){t.stop();});
-  }
   isRec=false; clearInterval(timerInt);
   document.getElementById("recBtn").classList.remove("rec");
   document.getElementById("recArea").classList.remove("rec");
   document.getElementById("micIco").style.display="block";
   document.getElementById("stopIco").style.display="none";
-  document.getElementById("recSt").textContent="Gravação encerrada";
+  document.getElementById("recSt").textContent="Processando...";
   document.getElementById("recSt").classList.remove("rec");
   document.getElementById("timer").classList.remove("rec");
+
+  if(mediaRec && mediaRec.state!=="inactive"){
+    // Request final data chunk before stopping
+    mediaRec.requestData();
+    setTimeout(function(){
+      mediaRec.stop();
+      mediaRec.stream.getTracks().forEach(function(t){t.stop();});
+      document.getElementById("recSt").textContent="Gravação encerrada";
+    }, 500);
+  }
 }
 
 function procAudio(){
