@@ -1,8 +1,13 @@
 import OpenAI from "openai";
-import { IncomingForm } from "formidable";
-import fs from "fs";
+import { Readable } from "stream";
 
-export const config = { api: { bodyParser: false } };
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "25mb",
+    },
+  },
+};
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -14,57 +19,48 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    const form = new IncomingForm({ keepExtensions: true, maxFileSize: 25 * 1024 * 1024 });
+    const { audio, phase, mimeType } = req.body;
 
-    const { fields, files } = await new Promise((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) reject(err);
-        else resolve({ fields, files });
-      });
-    });
+    if (!audio) return res.status(400).json({ error: "Nenhum áudio recebido" });
 
-    const audioFile = files.audio?.[0] || files.audio;
-    if (!audioFile) return res.status(400).json({ error: "Nenhum arquivo de áudio recebido" });
+    // Convert base64 to buffer
+    const buffer = Buffer.from(audio, "base64");
+    const mime = mimeType || "audio/webm";
+    const ext = mime.includes("mp4") ? "mp4" : mime.includes("ogg") ? "ogg" : "webm";
 
-    const phase = fields.phase?.[0] || fields.phase || "an";
-
-    const fileStream = fs.createReadStream(audioFile.filepath);
-    fileStream.name = audioFile.originalFilename || "audio.webm";
+    // Create a readable stream from buffer
+    const stream = Readable.from(buffer);
+    stream.path = `audio.${ext}`;
 
     const transcription = await openai.audio.transcriptions.create({
-      file: fileStream,
+      file: stream,
       model: "whisper-1",
       language: "pt",
       response_format: "verbose_json",
-      timestamp_granularities: ["segment"]
     });
 
-    // Format transcript with speaker labels based on phase
-    // In anamnese phase: try to detect doctor/patient from context
-    // In exam phase: all is doctor
+    // Format with speaker labels
     let formattedTranscript = "";
-
     if (phase === "ef") {
       formattedTranscript = transcription.segments
-        .map(s => "[MEDICO]: " + s.text.trim())
+        .map((s) => "[MEDICO]: " + s.text.trim())
         .join("\n");
     } else {
-      // Heuristic: questions tend to be doctor, answers tend to be patient
-      formattedTranscript = transcription.segments.map(s => {
-        const txt = s.text.trim();
-        const isQuestion = txt.endsWith("?") ||
-          /^(qual|como|quando|onde|há quanto|tem|faz|já|algum|sente|apresenta|refere)/i.test(txt);
-        const speaker = isQuestion ? "[MEDICO]" : "[PACIENTE]";
-        return speaker + ": " + txt;
-      }).join("\n");
+      formattedTranscript = transcription.segments
+        .map((s) => {
+          const txt = s.text.trim();
+          const isQuestion =
+            txt.endsWith("?") ||
+            /^(qual|como|quando|onde|há quanto|tem |faz |já |algum|sente|apresenta|refere|possui|existe)/i.test(txt);
+          return (isQuestion ? "[MEDICO]" : "[PACIENTE]") + ": " + txt;
+        })
+        .join("\n");
     }
 
     return res.status(200).json({
       transcript: formattedTranscript,
       raw: transcription.text,
-      segments: transcription.segments
     });
-
   } catch (error) {
     console.error("Whisper error:", error);
     return res.status(500).json({ error: error.message || "Erro na transcrição" });

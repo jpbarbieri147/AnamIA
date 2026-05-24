@@ -397,35 +397,43 @@ function stopRec(){
 
 function procAudio(){
   appendTx("sys","Transcrevendo áudio com Whisper...");
-  var blob=new Blob(audioChunks,{type:"audio/webm"});
-  var formData=new FormData();
-  formData.append("audio", blob, "recording.webm");
-  formData.append("phase", phase);
+  var mimeType = audioChunks[0] ? audioChunks[0].type : "audio/webm";
+  var blob=new Blob(audioChunks,{type:mimeType});
 
-  fetch("/api/transcribe",{method:"POST",body:formData})
-  .then(function(r){
-    if(!r.ok) return r.json().then(function(e){throw new Error(e.error||"Erro na transcrição");});
-    return r.json();
-  })
-  .then(function(data){
-    var box=document.getElementById("txBox"); box.innerHTML="";
-    var lines=data.transcript.split("\n");
-    lines.forEach(function(line){
-      if(line.startsWith("[MEDICO]:")){
-        appendTx("med", line.replace("[MEDICO]: ","").replace("[MEDICO]:","").trim());
-      } else if(line.startsWith("[PACIENTE]:")){
-        appendTx("pac", line.replace("[PACIENTE]: ","").replace("[PACIENTE]:","").trim());
-      } else if(line.trim()){
-        appendTx("sys", line.trim());
-      }
+  var reader = new FileReader();
+  reader.onloadend = function(){
+    var base64 = reader.result.split(",")[1];
+
+    fetch("/api/transcribe",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({audio:base64, phase:phase, mimeType:mimeType})
+    })
+    .then(function(r){
+      if(!r.ok) return r.json().then(function(e){throw new Error(e.error||"Erro na transcrição");});
+      return r.json();
+    })
+    .then(function(data){
+      var box=document.getElementById("txBox"); box.innerHTML="";
+      var lines=data.transcript.split("\n");
+      lines.forEach(function(line){
+        if(line.startsWith("[MEDICO]:")){
+          appendTx("med", line.replace("[MEDICO]: ","").replace("[MEDICO]:","").trim());
+        } else if(line.startsWith("[PACIENTE]:")){
+          appendTx("pac", line.replace("[PACIENTE]: ","").replace("[PACIENTE]:","").trim());
+        } else if(line.trim()){
+          appendTx("sys", line.trim());
+        }
+      });
+      fullTx+=(fullTx?"\n":"")+data.transcript;
+      document.getElementById("manTx").value=fullTx;
+      appendTx("sys","✓ Transcrição concluída!");
+    })
+    .catch(function(err){
+      appendTx("sys","⚠ Erro na transcrição: "+err.message);
     });
-    fullTx+=(fullTx?"\n":"")+data.transcript;
-    document.getElementById("manTx").value=fullTx;
-    appendTx("sys","✓ Transcrição concluída!");
-  })
-  .catch(function(err){
-    appendTx("sys","⚠ Erro na transcrição: "+err.message);
-  });
+  };
+  reader.readAsDataURL(blob);
 }
 
 function appendTx(sp,txt){
