@@ -3,162 +3,518 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AnamIA</title>
+<title>AnamIA — Prontuário Inteligente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#F7F5F0;--sur:#FFF;--bdr:#E2DDD6;--tx:#1A1814;--tx2:#6B6760;--tx3:#9E9B96;--teal:#0F6E56;--tl:#E1F5EE;--tm:#1D9E75;--red:#A32D2D;--rl:#FCEBEB;--amb:#854F0B;--al:#FAEEDA;--blu:#185FA5;--r:12px;--rs:8px}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;line-height:1.6}
-.hdr{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
-.logo{display:flex;align-items:center;gap:9px}
-.lmk{width:30px;height:30px;background:var(--teal);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
-.ltx{font-family:"DM Serif Display",serif;font-size:19px}
-.ltx span{color:var(--teal)}
-.bdg{font-size:11px;font-weight:500;color:var(--teal);background:var(--tl);border:1px solid #9FE1CB;padding:2px 9px;border-radius:20px}
-.htabs{display:flex;gap:4px}
-.htab{padding:6px 14px;border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;color:var(--tx2);border:1px solid transparent;background:none;font-family:inherit}
-.htab:hover{background:var(--bg)}
-.htab.active{background:var(--tl);color:var(--teal);border-color:#9FE1CB}
-.layout{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 56px)}
-.sb{background:var(--sur);border-right:1px solid var(--bdr);padding:1rem;display:flex;flex-direction:column;gap:.85rem;overflow-y:auto}
-.lbl{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--tx3);margin-bottom:.4rem}
-.ptabs{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.ptab{padding:8px;border:1.5px solid var(--bdr);border-radius:var(--rs);background:var(--bg);cursor:pointer;text-align:center;font-size:11px;font-weight:500;color:var(--tx2);font-family:inherit}
-.ptab:hover,.ptab.active{border-color:var(--teal);background:var(--tl);color:var(--teal)}
-.reca{background:var(--bg);border:1.5px dashed var(--bdr);border-radius:var(--r);padding:1rem;text-align:center}
-.reca.rec{border-color:var(--red);background:var(--rl)}
-.rbtn{width:50px;height:50px;border-radius:50%;border:none;background:var(--teal);cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto .4rem;color:#fff;font-size:22px;box-shadow:0 4px 12px rgba(15,110,86,.3)}
-.rbtn:hover{transform:scale(1.05)}
-.rbtn.rec{background:var(--red)}
-.tmr{font-size:22px;font-weight:300;font-family:"DM Serif Display",serif;letter-spacing:2px;margin:.2rem 0}
-.tmr.rec{color:var(--red)}
-.rst{font-size:11px;color:var(--tx2);font-weight:500}
-.rst.rec{color:var(--red)}
-.txb{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--rs);padding:.6rem;min-height:100px;max-height:140px;overflow-y:auto;font-size:11px;line-height:1.7}
-.txph{color:var(--tx3);font-style:italic;font-size:11px}
-.spk{font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.4px}
-.spk.med{color:var(--teal)}.spk.pac{color:var(--blu)}
-.mta{width:100%;min-height:80px;border:1px solid var(--bdr);border-radius:var(--rs);padding:7px 9px;font-size:11px;font-family:inherit;color:var(--tx);background:var(--sur);resize:vertical}
-.mta:focus{outline:none;border-color:var(--teal)}
-.pbtn{width:100%;padding:11px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit}
-.pbtn:hover{background:var(--tm)}
-.note{background:var(--al);border:1px solid #FAC775;border-radius:var(--rs);padding:7px 9px;font-size:10px;color:var(--amb);line-height:1.5}
-.note strong{display:block;margin-bottom:1px}
-.main{overflow-y:auto;height:calc(100vh - 56px)}
-.wel{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center;gap:.85rem;padding:2rem}
-.wic{width:60px;height:60px;background:var(--tl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px}
-.wel h2{font-family:"DM Serif Display",serif;font-size:22px;font-weight:400}
-.wel p{color:var(--tx2);font-size:13px;max-width:340px}
-.wst{display:flex;gap:1.25rem;margin-top:.4rem}
-.wstp{text-align:center;max-width:100px}
-.wsn{width:26px;height:26px;border-radius:50%;background:var(--tl);color:var(--teal);font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;margin:0 auto .35rem}
-.wstp p{font-size:10px;color:var(--tx2)}
-.ld{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:1rem;text-align:center}
-.spin{width:40px;height:40px;border:3px solid var(--bdr);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.ld p{color:var(--tx2);font-size:12px}
-.ld strong{color:var(--tx);font-size:14px;display:block}
-.rhdr{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem 1rem;border-bottom:1px solid var(--bdr)}
-.rhdr h1{font-family:"DM Serif Display",serif;font-size:20px;font-weight:400}
-.rhdr p{font-size:11px;color:var(--tx2);margin-top:1px}
-.hacts{display:flex;gap:6px;flex-wrap:wrap}
-.bts{padding:6px 11px;border:1px solid var(--bdr);border-radius:var(--rs);background:var(--sur);font-size:11px;font-weight:500;cursor:pointer;color:var(--tx);font-family:inherit;display:flex;align-items:center;gap:4px}
-.bts:hover{background:var(--bg)}
-.btp{padding:6px 11px;border:none;border-radius:var(--rs);background:var(--teal);font-size:11px;font-weight:600;cursor:pointer;color:#fff;font-family:inherit;display:flex;align-items:center;gap:4px}
-.btp:hover{background:var(--tm)}
-.wbn{background:var(--rl);border:1px solid #F7C1C1;border-radius:var(--rs);padding:7px 11px;font-size:10px;color:var(--red);margin:0 1.5rem .75rem;display:flex;align-items:flex-start;gap:5px;line-height:1.5}
-.rb{padding:0 1.5rem 1.5rem}
-.sc{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:.6rem;overflow:hidden}
-.sch{padding:10px 13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
-.sch:hover{background:var(--bg)}
-.schl{display:flex;align-items:center;gap:7px}
-.scn{width:22px;height:22px;border-radius:5px;background:var(--tl);color:var(--teal);font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center}
-.sct{font-weight:600;font-size:12px}
-.scc{color:var(--tx3);transition:transform .2s;font-size:14px}
-.scc.open{transform:rotate(180deg)}
-.scb{padding:10px 13px;border-top:1px solid var(--bdr);display:none}
-.scb.open{display:block}
-.sub{margin-bottom:10px}
-.subt{font-size:10px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--tl)}
-.fr{display:grid;grid-template-columns:160px 1fr;gap:6px;align-items:start;margin-bottom:5px}
-.fl{font-size:11px;color:var(--tx2);font-weight:500;padding-top:5px}
-.fv{font-size:12px;color:var(--tx);background:var(--bg);border:1px solid var(--bdr);border-radius:5px;padding:4px 7px;min-height:28px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
-.fv.empty{color:var(--tx3);font-style:italic}
-.fv[contenteditable="true"]{background:var(--sur);border-color:var(--teal);outline:none;box-shadow:0 0 0 2px var(--tl)}
-.nbox{margin-top:10px;border:1px solid var(--tl);border-radius:var(--rs);overflow:hidden}
-.nbhdr{background:var(--tl);padding:6px 10px;font-size:10px;font-weight:600;color:var(--teal)}
-.nbody{padding:8px 10px}
-.nta{width:100%;min-height:80px;border:none;font-size:12px;font-family:inherit;color:var(--tx);background:transparent;resize:vertical;outline:none;line-height:1.7}
-.lta{width:100%;min-height:80px;border:1px solid var(--bdr);border-radius:var(--rs);padding:8px 10px;font-size:12px;font-family:inherit;color:var(--tx);background:var(--bg);resize:vertical;outline:none;line-height:1.7}
-.lta:focus{border-color:var(--teal);background:var(--sur)}
-.syn{background:var(--sur);border:2px solid #FAC775;border-radius:var(--r);margin-bottom:.6rem;overflow:hidden}
-.synh{padding:10px 13px;background:var(--al);display:flex;align-items:center;gap:7px}
-.synh-i{font-size:18px}
-.syt{font-weight:700;font-size:12px;color:var(--amb)}
-.sys2{font-size:10px;color:#BA7517}
-.synb{padding:12px 13px}
-.synta{width:100%;min-height:80px;border:1px solid var(--bdr);border-radius:var(--rs);padding:6px 8px;font-size:12px;font-family:inherit;color:var(--tx);background:var(--bg);resize:vertical;outline:none;line-height:1.7}
-.synta:focus{border-color:var(--amb);background:var(--sur)}
-.cpanel{padding:1.25rem 1.5rem;overflow-y:auto}
-.cintro{font-size:12px;color:var(--tx2);margin-bottom:1rem;line-height:1.6}
-.cacts{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
-.cbtn{padding:7px 12px;border:1px solid var(--bdr);border-radius:var(--rs);background:var(--sur);font-size:11px;cursor:pointer;font-family:inherit;color:var(--tx)}
-.cbtn:hover{background:var(--bg)}
-.cbtn.sv{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:600}
-.cbtn.sv:hover{background:var(--tm)}
-.csaved{font-size:11px;color:var(--teal);display:none}
-.csaved.show{display:inline}
-.csec{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:.5rem;overflow:hidden}
-.csh{padding:9px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
-.csh:hover{background:var(--bg)}
-.csb{padding:6px 12px 10px 36px;border-top:1px solid var(--bdr);display:none}
-.csb.open{display:block}
-.cchk{display:flex;align-items:center;gap:6px;margin-bottom:4px}
-.cchk input{width:13px;height:13px;accent-color:var(--teal);cursor:pointer;flex-shrink:0}
-.cchk label{font-size:11px;color:var(--tx);cursor:pointer}
-.cstitle{font-size:12px;font-weight:600;color:var(--tx)}
-.cchev{color:var(--tx3);font-size:12px;transition:transform .2s;margin-left:auto}
-.cchev.open{transform:rotate(180deg)}
-.mchk{width:14px;height:14px;accent-color:var(--teal);cursor:pointer;flex-shrink:0}
-.ovl{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center}
-.ovl.open{display:flex}
-.modal{background:var(--sur);border-radius:var(--r);padding:1.5rem;width:340px;box-shadow:0 8px 32px rgba(0,0,0,.18)}
-.modal h3{font-family:"DM Serif Display",serif;font-size:18px;font-weight:400;margin-bottom:.4rem}
-.modal p{font-size:12px;color:var(--tx2);margin-bottom:1.25rem;line-height:1.6}
-.eopts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
-.eopt{border:2px solid var(--bdr);border-radius:var(--r);padding:1rem;text-align:center;cursor:pointer}
-.eopt:hover,.eopt.sel{border-color:var(--teal);background:var(--tl)}
-.eopt .ei{font-size:26px;display:block;margin-bottom:.35rem}
-.eopt .el{font-size:12px;font-weight:600;color:var(--tx)}
-.eopt .ed{font-size:10px;color:var(--tx2);margin-top:2px}
-.macts{display:flex;gap:8px;justify-content:flex-end}
-.mcan{padding:8px 14px;border:1px solid var(--bdr);border-radius:var(--rs);background:var(--sur);font-size:12px;cursor:pointer;font-family:inherit;color:var(--tx)}
-.mdl{padding:8px 16px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
-.mdl:hover{background:var(--tm)}
-.log-mini{font-size:10px;color:var(--tx3);font-style:italic;margin-top:4px;max-height:60px;overflow-y:auto;background:#FAFAF7;padding:4px 6px;border-radius:4px;border:1px solid var(--bdr);display:none}
-.log-mini.show{display:block}
+:root{
+  /* Brandbook AnamIA v1.0 */
+  --verde:     #0A5A43;
+  --verde-m:   #4ECFA3;
+  --verde-l:   #E8F5F0;
+  --verde-b:   #9FE1CB;
+  --preto:     #0A0A0A;
+  --pergaminho:#F7F5F0;
+  --cinza:     #6B6760;
+  --cinza-l:   #E2DDD6;
+  --cinza-ll:  #F0EDE7;
+  --branco:    #FFFFFF;
+  --red:       #A32D2D;
+  --red-l:     #FCEBEB;
+  --amber:     #854F0B;
+  --amber-l:   #FAEEDA;
+  --blue:      #185FA5;
+  --r:         12px;
+  --rs:        8px;
+}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--pergaminho);
+  color:var(--preto);
+  min-height:100vh;
+  font-size:14px;
+  line-height:1.6;
+}
+
+/* ── HEADER ── */
+.hdr{
+  background:var(--branco);
+  border-bottom:1px solid var(--cinza-l);
+  padding:0 1.5rem;
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:200;
+}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-mark{
+  width:36px;height:36px;
+  background:var(--verde);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.logo-mark svg{width:22px;height:22px;}
+.logo-wordmark{
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:22px;
+  font-weight:400;
+  color:var(--preto);
+  letter-spacing:-0.2px;
+  line-height:1;
+}
+.logo-wordmark em{font-style:normal;color:var(--verde);}
+.badge{
+  font-size:10px;font-weight:500;
+  color:var(--verde);
+  background:var(--verde-l);
+  border:1px solid var(--verde-b);
+  padding:2px 10px;
+  border-radius:20px;
+  letter-spacing:0.3px;
+}
+.htabs{display:flex;gap:4px;}
+.htab{
+  padding:6px 14px;
+  border-radius:var(--rs);
+  font-size:12px;font-weight:500;
+  cursor:pointer;
+  color:var(--cinza);
+  border:1px solid transparent;
+  background:none;
+  font-family:'Inter',sans-serif;
+  transition:all .15s;
+}
+.htab:hover{background:var(--pergaminho);}
+.htab.active{background:var(--verde-l);color:var(--verde);border-color:var(--verde-b);}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 60px);}
+
+/* ── SIDEBAR ── */
+.sb{
+  background:var(--branco);
+  border-right:1px solid var(--cinza-l);
+  padding:1.1rem;
+  display:flex;flex-direction:column;gap:.9rem;
+  overflow-y:auto;
+}
+.lbl{
+  font-size:10px;font-weight:600;
+  letter-spacing:.9px;text-transform:uppercase;
+  color:var(--cinza);
+  margin-bottom:.4rem;display:block;
+}
+.ptabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.ptab{
+  padding:9px;
+  border:1.5px solid var(--cinza-l);
+  border-radius:var(--rs);
+  background:var(--pergaminho);
+  cursor:pointer;text-align:center;
+  font-size:11px;font-weight:500;
+  color:var(--cinza);
+  font-family:'Inter',sans-serif;
+  transition:all .15s;
+}
+.ptab:hover,.ptab.active{border-color:var(--verde);background:var(--verde-l);color:var(--verde);}
+
+/* ── RECORD AREA ── */
+.reca{
+  background:var(--pergaminho);
+  border:1.5px dashed var(--cinza-l);
+  border-radius:var(--r);
+  padding:1.1rem;
+  text-align:center;
+  transition:all .2s;
+}
+.reca.rec{border-color:var(--red);background:var(--red-l);}
+.rbtn{
+  width:52px;height:52px;
+  border-radius:50%;border:none;
+  background:var(--verde);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto .5rem;
+  box-shadow:0 4px 14px rgba(10,90,67,.25);
+  transition:all .2s;
+  color:#fff;font-size:22px;
+}
+.rbtn:hover{transform:scale(1.05);background:#0D6E50;}
+.rbtn.rec{background:var(--red);box-shadow:0 4px 14px rgba(163,45,45,.3);}
+.tmr{
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:24px;font-weight:400;
+  letter-spacing:3px;
+  margin:.25rem 0;
+  color:var(--preto);
+}
+.tmr.rec{color:var(--red);}
+.rst{font-size:11px;color:var(--cinza);font-weight:500;}
+.rst.rec{color:var(--red);}
+
+/* ── TRANSCRIPT BOX ── */
+.txb{
+  background:var(--pergaminho);
+  border:1px solid var(--cinza-l);
+  border-radius:var(--rs);
+  padding:.65rem;
+  min-height:100px;max-height:130px;
+  overflow-y:auto;
+  font-size:11px;line-height:1.7;
+}
+.txph{color:var(--cinza);font-style:italic;font-size:11px;}
+.spk{font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.4px;}
+.spk.med{color:var(--verde);}
+.spk.pac{color:var(--blue);}
+.log-mini{
+  font-size:10px;color:var(--cinza);font-style:italic;
+  margin-top:4px;max-height:50px;overflow-y:auto;
+  background:var(--cinza-ll);padding:4px 6px;
+  border-radius:4px;border:1px solid var(--cinza-l);display:none;
+}
+.log-mini.show{display:block;}
+
+/* ── TEXTAREA ── */
+.mta{
+  width:100%;min-height:75px;
+  border:1px solid var(--cinza-l);
+  border-radius:var(--rs);
+  padding:7px 9px;font-size:11px;
+  font-family:'Inter',sans-serif;
+  color:var(--preto);background:var(--branco);
+  resize:vertical;
+}
+.mta:focus{outline:none;border-color:var(--verde);}
+.mta::placeholder{color:var(--cinza);}
+
+/* ── PRIMARY BUTTON ── */
+.pbtn{
+  width:100%;padding:12px;
+  background:var(--verde);color:#fff;
+  border:none;border-radius:var(--rs);
+  font-size:13px;font-weight:600;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  font-family:'Inter',sans-serif;
+  transition:all .15s;
+  letter-spacing:0.2px;
+}
+.pbtn:hover{background:#0D6E50;}
+.pbtn svg{width:15px;height:15px;fill:#fff;}
+
+/* ── NOTE ── */
+.note{
+  background:var(--amber-l);border:1px solid #FAC775;
+  border-radius:var(--rs);padding:7px 9px;
+  font-size:10px;color:var(--amber);line-height:1.5;
+}
+.note strong{display:block;margin-bottom:1px;}
+
+/* ── STATUS ── */
+.ast{font-size:10px;margin-top:2px;}
+
+/* ── MAIN ── */
+.main{overflow-y:auto;height:calc(100vh - 60px);}
+
+/* ── WELCOME SCREEN ── */
+.wel{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  min-height:100%;
+  text-align:center;
+  padding:3rem 2rem;
+  gap:0;
+}
+.wel-logo{
+  width:72px;height:72px;
+  background:var(--verde);
+  border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:1.5rem;
+}
+.wel-logo svg{width:44px;height:44px;}
+.wel h1{
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:32px;font-weight:400;
+  color:var(--preto);
+  letter-spacing:-0.5px;
+  line-height:1.2;
+  margin-bottom:.5rem;
+}
+.wel h1 em{font-style:normal;color:var(--verde);}
+.wel-tagline{
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:17px;font-style:italic;
+  color:var(--cinza);
+  margin-bottom:2rem;
+  max-width:380px;
+  line-height:1.6;
+}
+.wel-divider{
+  width:40px;height:1.5px;
+  background:var(--verde-b);
+  margin:0 auto 2rem;
+}
+.wel-desc{
+  font-size:13px;color:var(--cinza);
+  max-width:360px;line-height:1.7;
+  margin-bottom:2.5rem;
+}
+.wst{display:flex;gap:2rem;justify-content:center;}
+.wstp{text-align:center;max-width:110px;}
+.wsn{
+  width:28px;height:28px;
+  border-radius:50%;
+  background:var(--verde-l);
+  color:var(--verde);
+  font-weight:600;font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto .5rem;
+  font-family:'Inter',sans-serif;
+}
+.wstp p{font-size:11px;color:var(--cinza);line-height:1.4;}
+.wel-note{
+  margin-top:2.5rem;
+  font-size:10px;color:var(--cinza);
+  font-style:italic;
+}
+
+/* ── LOADING ── */
+.ld{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  min-height:400px;gap:1.25rem;text-align:center;
+}
+.spin{
+  width:40px;height:40px;
+  border:2.5px solid var(--cinza-l);
+  border-top-color:var(--verde);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ld p{color:var(--cinza);font-size:12px;}
+.ld strong{color:var(--preto);font-size:15px;font-family:'EB Garamond',Georgia,serif;display:block;}
+
+/* ── RESULT HEADER ── */
+.rhdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.25rem 1.5rem 1rem;
+  border-bottom:1px solid var(--cinza-l);
+}
+.rhdr h1{
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:22px;font-weight:400;
+  color:var(--preto);letter-spacing:-0.2px;
+}
+.rhdr p{font-size:11px;color:var(--cinza);margin-top:2px;}
+.hacts{display:flex;gap:6px;flex-wrap:wrap;}
+.bts{
+  padding:6px 12px;
+  border:1px solid var(--cinza-l);
+  border-radius:var(--rs);
+  background:var(--branco);
+  font-size:11px;font-weight:500;
+  cursor:pointer;color:var(--preto);
+  display:flex;align-items:center;gap:4px;
+  transition:all .15s;font-family:'Inter',sans-serif;
+}
+.bts:hover{background:var(--pergaminho);border-color:var(--cinza);}
+.btp{
+  padding:6px 12px;border:none;
+  border-radius:var(--rs);background:var(--verde);
+  font-size:11px;font-weight:600;
+  cursor:pointer;color:#fff;
+  display:flex;align-items:center;gap:4px;
+  transition:all .15s;font-family:'Inter',sans-serif;
+}
+.btp:hover{background:#0D6E50;}
+
+/* ── WARNING ── */
+.wbn{
+  background:var(--red-l);border:1px solid #F7C1C1;
+  border-radius:var(--rs);padding:7px 12px;
+  font-size:10px;color:var(--red);
+  margin:0 1.5rem .75rem;
+  display:flex;align-items:flex-start;gap:5px;line-height:1.5;
+}
+.wbn svg{width:13px;height:13px;fill:var(--red);flex-shrink:0;margin-top:1px;}
+
+/* ── RESULT BODY ── */
+.rb{padding:0 1.5rem 1.5rem;}
+
+/* ── SECTION CARDS ── */
+.sc{
+  background:var(--branco);
+  border:1px solid var(--cinza-l);
+  border-radius:var(--r);
+  margin-bottom:.6rem;overflow:hidden;
+}
+.sch{
+  padding:10px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;
+  transition:background .1s;
+}
+.sch:hover{background:var(--pergaminho);}
+.schl{display:flex;align-items:center;gap:8px;}
+.scn{
+  width:22px;height:22px;border-radius:5px;
+  background:var(--verde-l);color:var(--verde);
+  font-size:10px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+}
+.sct{font-weight:600;font-size:12px;color:var(--preto);}
+.scc{color:var(--cinza);transition:transform .2s;font-size:14px;}
+.scc.open{transform:rotate(180deg);}
+.scb{padding:10px 14px;border-top:1px solid var(--cinza-l);display:none;}
+.scb.open{display:block;}
+.sub{margin-bottom:10px;}
+.subt{
+  font-size:10px;font-weight:600;color:var(--verde);
+  text-transform:uppercase;letter-spacing:.5px;
+  margin-bottom:5px;padding-bottom:3px;
+  border-bottom:1px solid var(--verde-l);
+}
+.fr{display:grid;grid-template-columns:160px 1fr;gap:6px;align-items:start;margin-bottom:5px;}
+.fl{font-size:11px;color:var(--cinza);font-weight:500;padding-top:5px;}
+.fv{
+  font-size:12px;color:var(--preto);
+  background:var(--pergaminho);
+  border:1px solid var(--cinza-l);
+  border-radius:5px;
+  padding:4px 7px;min-height:28px;
+  line-height:1.5;white-space:pre-wrap;word-break:break-word;
+}
+.fv.empty{color:var(--cinza);font-style:italic;}
+.fv[contenteditable="true"]{
+  background:var(--branco);border-color:var(--verde);
+  outline:none;box-shadow:0 0 0 2px var(--verde-l);
+}
+
+/* ── NARRATIVE BOX ── */
+.nbox{margin-top:10px;border:1px solid var(--verde-l);border-radius:var(--rs);overflow:hidden;}
+.nbhdr{background:var(--verde-l);padding:6px 10px;font-size:10px;font-weight:600;color:var(--verde);}
+.nbody{padding:8px 10px;}
+.nta{
+  width:100%;min-height:80px;border:none;
+  font-size:12px;font-family:'Inter',sans-serif;
+  color:var(--preto);background:transparent;
+  resize:vertical;outline:none;line-height:1.7;
+}
+
+/* ── LAB/IMG TEXTAREA ── */
+.lta{
+  width:100%;min-height:80px;
+  border:1px solid var(--cinza-l);border-radius:var(--rs);
+  padding:8px 10px;font-size:12px;
+  font-family:'Inter',sans-serif;color:var(--preto);
+  background:var(--pergaminho);resize:vertical;outline:none;line-height:1.7;
+}
+.lta:focus{border-color:var(--verde);background:var(--branco);}
+
+/* ── SYNTHESIS CARDS ── */
+.syn{background:var(--branco);border:1.5px solid #FAC775;border-radius:var(--r);margin-bottom:.6rem;overflow:hidden;}
+.synh{padding:10px 14px;background:var(--amber-l);display:flex;align-items:center;gap:8px;}
+.synh-i{font-size:16px;}
+.syt{font-weight:700;font-size:12px;color:var(--amber);}
+.sys2{font-size:10px;color:#BA7517;}
+.synb{padding:12px 14px;}
+.synta{
+  width:100%;min-height:80px;
+  border:1px solid var(--cinza-l);border-radius:var(--rs);
+  padding:6px 8px;font-size:12px;
+  font-family:'Inter',sans-serif;color:var(--preto);
+  background:var(--pergaminho);resize:vertical;outline:none;line-height:1.7;
+}
+.synta:focus{border-color:var(--amber);background:var(--branco);}
+
+/* ── CUSTOMIZE PANEL ── */
+.cpanel{padding:1.25rem 1.5rem;overflow-y:auto;}
+.cintro{font-size:12px;color:var(--cinza);margin-bottom:1rem;line-height:1.6;}
+.cacts{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
+.cbtn{
+  padding:7px 12px;border:1px solid var(--cinza-l);
+  border-radius:var(--rs);background:var(--branco);
+  font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--preto);
+  transition:all .15s;
+}
+.cbtn:hover{background:var(--pergaminho);}
+.cbtn.sv{background:var(--verde);color:#fff;border-color:var(--verde);font-weight:600;}
+.cbtn.sv:hover{background:#0D6E50;}
+.csaved{font-size:11px;color:var(--verde);display:none;}
+.csaved.show{display:inline;}
+.csec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);margin-bottom:.5rem;overflow:hidden;}
+.csh{padding:9px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;transition:background .1s;}
+.csh:hover{background:var(--pergaminho);}
+.csb{padding:6px 12px 10px 36px;border-top:1px solid var(--cinza-l);display:none;}
+.csb.open{display:block;}
+.cchk{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.cchk input{width:13px;height:13px;accent-color:var(--verde);cursor:pointer;flex-shrink:0;}
+.cchk label{font-size:11px;color:var(--preto);cursor:pointer;}
+.cstitle{font-size:12px;font-weight:600;color:var(--preto);}
+.cchev{color:var(--cinza);font-size:12px;transition:transform .2s;margin-left:auto;}
+.cchev.open{transform:rotate(180deg);}
+.mchk{width:14px;height:14px;accent-color:var(--verde);cursor:pointer;flex-shrink:0;}
+
+/* ── EXPORT MODAL ── */
+.ovl{position:fixed;inset:0;background:rgba(10,10,10,.5);z-index:500;display:none;align-items:center;justify-content:center;}
+.ovl.open{display:flex;}
+.modal{background:var(--branco);border-radius:var(--r);padding:1.75rem;width:360px;box-shadow:0 8px 40px rgba(0,0,0,.15);}
+.modal h3{font-family:'EB Garamond',Georgia,serif;font-size:20px;font-weight:400;color:var(--preto);margin-bottom:.4rem;}
+.modal p{font-size:12px;color:var(--cinza);margin-bottom:1.25rem;line-height:1.6;}
+.eopts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;}
+.eopt{border:1.5px solid var(--cinza-l);border-radius:var(--r);padding:1rem;text-align:center;cursor:pointer;transition:all .15s;}
+.eopt:hover,.eopt.sel{border-color:var(--verde);background:var(--verde-l);}
+.eopt .ei{font-size:26px;display:block;margin-bottom:.35rem;}
+.eopt .el{font-size:12px;font-weight:600;color:var(--preto);}
+.eopt .ed{font-size:10px;color:var(--cinza);margin-top:2px;}
+.macts{display:flex;gap:8px;justify-content:flex-end;}
+.mcan{padding:8px 16px;border:1px solid var(--cinza-l);border-radius:var(--rs);background:var(--branco);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--preto);}
+.mcan:hover{background:var(--pergaminho);}
+.mdl{padding:8px 18px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.mdl:hover{background:#0D6E50;}
 </style>
 </head>
 <body>
+
+<!-- HEADER -->
 <header class="hdr">
   <div class="logo">
-    <div class="lmk">✓</div>
-    <span class="ltx">Anam<span>IA</span></span>
+    <div class="logo-mark">
+      <!-- Logo: A outline -->
+      <svg width="22" height="22" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 7L9 37H15.5L18.5 29H25.5L28.5 37H35L22 7Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+        <line x1="18" y1="23.5" x2="26" y2="23.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="logo-wordmark">Anam<em>IA</em></span>
   </div>
   <div class="htabs">
     <button class="htab active" id="tab-record" onclick="showView('record')">🩺 Consulta</button>
     <button class="htab" id="tab-customize" onclick="showView('customize')">⚙️ Personalizar</button>
   </div>
-  <span class="bdg">MVP · Protótipo</span>
+  <span class="badge">Protótipo</span>
 </header>
+
 <div class="layout">
+
+<!-- SIDEBAR -->
 <aside class="sb">
   <div>
     <div class="lbl">Status</div>
-    <div style="color:var(--teal);font-size:11px">✓ Backend conectado</div>
+    <div style="color:var(--verde);font-size:11px;display:flex;align-items:center;gap:5px;">
+      <span style="width:7px;height:7px;border-radius:50%;background:var(--verde-m);display:inline-block;flex-shrink:0;"></span>
+      Backend conectado
+    </div>
   </div>
   <div>
-    <div class="lbl">Fase</div>
+    <div class="lbl">Fase da consulta</div>
     <div class="ptabs">
       <button class="ptab active" id="pt-an" onclick="setPhase('an')">🩺 Anamnese</button>
       <button class="ptab" id="pt-ef" onclick="setPhase('ef')">🔬 Exame Físico</button>
@@ -167,7 +523,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
   <div>
     <div class="lbl">Gravação</div>
     <div class="reca" id="recArea">
-      <button class="rbtn" id="recBtn" onclick="toggleRec()">🎤</button>
+      <button class="rbtn" id="recBtn" onclick="toggleRec()">
+        <svg id="micIco" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <rect x="9" y="2" width="6" height="12" rx="3"/>
+          <path d="M5 10a7 7 0 0014 0"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="8" y1="22" x2="16" y2="22"/>
+        </svg>
+        <svg id="stopIco" viewBox="0 0 24 24" style="display:none" fill="white" width="20" height="20">
+          <rect x="6" y="6" width="12" height="12" rx="2"/>
+        </svg>
+      </button>
       <div class="tmr" id="timer">00:00</div>
       <div class="rst" id="recSt">Clique para gravar</div>
     </div>
@@ -178,41 +544,83 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
     <div class="log-mini" id="logMini"></div>
   </div>
   <div>
-    <div class="lbl">Cole a transcrição</div>
-    <textarea class="mta" id="manTx" placeholder="[MEDICO]: Qual o motivo?&#10;[PACIENTE]: Dor no peito..."></textarea>
+    <div class="lbl">Ou cole a transcrição</div>
+    <textarea class="mta" id="manTx" placeholder="[MEDICO]: Qual o motivo da consulta?&#10;[PACIENTE]: Estou com dor no peito..."></textarea>
   </div>
-  <button class="pbtn" onclick="processTranscript()">▶ Gerar Anamnese com IA</button>
-  <div class="note"><strong>⚠️ Aviso</strong>Protótipo. Não use dados reais. Hipóteses requerem revisão médica.</div>
+  <button class="pbtn" onclick="processTranscript()">
+    <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M5 3l14 9-14 9V3z"/></svg>
+    Gerar Anamnese com IA
+  </button>
+  <div class="note">
+    <strong>⚠️ Aviso importante</strong>
+    Protótipo em desenvolvimento. Transcrições e hipóteses diagnósticas requerem revisão médica obrigatória.
+  </div>
 </aside>
+
+<!-- MAIN -->
 <main class="main" id="mainArea">
+
+  <!-- WELCOME -->
   <div class="wel" id="vWelcome">
-    <div class="wic">✓</div>
-    <h2>Bem-vindo ao AnamIA</h2>
-    <p>Preenchimento automático da anamnese baseado em Porto — Semiologia Médica 8ª ed.</p>
-    <div class="wst">
-      <div class="wstp"><div class="wsn">1</div><p>Personalize os campos</p></div>
-      <div class="wstp"><div class="wsn">2</div><p>Grave ou cole o texto</p></div>
-      <div class="wstp"><div class="wsn">3</div><p>Gere e revise</p></div>
+    <div class="wel-logo">
+      <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 7L9 37H15.5L18.5 29H25.5L28.5 37H35L22 7Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+        <line x1="18" y1="23.5" x2="26" y2="23.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
     </div>
+    <h1>Anam<em>IA</em></h1>
+    <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
+    <div class="wel-divider"></div>
+    <p class="wel-desc">Preenchimento automático da anamnese médica. Grave a consulta ou cole a transcrição e deixe a IA organizar.</p>
+    <div class="wst">
+      <div class="wstp">
+        <div class="wsn">1</div>
+        <p>Personalize os campos na aba acima</p>
+      </div>
+      <div class="wstp">
+        <div class="wsn">2</div>
+        <p>Grave ou cole a transcrição</p>
+      </div>
+      <div class="wstp">
+        <div class="wsn">3</div>
+        <p>Gere e revise a anamnese</p>
+      </div>
+    </div>
+
   </div>
+
+  <!-- LOADING -->
   <div class="ld" id="vLoading" style="display:none">
     <div class="spin"></div>
-    <div><strong id="ldMsg">Processando...</strong><p id="ldSub">Aguarde</p></div>
+    <div>
+      <strong id="ldMsg">Analisando a consulta...</strong>
+      <p id="ldSub">Identificando falas e preenchendo seções</p>
+    </div>
   </div>
+
+  <!-- RESULT -->
   <div id="vResult" style="display:none">
     <div class="rhdr">
-      <div><h1>Anamnese Gerada</h1><p id="resMeta"></p></div>
+      <div>
+        <h1>Anamnese Gerada</h1>
+        <p id="resMeta">—</p>
+      </div>
       <div class="hacts">
         <button class="bts" id="editBtn" onclick="toggleEdit()">✏️ Editar</button>
         <button class="bts" onclick="openExport()">⬇️ Baixar</button>
         <button class="btp" onclick="doPrint()">🖨️ Imprimir</button>
       </div>
     </div>
-    <div class="wbn"><span>⚠️</span><span>Hipóteses e conduta são sugestões de IA. <strong>Revisão médica obrigatória.</strong></span></div>
+    <div class="wbn">
+      <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/></svg>
+      <span>Hipóteses e conduta são sugestões de IA. <strong>Revisão médica obrigatória antes de qualquer decisão clínica.</strong></span>
+    </div>
     <div class="rb" id="resCont"></div>
   </div>
+
+  <!-- CUSTOMIZE -->
   <div id="vCustomize" style="display:none" class="cpanel">
-    <p class="cintro">Selecione as seções e campos que a IA deve preencher. Apenas os itens marcados serão processados e exibidos.</p>
+    <p class="cintro">Selecione as seções e campos que a IA deve preencher. Apenas os itens marcados serão processados e exibidos na anamnese gerada.</p>
     <div class="cacts">
       <button class="cbtn" onclick="selAll(true)">✅ Marcar todos</button>
       <button class="cbtn" onclick="selAll(false)">☐ Desmarcar todos</button>
@@ -221,15 +629,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
     </div>
     <div id="custSecs"></div>
   </div>
+
 </main>
 </div>
+
+<!-- EXPORT MODAL -->
 <div class="ovl" id="exportModal">
   <div class="modal">
     <h3>Baixar Anamnese</h3>
-    <p>Escolha o formato:</p>
+    <p>Escolha o formato de exportação:</p>
     <div class="eopts">
-      <div class="eopt sel" id="optPdf" onclick="selExp('pdf')"><span class="ei">📄</span><div class="el">PDF</div><div class="ed">Visualizar e imprimir</div></div>
-      <div class="eopt" id="optDoc" onclick="selExp('doc')"><span class="ei">📝</span><div class="el">Word (.doc)</div><div class="ed">Editar no Word</div></div>
+      <div class="eopt sel" id="optPdf" onclick="selExp('pdf')">
+        <span class="ei">📄</span>
+        <div class="el">PDF</div>
+        <div class="ed">Visualizar e imprimir</div>
+      </div>
+      <div class="eopt" id="optDoc" onclick="selExp('doc')">
+        <span class="ei">📝</span>
+        <div class="el">Word (.doc)</div>
+        <div class="ed">Editar no Word</div>
+      </div>
     </div>
     <div class="macts">
       <button class="mcan" onclick="closeExport()">Cancelar</button>
@@ -237,6 +656,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
     </div>
   </div>
 </div>
+
 <script>
 var phase="an", isRec=false, timerInt=null, secs=0, fullTx="", resultData={}, editActive=false, expFmt="pdf";
 var mediaRec=null, audioChunks=[];
@@ -244,7 +664,7 @@ var mediaRec=null, audioChunks=[];
 var SECTIONS=[
   {id:"s1",num:"1",title:"Identificação",fields:[{k:"id_nome",l:"Nome"},{k:"id_idade",l:"Idade"},{k:"id_sexo",l:"Sexo/Gênero"},{k:"id_cor",l:"Cor/Etnia"},{k:"id_estado_civil",l:"Estado civil"},{k:"id_profissao",l:"Profissão"},{k:"id_local_trabalho",l:"Local de trabalho"},{k:"id_naturalidade",l:"Naturalidade"},{k:"id_procedencia",l:"Procedência"},{k:"id_residencia",l:"Residência"},{k:"id_religiao",l:"Religião"},{k:"id_plano_saude",l:"Plano de saúde"},{k:"id_nome_mae",l:"Nome da mãe"},{k:"id_responsavel",l:"Responsável"},{k:"id_fonte_info",l:"Fonte/Confiabilidade"},{k:"id_data_hora",l:"Data e hora"}]},
   {id:"s2",num:"2",title:"Queixa Principal",fields:[{k:"qp",l:"Queixa principal"}]},
-  {id:"s3",num:"3",title:"História da Doença Atual (HDA)",fields:[{k:"hda_sintoma_guia",l:"Sintoma-guia"},{k:"hda_inicio",l:"Início"},{k:"hda_localizacao",l:"Localização"},{k:"hda_caracteristicas",l:"Características"},{k:"hda_intensidade",l:"Intensidade"},{k:"hda_duracao",l:"Duração"},{k:"hda_frequencia",l:"Frequência"},{k:"hda_melhora",l:"Fatores de melhora"},{k:"hda_piora",l:"Fatores de piora"},{k:"hda_associados",l:"Sintomas associados"},{k:"hda_evolucao",l:"Evolução"},{k:"hda_situacao_atual",l:"Situação atual"},{k:"hda_narrativa",l:"📝 Narrativa (parágrafo)"}]},
+  {id:"s3",num:"3",title:"História da Doença Atual (HDA)",fields:[{k:"hda_sintoma_guia",l:"Sintoma-guia"},{k:"hda_inicio",l:"Início"},{k:"hda_localizacao",l:"Localização"},{k:"hda_caracteristicas",l:"Características"},{k:"hda_intensidade",l:"Intensidade"},{k:"hda_duracao",l:"Duração"},{k:"hda_frequencia",l:"Frequência"},{k:"hda_melhora",l:"Fatores de melhora"},{k:"hda_piora",l:"Fatores de piora"},{k:"hda_associados",l:"Sintomas associados"},{k:"hda_evolucao",l:"Evolução"},{k:"hda_situacao_atual",l:"Situação atual"},{k:"hda_narrativa",l:"📝 Narrativa (parágrafo)"}],narr:"hda_narrativa"},
   {id:"s4",num:"4",title:"Interrogatório Sintomatológico (IS)",subs:[
     {title:"4.1 Sintomas Gerais",fields:[{k:"is_febre",l:"Febre"},{k:"is_astenia",l:"Astenia"},{k:"is_peso",l:"Peso"},{k:"is_sudorese",l:"Sudorese"},{k:"is_calafrios",l:"Calafrios"},{k:"is_cambras",l:"Cãibras"}]},
     {title:"4.2 Pele e Fâneros",fields:[{k:"is_pele",l:"Pele"},{k:"is_faneros",l:"Fâneros"}]},
@@ -256,10 +676,9 @@ var SECTIONS=[
   ]},
   {id:"s5",num:"5",title:"Antecedentes Pessoais",subs:[
     {title:"5.1 Fisiológicos",fields:[{k:"ap_gestacao",l:"Gestação/Nascimento"},{k:"ap_desenvolvimento",l:"Desenvolvimento psicomotor"},{k:"ap_sexual",l:"Desenvolvimento sexual"}]},
-    {title:"5.2 Patológicos",fields:[{k:"ap_doencas_infancia",l:"Doenças infância"},{k:"ap_doencas_adulto",l:"Doenças adulto"},{k:"ap_alergias",l:"Alergias"},{k:"ap_cirurgias",l:"Cirurgias"},{k:"ap_traumatismos",l:"Traumatismos"},{k:"ap_transfusoes",l:"Transfusões"},{k:"ap_obstetrica",l:"Obstétrica G P A C"},{k:"ap_vacinas",l:"Vacinas"},{k:"ap_medicamentos",l:"Medicamentos"}]},
-    {title:"Narrativa",fields:[{k:"ap_narrativa",l:"📝 Narrativa dos Antecedentes Pessoais"}]}
-  ]},
-  {id:"s6",num:"6",title:"Antecedentes Familiares",fields:[{k:"af_pais",l:"Pais"},{k:"af_irmaos",l:"Irmãos"},{k:"af_filhos",l:"Filhos"},{k:"af_conjuge",l:"Cônjuge"},{k:"af_outros",l:"Avós/Tios/Primos"},{k:"af_doencas_familiais",l:"Doenças familiares"},{k:"af_narrativa",l:"📝 Narrativa dos Antecedentes Familiares"}]},
+    {title:"5.2 Patológicos",fields:[{k:"ap_doencas_infancia",l:"Doenças infância"},{k:"ap_doencas_adulto",l:"Doenças adulto"},{k:"ap_alergias",l:"Alergias"},{k:"ap_cirurgias",l:"Cirurgias"},{k:"ap_traumatismos",l:"Traumatismos"},{k:"ap_transfusoes",l:"Transfusões"},{k:"ap_obstetrica",l:"Obstétrica G P A C"},{k:"ap_vacinas",l:"Vacinas"},{k:"ap_medicamentos",l:"Medicamentos"}]}
+  ],narr:"ap_narrativa",narrLabel:"📝 Narrativa dos Antecedentes Pessoais"},
+  {id:"s6",num:"6",title:"Antecedentes Familiares",fields:[{k:"af_pais",l:"Pais"},{k:"af_irmaos",l:"Irmãos"},{k:"af_filhos",l:"Filhos"},{k:"af_conjuge",l:"Cônjuge"},{k:"af_outros",l:"Avós/Tios/Primos"},{k:"af_doencas_familiais",l:"Doenças familiares"}],narr:"af_narrativa",narrLabel:"📝 Narrativa dos Antecedentes Familiares"},
   {id:"s7",num:"7",title:"Hábitos e Estilo de Vida",subs:[
     {title:"7.1 Alimentação",fields:[{k:"hab_alimentacao",l:"Descrição"},{k:"hab_alimentacao_class",l:"Classificação"}]},
     {title:"7.2 Ocupação",fields:[{k:"hab_ocupacao",l:"Natureza/Exposições"}]},
@@ -272,8 +691,8 @@ var SECTIONS=[
   {id:"s9",num:"9",title:"Exame Físico Geral (EFG)",subs:[
     {title:"Estado Geral",fields:[{k:"efg_estado_geral",l:"Estado geral"},{k:"efg_consciencia",l:"Consciência"},{k:"efg_glasgow",l:"Glasgow"},{k:"efg_fala",l:"Fala"}]},
     {title:"Antropometria",fields:[{k:"efg_hidratacao",l:"Hidratação"},{k:"efg_peso",l:"Peso"},{k:"efg_altura",l:"Altura"},{k:"efg_imc",l:"IMC"},{k:"efg_circ_cintura",l:"Circ. cintura"},{k:"efg_nutricional",l:"Nutricional"}]},
-    {title:"Inspeção",fields:[{k:"efg_facies",l:"Fácies"},{k:"efg_atitude",l:"Atitude"},{k:"efg_mucosas",l:"Mucosas"},{k:"efg_pele",l:"Pele"},{k:"efg_cabelos",l:"Cabelos"},{k:"efg_unhas",l:"Unhas"}]},
-    {title:"TCS/Edema/Musculatura",fields:[{k:"efg_tcs",l:"TCS"},{k:"efg_edema",l:"Edema"},{k:"efg_musculatura",l:"Musculatura"},{k:"efg_linfonodos",l:"Linfonodos"}]},
+    {title:"Inspeção",fields:[{k:"efg_facies",l:"Fácies"},{k:"efg_atitude",l:"Atitude"},{k:"efg_mucosas",l:"Mucosas"},{k:"efg_pele",l:"Pele"},{k:"efg_cabelos",l:"Cabelos"},{k:"efg_pelos",l:"Pelos"},{k:"efg_unhas",l:"Unhas"}]},
+    {title:"TCS / Edema / Musculatura",fields:[{k:"efg_tcs",l:"TCS"},{k:"efg_edema",l:"Edema"},{k:"efg_musculatura",l:"Musculatura"},{k:"efg_linfonodos",l:"Linfonodos"}]},
     {title:"Sinais Vitais",fields:[{k:"efg_temperatura",l:"Temperatura"},{k:"efg_biotipo",l:"Biótipo"},{k:"efg_marcha",l:"Marcha"},{k:"efg_fc",l:"FC"},{k:"efg_pa",l:"PA"},{k:"efg_fr",l:"FR"},{k:"efg_spo2",l:"SpO2"}]}
   ]},
   {id:"s10",num:"10",title:"Exame Físico Específico (EFE)",subs:[
@@ -286,219 +705,356 @@ var SECTIONS=[
     {title:"10.7 Mamas",fields:[{k:"efe_mamas",l:"Achados"}]},
     {title:"10.8 Cabeça/Pescoço",fields:[{k:"efe_cabeca_pescoco",l:"Achados"}]}
   ]},
-  {id:"s11",num:"11",title:"Exames Laboratoriais",fields:[{k:"lab_resultados",l:"Resultados"}]},
-  {id:"s12",num:"12",title:"Exames de Imagem",fields:[{k:"img_achados",l:"Achados"}]},
-  {id:"s13",num:"13",title:"Hipóteses Diagnósticas",fields:[{k:"hipoteses",l:"Hipóteses"}]},
-  {id:"s14",num:"14",title:"Conduta Sugerida",fields:[{k:"conduta",l:"Conduta"}]}
+  {id:"s11",num:"11",title:"Exames Laboratoriais",fields:[{k:"lab_resultados",l:"Resultados"}],isTA:true},
+  {id:"s12",num:"12",title:"Exames de Imagem",fields:[{k:"img_achados",l:"Achados"}],isTA:true},
+  {id:"s13",num:"13",title:"Hipóteses Diagnósticas",fields:[{k:"hipoteses",l:"Hipóteses"}],isSyn:true},
+  {id:"s14",num:"14",title:"Conduta Sugerida",fields:[{k:"conduta",l:"Conduta"}],isSyn:true}
 ];
 
 var activeKeys={};
-function getAllFields(s){var a=[];if(s.fields)s.fields.forEach(function(f){a.push(f);});if(s.subs)s.subs.forEach(function(sub){sub.fields.forEach(function(f){a.push(f);});});return a;}
-SECTIONS.forEach(function(s){getAllFields(s).forEach(function(f){activeKeys[f.k]=true;});});
-function isActive(k){return activeKeys[k]===true;}
+SECTIONS.forEach(function(s){ getAllFields(s).forEach(function(f){ activeKeys[f.k]=true; }); });
 
-function logMini(msg){var el=document.getElementById("logMini");el.classList.add("show");var line=document.createElement("div");line.textContent="["+new Date().toLocaleTimeString()+"] "+msg;el.appendChild(line);el.scrollTop=el.scrollHeight;}
+function getAllFields(s){
+  var a=[];
+  if(s.fields) s.fields.forEach(function(f){a.push(f);});
+  if(s.subs) s.subs.forEach(function(sub){ sub.fields.forEach(function(f){a.push(f);}); });
+  if(s.narr && s.narrLabel) a.push({k:s.narr, l:s.narrLabel});
+  return a;
+}
 
+function isActive(k){ return activeKeys[k]===true; }
+
+// ── VIEWS ──
 function showView(v){
-  document.getElementById("tab-record").classList.toggle("active",v==="record");
-  document.getElementById("tab-customize").classList.toggle("active",v==="customize");
+  document.getElementById("tab-record").classList.toggle("active", v==="record");
+  document.getElementById("tab-customize").classList.toggle("active", v==="customize");
   document.getElementById("vWelcome").style.display="none";
   document.getElementById("vResult").style.display="none";
   document.getElementById("vLoading").style.display="none";
   document.getElementById("vCustomize").style.display="none";
-  if(v==="customize"){document.getElementById("vCustomize").style.display="block";}
-  else{if(Object.keys(resultData).length>0)document.getElementById("vResult").style.display="block";else document.getElementById("vWelcome").style.display="flex";}
+  if(v==="customize"){
+    document.getElementById("vCustomize").style.display="block";
+  } else {
+    if(Object.keys(resultData).length>0){
+      document.getElementById("vResult").style.display="block";
+    } else {
+      document.getElementById("vWelcome").style.display="flex";
+    }
+  }
 }
 
-function setPhase(p){phase=p;document.getElementById("pt-an").classList.toggle("active",p==="an");document.getElementById("pt-ef").classList.toggle("active",p==="ef");}
+// ── API KEY (gerenciada pelo backend) ──
+function saveKey(){ console.log("API keys managed by backend"); }
 
-function toggleRec(){isRec?stopRec():startRec();}
+// ── PHASE ──
+function setPhase(p){
+  phase=p;
+  document.getElementById("pt-an").classList.toggle("active",p==="an");
+  document.getElementById("pt-ef").classList.toggle("active",p==="ef");
+}
+function toggleRec(){ isRec ? stopRec() : startRec(); }
 
 function startRec(){
-  if(!navigator.mediaDevices){logMini("Microfone indisponível");return;}
-  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    appendTx("sys","Microfone nao disponivel. Use Chrome ou Edge.");
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({audio:true,video:false}).then(function(stream){
     audioChunks=[];
-    var opts={};
-    if(MediaRecorder.isTypeSupported("audio/webm;codecs=opus"))opts.mimeType="audio/webm;codecs=opus";
-    else if(MediaRecorder.isTypeSupported("audio/webm"))opts.mimeType="audio/webm";
-    mediaRec=new MediaRecorder(stream,opts);
-    mediaRec.addEventListener("dataavailable",function(e){if(e.data&&e.data.size>0)audioChunks.push(e.data);});
-    mediaRec.addEventListener("stop",function(){
-      logMini("Chunks: "+audioChunks.length);
-      stream.getTracks().forEach(function(t){t.stop();});
-      if(audioChunks.length===0){logMini("Nenhum áudio capturado");return;}
-      sendAudio();
-    });
+    var options={};
+    if(MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) options={mimeType:"audio/webm;codecs=opus"};
+    else if(MediaRecorder.isTypeSupported("audio/webm")) options={mimeType:"audio/webm"};
+    else if(MediaRecorder.isTypeSupported("audio/ogg")) options={mimeType:"audio/ogg"};
+    mediaRec=new MediaRecorder(stream,options);
+    mediaRec.ondataavailable=function(e){if(e.data&&e.data.size>0)audioChunks.push(e.data);};
+    mediaRec.onstop=function(){
+      appendTx("sys","Chunks: "+audioChunks.length);
+      procAudio();
+    };
     mediaRec.start(1000);
     isRec=true;secs=0;
     document.getElementById("recBtn").classList.add("rec");
-    document.getElementById("recBtn").textContent="⏹";
     document.getElementById("recArea").classList.add("rec");
+    document.getElementById("micIco").style.display="none";
+    document.getElementById("stopIco").style.display="block";
     document.getElementById("recSt").textContent="Gravando...";
     document.getElementById("recSt").classList.add("rec");
     document.getElementById("timer").classList.add("rec");
-    timerInt=setInterval(function(){secs++;var m=String(Math.floor(secs/60)).padStart(2,"0"),s=String(secs%60).padStart(2,"0");document.getElementById("timer").textContent=m+":"+s;},1000);
-    logMini("Gravando: "+(phase==="an"?"Anamnese":"Exame Físico"));
-  }).catch(function(e){logMini("Erro: "+e.message);});
+    timerInt=setInterval(function(){
+      secs++;
+      var m=String(Math.floor(secs/60)).padStart(2,"0"),s=String(secs%60).padStart(2,"0");
+      document.getElementById("timer").textContent=m+":"+s;
+    },1000);
+    appendTx("sys","Gravando: "+(phase==="an"?"Anamnese":"Exame Fisico"));
+  }).catch(function(e){appendTx("sys","Erro microfone: "+e.message);});
 }
 
 function stopRec(){
   isRec=false;clearInterval(timerInt);
   document.getElementById("recBtn").classList.remove("rec");
-  document.getElementById("recBtn").textContent="🎤";
   document.getElementById("recArea").classList.remove("rec");
-  document.getElementById("recSt").textContent="Processando...";
+  document.getElementById("micIco").style.display="block";
+  document.getElementById("stopIco").style.display="none";
+  document.getElementById("recSt").textContent="Gravacao encerrada";
   document.getElementById("recSt").classList.remove("rec");
   document.getElementById("timer").classList.remove("rec");
-  if(mediaRec&&mediaRec.state==="recording")mediaRec.stop();
+  if(mediaRec&&mediaRec.state==="recording"){
+    mediaRec.stop();
+    if(mediaRec.stream)mediaRec.stream.getTracks().forEach(function(t){t.stop();});
+  }
 }
 
-function sendAudio(){
-  logMini("Preparando áudio...");
-  var mimeType="audio/webm";
-  if(audioChunks[0]&&audioChunks[0].type)mimeType=audioChunks[0].type;
-  var blob=new Blob(audioChunks,{type:mimeType});
-  logMini("Blob: "+Math.round(blob.size/1024)+"KB");
-  var reader=new FileReader();
-  reader.onload=function(){
-    var base64=reader.result.split(",")[1];
-    logMini("Enviando para Whisper...");
+function procAudio(){
+  appendTx("sys","Transcrevendo áudio com Whisper...");
+
+  if(!audioChunks || audioChunks.length === 0){
+    appendTx("sys","⚠ Nenhum áudio capturado. Tente gravar novamente.");
+    return;
+  }
+
+  var mimeType = "audio/webm";
+  if(audioChunks[0] && audioChunks[0].type) mimeType = audioChunks[0].type;
+
+  var blob = new Blob(audioChunks, {type: mimeType});
+  appendTx("sys","Áudio capturado: "+Math.round(blob.size/1024)+"KB");
+
+  var reader = new FileReader();
+  reader.onerror = function(){ appendTx("sys","⚠ Erro ao ler o áudio."); };
+  reader.onload = function(){
+    var result = reader.result;
+    if(!result || result.indexOf(",") === -1){
+      appendTx("sys","⚠ Erro ao converter áudio.");
+      return;
+    }
+    var base64 = result.split(",")[1];
+    if(!base64 || base64.length < 100){
+      appendTx("sys","⚠ Áudio muito curto ou vazio.");
+      return;
+    }
+
+    appendTx("sys","Enviando para transcrição ("+Math.round(base64.length/1024)+"KB)...");
+
     fetch("/api/transcribe",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({audio:base64,phase:phase,mimeType:mimeType})
-    }).then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;});})
+      body:JSON.stringify({audio:base64, phase:phase, mimeType:mimeType})
+    })
+    .then(function(r){
+      if(!r.ok) return r.json().then(function(e){throw new Error(e.error||"Erro "+r.status);});
+      return r.json();
+    })
     .then(function(data){
-      logMini("✓ Transcrição recebida");
-      var box=document.getElementById("txBox");box.innerHTML="";
-      var lines=(data.transcript||"").split("\n");
+      if(!data.transcript){
+        appendTx("sys","⚠ Transcrição vazia.");
+        return;
+      }
+      var box=document.getElementById("txBox"); box.innerHTML="";
+      var lines=data.transcript.split("\n");
       lines.forEach(function(line){
-        line=line.trim();if(!line)return;
-        var div=document.createElement("div");
-        if(line.indexOf("[MEDICO]:")===0)div.innerHTML='<span class="spk med">Médico</span> '+escapeHTML(line.replace(/^\[MEDICO\]:\s*/,""));
-        else if(line.indexOf("[PACIENTE]:")===0)div.innerHTML='<span class="spk pac">Paciente</span> '+escapeHTML(line.replace(/^\[PACIENTE\]:\s*/,""));
-        else div.textContent=line;
-        box.appendChild(div);
+        line=line.trim();
+        if(!line) return;
+        if(line.indexOf("[MEDICO]:")===0){
+          appendTx("med", line.replace(/^\[MEDICO\]:\s*/,""));
+        } else if(line.indexOf("[PACIENTE]:")===0){
+          appendTx("pac", line.replace(/^\[PACIENTE\]:\s*/,""));
+        } else {
+          appendTx("sys", line);
+        }
       });
       fullTx+=(fullTx?"\n":"")+data.transcript;
       document.getElementById("manTx").value=fullTx;
-      document.getElementById("recSt").textContent="Gravação encerrada";
-    }).catch(function(err){logMini("Erro: "+err.message);document.getElementById("recSt").textContent="Erro";});
+      appendTx("sys","✓ Transcrição concluída!");
+    })
+    .catch(function(err){
+      appendTx("sys","⚠ Erro: "+err.message);
+    });
   };
   reader.readAsDataURL(blob);
 }
 
+function appendTx(sp,txt){
+  var box=document.getElementById("txBox");
+  var ph=box.querySelector(".txph"); if(ph)ph.remove();
+  var d=document.createElement("div");
+  if(sp==="sys"){
+    d.innerHTML="<span style=\"color:var(--tx3);font-size:10px;font-style:italic\">"+txt+"</span>";
+  } else {
+    var lb=sp==="med"?"Médico":"Paciente";
+    var cl=sp==="med"?"med":"pac";
+    d.innerHTML="<span class=\"spk "+cl+"\">"+lb+"</span> "+esc(txt);
+  }
+  box.appendChild(d); box.scrollTop=box.scrollHeight;
+}
+
+// ── CUSTOMIZE ──
 function buildCustomize(){
-  var cont=document.getElementById("custSecs");cont.innerHTML="";
+  var cont=document.getElementById("custSecs"); cont.innerHTML="";
   SECTIONS.forEach(function(s){
     var allF=getAllFields(s);
     var allOn=allF.every(function(f){return isActive(f.k);});
-    var wrap=document.createElement("div");wrap.className="csec";
-    var hdr=document.createElement("div");hdr.className="csh";
-    hdr.innerHTML='<input type="checkbox" class="mchk" id="mck_'+s.id+'" '+(allOn?"checked":"")+'><span class="cstitle">'+s.num+". "+s.title+'</span><span class="cchev">▾</span>';
-    hdr.querySelector("input").addEventListener("change",function(e){e.stopPropagation();var on=this.checked;allF.forEach(function(f){activeKeys[f.k]=on;var el=document.getElementById("ck_"+f.k);if(el)el.checked=on;});});
-    hdr.addEventListener("click",function(e){if(e.target.tagName==="INPUT")return;var body=this.nextElementSibling;var chev=this.querySelector(".cchev");var op=body.classList.contains("open");body.classList.toggle("open",!op);chev.classList.toggle("open",!op);});
-    var body=document.createElement("div");body.className="csb";
-    if(s.fields)s.fields.forEach(function(f){body.appendChild(mkChk(f,s));});
-    if(s.subs)s.subs.forEach(function(sub){var st=document.createElement("div");st.style.cssText="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;margin:8px 0 4px";st.textContent=sub.title;body.appendChild(st);sub.fields.forEach(function(f){body.appendChild(mkChk(f,s));});});
-    wrap.appendChild(hdr);wrap.appendChild(body);cont.appendChild(wrap);
+    var wrap=document.createElement("div"); wrap.className="csec";
+    var hdr=document.createElement("div"); hdr.className="csh";
+    hdr.innerHTML="<input type=\"checkbox\" class=\"mchk\" id=\"mck_"+s.id+"\" "+(allOn?"checked":"")+"><span class=\"cstitle\">"+s.num+". "+s.title+"</span><span class=\"cchev\">▾</span>";
+    hdr.querySelector("input").addEventListener("change",function(e){
+      e.stopPropagation();
+      var on=this.checked;
+      allF.forEach(function(f){
+        activeKeys[f.k]=on;
+        var el=document.getElementById("ck_"+f.k);
+        if(el) el.checked=on;
+      });
+    });
+    hdr.addEventListener("click",function(e){
+      if(e.target.tagName==="INPUT") return;
+      var body=this.nextElementSibling;
+      var chev=this.querySelector(".cchev");
+      var op=body.classList.contains("open");
+      body.classList.toggle("open",!op);
+      chev.classList.toggle("open",!op);
+    });
+    var body=document.createElement("div"); body.className="csb";
+    if(s.fields){
+      s.fields.forEach(function(f){ body.appendChild(mkChk(f)); });
+    }
+    if(s.subs){
+      s.subs.forEach(function(sub){
+        var st=document.createElement("div");
+        st.style.cssText="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin:8px 0 4px";
+        st.textContent=sub.title;
+        body.appendChild(st);
+        sub.fields.forEach(function(f){ body.appendChild(mkChk(f)); });
+      });
+    }
+    if(s.narr && s.narrLabel){
+      body.appendChild(mkChk({k:s.narr,l:s.narrLabel}));
+    }
+    wrap.appendChild(hdr); wrap.appendChild(body); cont.appendChild(wrap);
   });
 }
 
-function mkChk(f,s){
-  var d=document.createElement("div");d.className="cchk";
+function mkChk(f){
+  var d=document.createElement("div"); d.className="cchk";
   var id="ck_"+f.k;
-  d.innerHTML='<input type="checkbox" id="'+id+'" '+(isActive(f.k)?"checked":"")+'><label for="'+id+'">'+f.l+'</label>';
+  d.innerHTML="<input type=\"checkbox\" id=\""+id+"\" "+(isActive(f.k)?"checked":"")+"><label for=\""+id+"\">"+f.l+"</label>";
   d.querySelector("input").addEventListener("change",function(){
     activeKeys[f.k]=this.checked;
-    var allF=getAllFields(s);
-    var allOn=allF.every(function(ff){return isActive(ff.k);});
-    var mck=document.getElementById("mck_"+s.id);if(mck)mck.checked=allOn;
+    var s=SECTIONS.find(function(sec){return getAllFields(sec).some(function(ff){return ff.k===f.k;});});
+    if(s){
+      var allF=getAllFields(s);
+      var allOn=allF.every(function(ff){return isActive(ff.k);});
+      var mck=document.getElementById("mck_"+s.id);
+      if(mck) mck.checked=allOn;
+    }
   });
   return d;
 }
 
-function selAll(on){SECTIONS.forEach(function(s){getAllFields(s).forEach(function(f){activeKeys[f.k]=on;var el=document.getElementById("ck_"+f.k);if(el)el.checked=on;});var mck=document.getElementById("mck_"+s.id);if(mck)mck.checked=on;});}
+function selAll(on){
+  SECTIONS.forEach(function(s){
+    var allF=getAllFields(s);
+    allF.forEach(function(f){
+      activeKeys[f.k]=on;
+      var el=document.getElementById("ck_"+f.k); if(el) el.checked=on;
+    });
+    var mck=document.getElementById("mck_"+s.id); if(mck) mck.checked=on;
+  });
+}
 
-function savePrefs(){var el=document.getElementById("cSaved");el.classList.add("show");setTimeout(function(){el.classList.remove("show");},2000);}
+function savePrefs(){
+  var el=document.getElementById("cSaved");
+  el.classList.add("show");
+  setTimeout(function(){el.classList.remove("show");},2000);
+}
 
+// ── PROCESS ──
 function processTranscript(){
   var tx=document.getElementById("manTx").value.trim()||fullTx;
-  if(!tx){alert("Cole ou grave uma transcrição antes de processar.");return;}
+  if(!tx){ alert("Cole ou grave uma transcrição antes de processar."); return; }
+  // API keys are managed securely by the backend
+
   showView("record");
   document.getElementById("vWelcome").style.display="none";
   document.getElementById("vResult").style.display="none";
   document.getElementById("vLoading").style.display="flex";
-  var activeList=Object.keys(activeKeys).filter(function(k){return activeKeys[k];});
-  var fldMap={};SECTIONS.forEach(function(s){getAllFields(s).forEach(function(f){fldMap[f.k]=f.l;});});
+
+  var template={};
+  var fieldMap={};
+  SECTIONS.forEach(function(s){ getAllFields(s).forEach(function(f){ fieldMap[f.k]=f.l; }); });
+  Object.keys(activeKeys).forEach(function(k){ if(activeKeys[k]) template[k]=""; });
+
+  var fieldList=Object.keys(template).map(function(k){return '"'+k+'": '+( fieldMap[k]||k);}).join("\n");
+
+  var prompt="Voce e um assistente medico clinico especializado em semiologia brasileira (Porto, 8a ed.). Analise a transcricao e preencha os campos abaixo. Retorne APENAS o objeto JSON puro. Sem markdown. Sem texto antes ou depois. Comece com { e termine com }.\n\nCampos:\n"+fieldList+"\n\nRegras: nao invente dados. Nao abordado = Nao investigado. Exame fisico nao realizado = Nao examinado. Converta linguagem leiga para terminologia medica. Registre negativas (ex: Nega dispneia). Narrativas devem ser paragrafos coesos em linguagem medica formal.\n\nJSON a preencher: "+JSON.stringify(template);
+
   var msgs=[["Identificando falas...","Separando médico e paciente"],["Analisando sintomas...","Extraindo dados clínicos"],["Preenchendo campos...","Alocando informações"],["Gerando hipóteses...","Raciocínio diagnóstico"]];
-  var mi=0;var mint=setInterval(function(){if(mi<msgs.length){document.getElementById("ldMsg").textContent=msgs[mi][0];document.getElementById("ldSub").textContent=msgs[mi][1];mi++;}},1800);
-  fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({transcript:tx,activeKeys:activeList,fieldMap:fldMap})})
-  .then(function(r){clearInterval(mint);return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;});})
-  .then(function(data){if(data.result){resultData=data.result;renderResult(data.result);}else renderRaw(data.raw||"Erro ao processar resposta.");})
-  .catch(function(err){clearInterval(mint);document.getElementById("vLoading").style.display="none";document.getElementById("vWelcome").style.display="flex";alert("Erro: "+err.message);});
+  var mi=0;
+  var mint=setInterval(function(){
+    if(mi<msgs.length){
+      document.getElementById("ldMsg").textContent=msgs[mi][0];
+      document.getElementById("ldSub").textContent=msgs[mi][1];
+      mi++;
+    }
+  },1800);
+
+  fetch("/api/generate",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({transcript:tx, activeKeys:Object.keys(activeKeys).filter(function(k){return activeKeys[k];}), fieldMap:(function(){var m={};SECTIONS.forEach(function(s){getAllFields(s).forEach(function(f){m[f.k]=f.l;});});return m;})()})
+  }).then(function(r){
+    clearInterval(mint);
+    if(!r.ok) return r.json().then(function(e){throw new Error(e.error||"Erro na API");});
+    return r.json();
+  }).then(function(data){
+    if(data.result){ resultData=data.result; renderResult(data.result); }
+    else renderRaw(data.raw||"Erro ao processar resposta.");
+  }).catch(function(err){
+    clearInterval(mint);
+    document.getElementById("vLoading").style.display="none";
+    document.getElementById("vWelcome").style.display="flex";
+    alert("Erro: "+err.message+"\n\nVerifique as configurações do servidor.");
+  });
 }
 
-function escapeHTML(t){return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-
-// Convert any value to display string - fixes [object Object] bug
-function val2str(v){
-  if(v==null)return"";
-  if(typeof v==="string")return v;
-  if(typeof v==="number"||typeof v==="boolean")return String(v);
-  if(Array.isArray(v))return v.map(val2str).filter(Boolean).join("; ");
-  if(typeof v==="object"){
-    var parts=[];
-    Object.keys(v).forEach(function(k){
-      var sub=val2str(v[k]);
-      if(sub)parts.push(k+": "+sub);
-    });
-    return parts.join("\n");
-  }
-  return String(v);
-}
+// ── RENDER ──
+function esc(t){ return String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 function mkField(k,label,val){
-  var text=val2str(val);
-  var empty=!text||text==="Não investigado"||text==="Não examinado"||text==="Não informado";
-  return '<div class="fr"><div class="fl">'+label+'</div><div class="fv'+(empty?" empty":"")+'" data-key="'+k+'">'+escapeHTML(text||"Não investigado")+'</div></div>';
+  var empty=!val||val==="Não investigado"||val==="Não examinado";
+  return "<div class=\"fr\"><div class=\"fl\">"+label+"</div><div class=\"fv"+(empty?" empty":"")+"\" data-key=\""+k+"\">"+esc(val||"Não investigado")+"</div></div>";
 }
 
-function mkSub(title,rows){return '<div class="sub"><div class="subt">'+title+'</div>'+rows+'</div>';}
+function mkSub(title,rows){ return "<div class=\"sub\"><div class=\"subt\">"+title+"</div>"+rows+"</div>"; }
 
 function mkSec(num,title,body){
-  var d=document.createElement("div");d.className="sc";
-  d.innerHTML='<div class="sch" onclick="toggleSec(this)"><div class="schl"><div class="scn">'+num+'</div><div class="sct">'+title+'</div></div><span class="scc open">▾</span></div><div class="scb open">'+body+'</div>';
+  var d=document.createElement("div"); d.className="sc";
+  d.innerHTML="<div class=\"sch\" onclick=\"toggleSec(this)\"><div class=\"schl\"><div class=\"scn\">"+num+"</div><div class=\"sct\">"+title+"</div></div><span class=\"scc open\">▾</span></div><div class=\"scb open\">"+body+"</div>";
   return d;
-}
-
-function mkNarr(k,label,val){
-  return '<div class="nbox"><div class="nbhdr">'+label+'</div><div class="nbody"><textarea class="nta" data-key="'+k+'">'+escapeHTML(val2str(val))+'</textarea></div></div>';
 }
 
 function renderResult(d){
   document.getElementById("vLoading").style.display="none";
   document.getElementById("vResult").style.display="block";
   document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR")+" · Porto, Semiologia Médica 8ª ed.";
-  var c=document.getElementById("resCont");c.innerHTML="";
-  function ri(k,l){return isActive(k)?mkField(k,l,d[k]):"";}
-  function hasSome(ks){return ks.some(function(k){return isActive(k);});}
+  var c=document.getElementById("resCont"); c.innerHTML="";
+
+  function ri(k,l){ return isActive(k)?mkField(k,l,d[k]):""; }
+  function hasSome(ks){ return ks.some(function(k){return isActive(k);}); }
 
   // S1
-  var s1k=["id_nome","id_idade","id_sexo","id_cor","id_estado_civil","id_profissao","id_local_trabalho","id_naturalidade","id_procedencia","id_residencia","id_religiao","id_plano_saude","id_nome_mae","id_responsavel","id_fonte_info","id_data_hora"];
-  var s1l=["Nome","Idade","Sexo/Gênero","Cor/Etnia","Estado civil","Profissão","Local de trabalho","Naturalidade","Procedência","Residência","Religião","Plano de saúde","Nome da mãe","Responsável","Fonte","Data e hora"];
-  if(hasSome(s1k)){var b=s1k.map(function(k,i){return ri(k,s1l[i]);}).join("");if(b)c.appendChild(mkSec("1","Identificação",b));}
+  var s1ks=["id_nome","id_idade","id_sexo","id_cor","id_estado_civil","id_profissao","id_local_trabalho","id_naturalidade","id_procedencia","id_residencia","id_religiao","id_plano_saude","id_nome_mae","id_responsavel","id_fonte_info","id_data_hora"];
+  var s1ls=["Nome","Idade","Sexo/Gênero","Cor/Etnia","Estado civil","Profissão","Local de trabalho","Naturalidade","Procedência","Residência","Religião","Plano de saúde","Nome da mãe","Responsável","Fonte","Data e hora"];
+  if(hasSome(s1ks)){var b=s1ks.map(function(k,i){return ri(k,s1ls[i]);}).join("");if(b.trim())c.appendChild(mkSec("1","Identificação",b));}
 
   // S2
-  if(isActive("qp"))c.appendChild(mkSec("2","Queixa Principal",mkField("qp","Queixa",d.qp)));
+  if(isActive("qp"))c.appendChild(mkSec("2","Queixa Principal",mkField("qp","Queixa",d["qp"])));
 
-  // S3 HDA + narrativa
-  var hdak=["hda_sintoma_guia","hda_inicio","hda_localizacao","hda_caracteristicas","hda_intensidade","hda_duracao","hda_frequencia","hda_melhora","hda_piora","hda_associados","hda_evolucao","hda_situacao_atual"];
-  var hdal=["Sintoma-guia","Início","Localização","Características","Intensidade","Duração","Frequência","Melhora","Piora","Sintomas associados","Evolução","Situação atual"];
-  if(hasSome(hdak.concat(["hda_narrativa"]))){
-    var b=hdak.map(function(k,i){return ri(k,hdal[i]);}).join("");
-    if(isActive("hda_narrativa"))b+=mkNarr("hda_narrativa","📝 Narrativa da HDA",d.hda_narrativa);
-    if(b)c.appendChild(mkSec("3","História da Doença Atual (HDA)",b));
+  // S3 HDA
+  var hdaKs=["hda_sintoma_guia","hda_inicio","hda_localizacao","hda_caracteristicas","hda_intensidade","hda_duracao","hda_frequencia","hda_melhora","hda_piora","hda_associados","hda_evolucao","hda_situacao_atual"];
+  var hdaLs=["Sintoma-guia","Início","Localização","Características","Intensidade","Duração","Frequência","Melhora","Piora","Sintomas associados","Evolução","Situação atual"];
+  if(hasSome(hdaKs.concat(["hda_narrativa"]))){
+    var b=hdaKs.map(function(k,i){return ri(k,hdaLs[i]);}).join("");
+    if(isActive("hda_narrativa")) b+="<div class=\"nbox\"><div class=\"nbhdr\">📝 Narrativa da HDA</div><div class=\"nbody\"><textarea class=\"nta\" data-key=\"hda_narrativa\">"+esc(d["hda_narrativa"]||"")+"</textarea></div></div>";
+    if(b.trim())c.appendChild(mkSec("3","História da Doença Atual (HDA)",b));
   }
 
   // S4 IS
@@ -511,19 +1067,25 @@ function renderResult(d){
     {t:"4.6 Geniturinário",ks:["is_rins","is_genitais_masc","is_genitais_fem"],ls:["Rins","Genitais masc.","Genitais fem."]},
     {t:"4.7-4.13 Demais",ks:["is_hemolinfo","is_endocrino","is_coluna","is_musculos","is_vasos","is_nervoso","is_psiquico"],ls:["Hemolinfo.","Endócrino","Coluna","Músculos","Vasos","Nervoso","Psíquico"]}
   ];
-  var s4="";isS.forEach(function(x){var r=x.ks.map(function(k,i){return ri(k,x.ls[i]);}).join("");if(r)s4+=mkSub(x.t,r);});
+  var s4="";
+  isS.forEach(function(x){
+    var r=x.ks.map(function(k,i){return ri(k,x.ls[i]);}).join("");
+    if(r.trim()) s4+=mkSub(x.t,r);
+  });
   if(s4)c.appendChild(mkSec("4","Interrogatório Sintomatológico (IS)",s4));
 
   // S5 AP
   var a5a=ri("ap_gestacao","Gestação/Nascimento")+ri("ap_desenvolvimento","Desenvolvimento")+ri("ap_sexual","Desenvolvimento sexual");
   var a5b=ri("ap_doencas_infancia","Doenças infância")+ri("ap_doencas_adulto","Doenças adulto")+ri("ap_alergias","Alergias")+ri("ap_cirurgias","Cirurgias")+ri("ap_traumatismos","Traumatismos")+ri("ap_transfusoes","Transfusões")+ri("ap_obstetrica","Obstétrica")+ri("ap_vacinas","Vacinas")+ri("ap_medicamentos","Medicamentos");
-  var s5="";if(a5a)s5+=mkSub("5.1 Fisiológicos",a5a);if(a5b)s5+=mkSub("5.2 Patológicos",a5b);
-  if(isActive("ap_narrativa"))s5+=mkNarr("ap_narrativa","📝 Narrativa dos Antecedentes Pessoais",d.ap_narrativa);
+  var s5="";
+  if(a5a.trim()) s5+=mkSub("5.1 Fisiológicos",a5a);
+  if(a5b.trim()) s5+=mkSub("5.2 Patológicos",a5b);
+  if(isActive("ap_narrativa")) s5+="<div class=\"nbox\"><div class=\"nbhdr\">📝 Narrativa dos Antecedentes Pessoais</div><div class=\"nbody\"><textarea class=\"nta\" data-key=\"ap_narrativa\">"+esc(d["ap_narrativa"]||"")+"</textarea></div></div>";
   if(s5)c.appendChild(mkSec("5","Antecedentes Pessoais",s5));
 
   // S6 AF
   var s6=ri("af_pais","Pais")+ri("af_irmaos","Irmãos")+ri("af_filhos","Filhos")+ri("af_conjuge","Cônjuge")+ri("af_outros","Avós/Tios/Primos")+ri("af_doencas_familiais","Doenças familiares");
-  if(isActive("af_narrativa"))s6+=mkNarr("af_narrativa","📝 Narrativa dos Antecedentes Familiares",d.af_narrativa);
+  if(isActive("af_narrativa")) s6+="<div class=\"nbox\"><div class=\"nbhdr\">📝 Narrativa dos Antecedentes Familiares</div><div class=\"nbody\"><textarea class=\"nta\" data-key=\"af_narrativa\">"+esc(d["af_narrativa"]||"")+"</textarea></div></div>";
   if(s6)c.appendChild(mkSec("6","Antecedentes Familiares",s6));
 
   // S7 Hábitos
@@ -535,22 +1097,30 @@ function renderResult(d){
     {t:"7.5 Álcool",ks:["hab_alcool","hab_cage","hab_alcool_class"],ls:["Tipo/Qtd","CAGE","Classificação"]},
     {t:"7.6 Drogas",ks:["hab_drogas"],ls:["Tipo/Frequência"]}
   ];
-  var s7="";habS.forEach(function(x){var r=x.ks.map(function(k,i){return ri(k,x.ls[i]);}).join("");if(r)s7+=mkSub(x.t,r);});
+  var s7="";
+  habS.forEach(function(x){
+    var r=x.ks.map(function(k,i){return ri(k,x.ls[i]);}).join("");
+    if(r.trim()) s7+=mkSub(x.t,r);
+  });
   if(s7)c.appendChild(mkSec("7","Hábitos e Estilo de Vida",s7));
 
   // S8
   var s8=ri("soc_habitacao","Habitação")+ri("soc_economica","Socioeconômico")+ri("soc_cultural","Cultural")+ri("soc_familiar","Familiar");
-  if(s8)c.appendChild(mkSec("8","Condições Socioeconômicas",s8));
+  if(s8.trim())c.appendChild(mkSec("8","Condições Socioeconômicas",s8));
 
   // S9 EFG
   var efgS=[
     {t:"Estado Geral",ks:["efg_estado_geral","efg_consciencia","efg_glasgow","efg_fala"],ls:["Estado geral","Consciência","Glasgow","Fala"]},
     {t:"Antropometria",ks:["efg_hidratacao","efg_peso","efg_altura","efg_imc","efg_circ_cintura","efg_nutricional"],ls:["Hidratação","Peso","Altura","IMC","Circ. cintura","Nutricional"]},
-    {t:"Inspeção",ks:["efg_facies","efg_atitude","efg_mucosas","efg_pele","efg_cabelos","efg_unhas"],ls:["Fácies","Atitude","Mucosas","Pele","Cabelos","Unhas"]},
-    {t:"TCS",ks:["efg_tcs","efg_edema","efg_musculatura","efg_linfonodos"],ls:["TCS","Edema","Musculatura","Linfonodos"]},
+    {t:"Inspeção",ks:["efg_facies","efg_atitude","efg_mucosas","efg_pele","efg_cabelos","efg_pelos","efg_unhas"],ls:["Fácies","Atitude","Mucosas","Pele","Cabelos","Pelos","Unhas"]},
+    {t:"TCS/Edema/Musculatura",ks:["efg_tcs","efg_edema","efg_musculatura","efg_linfonodos"],ls:["TCS","Edema","Musculatura","Linfonodos"]},
     {t:"Sinais Vitais",ks:["efg_temperatura","efg_biotipo","efg_marcha","efg_fc","efg_pa","efg_fr","efg_spo2"],ls:["Temperatura","Biótipo","Marcha","FC","PA","FR","SpO2"]}
   ];
-  var s9="";efgS.forEach(function(x){var r=x.ks.map(function(k,i){return ri(k,x.ls[i]);}).join("");if(r)s9+=mkSub(x.t,r);});
+  var s9="";
+  efgS.forEach(function(x){
+    var r=x.ks.map(function(k,i){return ri(k,x.ls[i]);}).join("");
+    if(r.trim()) s9+=mkSub(x.t,r);
+  });
   if(s9)c.appendChild(mkSec("9","Exame Físico Geral (EFG)",s9));
 
   // S10 EFE
@@ -564,25 +1134,34 @@ function renderResult(d){
     {t:"10.7 Mamas",ks:["efe_mamas"],ls:["Achados"]},
     {t:"10.8 Cabeça/Pescoço",ks:["efe_cabeca_pescoco"],ls:["Achados"]}
   ];
-  var s10="";efeS.forEach(function(x){var r=x.ks.map(function(k,i){return ri(k,x.ls[i]);}).join("");if(r)s10+=mkSub(x.t,r);});
+  var s10="";
+  efeS.forEach(function(x){
+    var r=x.ks.map(function(k,i){return ri(k,x.ls[i]);}).join("");
+    if(r.trim()) s10+=mkSub(x.t,r);
+  });
   if(s10)c.appendChild(mkSec("10","Exame Físico Específico (EFE)",s10));
 
   // S11 Lab
-  if(isActive("lab_resultados")){c.appendChild(mkSec("11","Exames Laboratoriais",'<textarea class="lta" data-key="lab_resultados">'+escapeHTML(val2str(d.lab_resultados))+'</textarea>'));}
+  if(isActive("lab_resultados")){
+    c.appendChild(mkSec("11","Exames Laboratoriais","<textarea class=\"lta\" data-key=\"lab_resultados\">"+esc(d["lab_resultados"]||"")+"</textarea>"));
+  }
 
   // S12 Imagem
-  if(isActive("img_achados")){c.appendChild(mkSec("12","Exames de Imagem",'<textarea class="lta" data-key="img_achados">'+escapeHTML(val2str(d.img_achados))+'</textarea>'));}
+  if(isActive("img_achados")){
+    c.appendChild(mkSec("12","Exames de Imagem","<textarea class=\"lta\" data-key=\"img_achados\">"+esc(d["img_achados"]||"")+"</textarea>"));
+  }
 
   // S13 Hipóteses
   if(isActive("hipoteses")){
-    var sy1=document.createElement("div");sy1.className="syn";
-    sy1.innerHTML='<div class="synh"><span class="synh-i">⚠️</span><div><div class="syt">Hipóteses Diagnósticas</div><div class="sys2">IA · Revisão médica obrigatória</div></div></div><div class="synb"><textarea class="synta" data-key="hipoteses">'+escapeHTML(val2str(d.hipoteses)||"Não gerado")+'</textarea></div>';
+    var sy1=document.createElement("div"); sy1.className="syn";
+    sy1.innerHTML="<div class=\"synh\"><svg viewBox=\"0 0 24 24\"><path d=\"M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z\"/></svg><div><div class=\"synt\">Hipóteses Diagnósticas</div><div class=\"syns\">IA · Revisão médica obrigatória</div></div></div><div class=\"synb\"><textarea class=\"synta\" data-key=\"hipoteses\">"+esc(d["hipoteses"]||"Não gerado")+"</textarea></div>";
     c.appendChild(sy1);
   }
+
   // S14 Conduta
   if(isActive("conduta")){
-    var sy2=document.createElement("div");sy2.className="syn";
-    sy2.innerHTML='<div class="synh"><span class="synh-i">📋</span><div><div class="syt">Conduta Sugerida</div><div class="sys2">IA · Revisão médica obrigatória</div></div></div><div class="synb"><textarea class="synta" data-key="conduta">'+escapeHTML(val2str(d.conduta)||"Não gerado")+'</textarea></div>';
+    var sy2=document.createElement("div"); sy2.className="syn";
+    sy2.innerHTML="<div class=\"synh\"><svg viewBox=\"0 0 24 24\"><path d=\"M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z\"/></svg><div><div class=\"synt\">Conduta Sugerida</div><div class=\"syns\">IA · Revisão médica obrigatória</div></div></div><div class=\"synb\"><textarea class=\"synta\" data-key=\"conduta\">"+esc(d["conduta"]||"Não gerado")+"</textarea></div>";
     c.appendChild(sy2);
   }
 }
@@ -591,56 +1170,106 @@ function renderRaw(txt){
   document.getElementById("vLoading").style.display="none";
   document.getElementById("vResult").style.display="block";
   document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR");
-  document.getElementById("resCont").innerHTML='<div class="sc"><div class="sch" onclick="toggleSec(this)"><div class="schl"><div class="scn">✓</div><div class="sct">Anamnese</div></div><span class="scc open">▾</span></div><div class="scb open" style="white-space:pre-wrap;font-size:12px">'+escapeHTML(txt)+'</div></div>';
+  document.getElementById("resCont").innerHTML="<div class=\"sc\"><div class=\"sch\" onclick=\"toggleSec(this)\"><div class=\"schl\"><div class=\"scn\">✓</div><div class=\"sct\">Anamnese</div></div><span class=\"scc open\">▾</span></div><div class=\"scb open\" style=\"white-space:pre-wrap;font-size:12px\">"+esc(txt)+"</div></div>";
 }
 
-function toggleSec(hdr){var b=hdr.nextElementSibling,ch=hdr.querySelector(".scc"),op=b.classList.contains("open");b.classList.toggle("open",!op);ch.classList.toggle("open",!op);}
+function toggleSec(hdr){
+  var b=hdr.nextElementSibling, ch=hdr.querySelector(".scc"), op=b.classList.contains("open");
+  b.classList.toggle("open",!op); ch.classList.toggle("open",!op);
+}
 
+// ── EDIT MODE ──
 function toggleEdit(){
   editActive=!editActive;
   var btn=document.getElementById("editBtn");
   if(editActive){
     btn.textContent="✅ Concluir edição";
-    document.querySelectorAll(".fv").forEach(function(el){el.contentEditable="true";el.style.outline="1.5px dashed var(--tm)";});
-  }else{
+    btn.style.background="var(--tl)"; btn.style.color="var(--teal)"; btn.style.borderColor="var(--teal)";
+    document.querySelectorAll(".fv").forEach(function(el){
+      el.contentEditable="true";
+      el.style.outline="1.5px dashed var(--tm)";
+      el.style.cursor="text";
+    });
+  } else {
     btn.textContent="✏️ Editar";
-    document.querySelectorAll(".fv").forEach(function(el){el.contentEditable="false";el.style.outline="";var k=el.dataset.key;if(k&&resultData)resultData[k]=el.textContent.trim();});
+    btn.style.background=""; btn.style.color=""; btn.style.borderColor="";
+    document.querySelectorAll(".fv").forEach(function(el){
+      el.contentEditable="false";
+      el.style.outline="";
+      el.style.cursor="";
+      var k=el.dataset.key;
+      if(k && resultData) resultData[k]=el.textContent.trim();
+    });
   }
 }
 
-function openExport(){if(!Object.keys(resultData).length){alert("Gere a anamnese primeiro.");return;}document.getElementById("exportModal").classList.add("open");}
-function closeExport(){document.getElementById("exportModal").classList.remove("open");}
-function selExp(fmt){expFmt=fmt;document.getElementById("optPdf").classList.toggle("sel",fmt==="pdf");document.getElementById("optDoc").classList.toggle("sel",fmt==="doc");}
+// ── EXPORT ──
+function openExport(){
+  if(!Object.keys(resultData).length){alert("Gere a anamnese primeiro.");return;}
+  document.getElementById("exportModal").classList.add("open");
+}
+function closeExport(){ document.getElementById("exportModal").classList.remove("open"); }
+function selExp(fmt){
+  expFmt=fmt;
+  document.getElementById("optPdf").classList.toggle("sel",fmt==="pdf");
+  document.getElementById("optDoc").classList.toggle("sel",fmt==="doc");
+}
 
 function collectSections(){
   var secs=[];
   document.querySelectorAll(".sc,.syn").forEach(function(card){
-    var title=card.querySelector(".sct,.syt");if(!title)return;
-    var sec={title:title.textContent.trim(),rows:[],texts:[]};
-    card.querySelectorAll(".fr").forEach(function(fr){var lb=fr.querySelector(".fl"),val=fr.querySelector(".fv");if(lb&&val)sec.rows.push({l:lb.textContent.trim(),v:val.textContent.trim()});});
-    card.querySelectorAll("textarea").forEach(function(ta){if(ta.value.trim())sec.texts.push(ta.value.trim());});
+    var title=card.querySelector(".sct,.synt"); if(!title)return;
+    var sec={title:title.textContent.trim(), rows:[], texts:[]};
+    card.querySelectorAll(".fr").forEach(function(fr){
+      var lb=fr.querySelector(".fl"), val=fr.querySelector(".fv");
+      if(lb&&val) sec.rows.push({l:lb.textContent.trim(),v:val.textContent.trim()});
+    });
+    card.querySelectorAll("textarea").forEach(function(ta){
+      if(ta.value.trim()) sec.texts.push(ta.value.trim());
+    });
     secs.push(sec);
   });
   return secs;
 }
 
-function buildHTML(secs){
+function buildHTML(secs,forPrint){
   var now=new Date().toLocaleString("pt-BR");
-  var h='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Anamnese AnamIA</title><style>body{font-family:Georgia,serif;font-size:11px;line-height:1.7;margin:2cm;color:#1A1814}h1{font-size:18px;margin-bottom:4px}h2{font-size:12px;font-weight:bold;margin:14px 0 5px;border-bottom:1px solid #ccc;padding-bottom:2px;color:#0F6E56}.r{display:flex;gap:10px;margin:2px 0}.lb{min-width:150px;color:#555;font-size:10px}.vl{font-size:11px}.tx{font-size:11px;white-space:pre-wrap;background:#f9f7f2;border:1px solid #e2ddd6;border-radius:6px;padding:8px;margin:4px 0}.warn{background:#FFF3CD;border:1px solid #FAC775;padding:8px;font-size:10px;margin-top:20px;border-radius:6px}@media print{body{margin:1.5cm}}</style></head><body>';
-  h+='<h1>Anamnese — AnamIA</h1><p style="color:#888;font-size:10px">'+now+' · Porto, Semiologia Médica 8ª ed.</p>';
-  secs.forEach(function(s){h+='<h2>'+s.title+'</h2>';s.rows.forEach(function(r){h+='<div class="r"><div class="lb">'+r.l+'</div><div class="vl">'+r.v.replace(/\n/g,"<br>")+'</div></div>';});s.texts.forEach(function(t){h+='<div class="tx">'+t.replace(/\n/g,"<br>")+'</div>';});});
-  h+='<div class="warn">⚠️ Hipóteses diagnósticas e conduta sugerida são geradas por IA e NÃO substituem o julgamento clínico do médico. Revisão obrigatória.</div></body></html>';
+  var h="<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Anamnese AnamIA</title><style>body{font-family:Georgia,serif;font-size:11px;line-height:1.7;margin:2cm;color:#1A1814}h1{font-size:18px;margin-bottom:4px}h2{font-size:12px;font-weight:bold;margin:14px 0 5px;border-bottom:1px solid #ccc;padding-bottom:2px;color:#0F6E56}.r{display:flex;gap:10px;margin:2px 0}.lb{min-width:150px;color:#555;font-size:10px}.vl{font-size:11px}.tx{font-size:11px;white-space:pre-wrap;background:#f9f7f2;border:1px solid #e2ddd6;border-radius:6px;padding:8px;margin:4px 0}.warn{background:#FFF3CD;border:1px solid #FAC775;padding:8px;font-size:10px;margin-top:20px;border-radius:6px}@media print{body{margin:1.5cm}}</style></head><body>";
+  h+="<h1>Anamnese — AnamIA</h1><p style=\"color:#888;font-size:10px\">"+now+" · Porto, Semiologia Médica 8ª ed.</p>";
+  secs.forEach(function(s){
+    h+="<h2>"+s.title+"</h2>";
+    s.rows.forEach(function(r){h+="<div class=\"r\"><div class=\"lb\">"+r.l+"</div><div class=\"vl\">"+r.v.replace(/\n/g,"<br>")+"</div></div>";});
+    s.texts.forEach(function(t){h+="<div class=\"tx\">"+t.replace(/\n/g,"<br>")+"</div>";});
+  });
+  h+="<div class=\"warn\">⚠️ Hipóteses diagnósticas e conduta sugerida são geradas por IA e NÃO substituem o julgamento clínico do médico. Revisão obrigatória.</div>";
+  h+="</body></html>";
   return h;
 }
 
 function doExport(){
-  closeExport();var secs=collectSections();
-  if(expFmt==="pdf"){var w=window.open("","_blank");w.document.write(buildHTML(secs));w.document.close();setTimeout(function(){w.print();},600);}
-  else{var html=buildHTML(secs).replace("<html>","<html xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:w=\"urn:schemas-microsoft-com:office:word\">");var blob=new Blob([html],{type:"application/msword"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="anamnese_anamia.doc";a.click();}
+  closeExport();
+  var secs=collectSections();
+  if(expFmt==="pdf"){
+    var w=window.open("","_blank");
+    w.document.write(buildHTML(secs,true));
+    w.document.close();
+    setTimeout(function(){w.print();},600);
+  } else {
+    var html=buildHTML(secs,false).replace("<html>","<html xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:w=\"urn:schemas-microsoft-com:office:word\">");
+    var blob=new Blob([html],{type:"application/msword"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="anamnese_anamia.doc"; a.click();
+  }
 }
 
-function doPrint(){var w=window.open("","_blank");w.document.write(buildHTML(collectSections()));w.document.close();setTimeout(function(){w.print();},600);}
+function doPrint(){
+  var secs=collectSections();
+  var w=window.open("","_blank");
+  w.document.write(buildHTML(secs,true));
+  w.document.close();
+  setTimeout(function(){w.print();},600);
+}
 
+// ── INIT ──
 buildCustomize();
 </script>
 </body>
