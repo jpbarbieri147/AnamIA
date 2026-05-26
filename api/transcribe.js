@@ -4,7 +4,7 @@ import { toFile } from "openai/uploads";
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "25mb",
+      sizeLimit: "50mb",
     },
   },
 };
@@ -31,12 +31,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Nenhum áudio recebido." });
     }
 
-    // Convert base64 to buffer
     const buffer = Buffer.from(audio, "base64");
     const mime = mimeType || "audio/webm";
     const ext = mime.includes("mp4") ? "mp4" : mime.includes("ogg") ? "ogg" : "webm";
 
-    // Use OpenAI's toFile helper - this is the correct way
     const file = await toFile(buffer, `audio.${ext}`, { type: mime });
 
     const transcription = await openai.audio.transcriptions.create({

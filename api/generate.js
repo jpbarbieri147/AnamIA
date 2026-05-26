@@ -20,29 +20,27 @@ export default async function handler(req, res) {
 
     const systemPrompt = `Voce e um assistente medico clinico especializado em semiologia brasileira (Porto, 8a ed.). Analise a transcricao e preencha os campos abaixo.
 
-REGRA CRITICA DE FORMATO: Retorne APENAS um objeto JSON puro. Cada campo deve ter um VALOR DO TIPO STRING (texto simples). NUNCA aninhe objetos ou arrays. NUNCA use {} ou [] dentro dos valores. Apenas strings com quebras de linha "\\n" quando necessario.
+REGRA CRITICA: Retorne APENAS um objeto JSON puro. NUNCA use blocos de codigo markdown. NUNCA use aspas triplas. Cada valor deve ser uma STRING simples. Comece sua resposta diretamente com { e termine com }.
 
-Campos a preencher (todos com valor string):
+Campos a preencher (todos com valor string simples):
 ${fieldList}
 
-Instrucoes para campos especiais:
-- hda_narrativa: paragrafo narrativo coeso em linguagem medica formal resumindo toda a HDA (STRING)
-- ap_narrativa: paragrafo narrativo dos antecedentes pessoais (STRING)
-- af_narrativa: paragrafo narrativo dos antecedentes familiares (STRING)
-- lab_resultados: lista de exames laboratoriais em formato texto, um por linha (STRING)
-- img_achados: lista de achados de imagem em formato texto, um por linha (STRING)
-- hipoteses: hipoteses diagnosticas numeradas com justificativa, em texto (STRING)
-- conduta: condutas sugeridas (exames, encaminhamentos), em texto (STRING)
+Instrucoes especiais:
+- hda_narrativa: paragrafo narrativo coeso em linguagem medica formal resumindo toda a HDA
+- ap_narrativa: paragrafo narrativo dos antecedentes pessoais
+- af_narrativa: paragrafo narrativo dos antecedentes familiares
+- lab_resultados: lista de exames em formato texto, um por linha
+- img_achados: lista de achados em formato texto, um por linha
+- hipoteses: hipoteses diagnosticas numeradas com justificativa. Incluir ao final: (Revisao medica obrigatoria.)
+- conduta: condutas sugeridas com exames e encaminhamentos. Incluir ao final: (Revisao medica obrigatoria.)
 
-Regras gerais:
+Regras:
 - Nao invente dados. Nao abordado = "Nao investigado". Exame fisico nao realizado = "Nao examinado".
 - Converta linguagem leiga para terminologia medica.
 - Registre negativas explicitamente (ex: "Nega dispneia").
-- Para hipoteses e conduta, ao final acrescente: "(Revisao medica obrigatoria.)"
+- NUNCA aninha objetos ou arrays dentro dos valores — apenas strings.
 
-Retorne SOMENTE o JSON, sem markdown, sem texto extra. Comece com { e termine com }.
-
-JSON template: ${JSON.stringify(template)}`;
+JSON a preencher: ${JSON.stringify(template)}`;
 
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-5",
@@ -53,9 +51,13 @@ JSON template: ${JSON.stringify(template)}`;
 
     const raw = message.content.map(b => b.text || "").join("");
 
+    // Robust JSON extraction
     let parsed = null;
     try {
       let clean = raw.trim();
+      // Remove any markdown code fences
+      clean = clean.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
+      // Extract from first { to last }
       const start = clean.indexOf("{");
       const end = clean.lastIndexOf("}");
       if (start !== -1 && end !== -1) clean = clean.substring(start, end + 1);
@@ -72,11 +74,11 @@ JSON template: ${JSON.stringify(template)}`;
             if (typeof item === "string") return item;
             if (item && typeof item === "object") return Object.entries(item).map(([kk,vv]) => `${kk}: ${vv}`).join("; ");
             return String(item);
-          }).join("; ");
+          }).join("\n");
           return;
         }
         if (typeof v === "object") {
-          parsed[k] = Object.entries(v).map(([kk,vv]) => {
+          parsed[k] = Object.entries(v).map(([kk, vv]) => {
             if (vv && typeof vv === "object") vv = JSON.stringify(vv);
             return `${kk}: ${vv}`;
           }).join("\n");
