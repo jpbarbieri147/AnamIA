@@ -1012,23 +1012,26 @@ function savePrefs(){
 function processTranscript(){
   var tx=document.getElementById("manTx").value.trim()||fullTx;
   if(!tx){ alert("Cole ou grave uma transcrição antes de processar."); return; }
-  // API keys are managed securely by the backend
 
   showView("record");
   document.getElementById("vWelcome").style.display="none";
   document.getElementById("vResult").style.display="none";
   document.getElementById("vLoading").style.display="flex";
 
-  var template={};
-  var fieldMap={};
-  SECTIONS.forEach(function(s){ getAllFields(s).forEach(function(f){ fieldMap[f.k]=f.l; }); });
-  Object.keys(activeKeys).forEach(function(k){ if(activeKeys[k]) template[k]=""; });
+  var activeList=Object.keys(activeKeys).filter(function(k){return activeKeys[k];});
+  var fldMap={};SECTIONS.forEach(function(s){getAllFields(s).forEach(function(f){fldMap[f.k]=f.l;});});
 
-  var fieldList=Object.keys(template).map(function(k){return '"'+k+'": '+( fieldMap[k]||k);}).join("\n");
+  // Divide campos em 2 lotes para evitar timeout de 60s
+  var mid=Math.ceil(activeList.length/2);
+  var batch1=activeList.slice(0,mid);
+  var batch2=activeList.slice(mid);
 
-  var prompt="Voce e um assistente medico clinico especializado em semiologia brasileira (Porto, 8a ed.). Analise a transcricao e preencha os campos abaixo. Retorne APENAS o objeto JSON puro. Sem markdown. Sem texto antes ou depois. Comece com { e termine com }.\n\nCampos:\n"+fieldList+"\n\nRegras: nao invente dados. Nao abordado = Nao investigado. Exame fisico nao realizado = Nao examinado. Converta linguagem leiga para terminologia medica. Registre negativas (ex: Nega dispneia). Narrativas devem ser paragrafos coesos em linguagem medica formal.\n\nJSON a preencher: "+JSON.stringify(template);
-
-  var msgs=[["Identificando falas...","Separando médico e paciente"],["Analisando sintomas...","Extraindo dados clínicos"],["Preenchendo campos...","Alocando informações"],["Gerando hipóteses...","Raciocínio diagnóstico"]];
+  var msgs=[
+    ["Analisando a consulta...","Identificando médico e paciente"],
+    ["Preenchendo identificação e HDA...","Extraindo dados clínicos — parte 1 de 2"],
+    ["Preenchendo IS e antecedentes...","Extraindo dados clínicos — parte 2 de 2"],
+    ["Gerando hipóteses diagnósticas...","Raciocínio diagnóstico"]
+  ];
   var mi=0;
   var mint=setInterval(function(){
     if(mi<msgs.length){
@@ -1036,28 +1039,34 @@ function processTranscript(){
       document.getElementById("ldSub").textContent=msgs[mi][1];
       mi++;
     }
-  },1800);
+  },4000);
 
-  fetch("/api/generate",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({transcript:tx, activeKeys:Object.keys(activeKeys).filter(function(k){return activeKeys[k];}), fieldMap:(function(){var m={};SECTIONS.forEach(function(s){getAllFields(s).forEach(function(f){m[f.k]=f.l;});});return m;})()})
-  }).then(function(r){
+  var mergedResult={};
+
+  fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({transcript:tx,activeKeys:batch1,fieldMap:fldMap})})
+  .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;});})
+  .then(function(data1){
+    if(data1.result) Object.assign(mergedResult,data1.result);
+    return fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({transcript:tx,activeKeys:batch2,fieldMap:fldMap})});
+  })
+  .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;});})
+  .then(function(data2){
     clearInterval(mint);
-    if(!r.ok) return r.json().then(function(e){throw new Error(e.error||"Erro na API");});
-    return r.json();
-  }).then(function(data){
-    if(data.result){ resultData=data.result; renderResult(data.result); }
-    else renderRaw(data.raw||"Erro ao processar resposta.");
-  }).catch(function(err){
+    if(data2.result) Object.assign(mergedResult,data2.result);
+    if(Object.keys(mergedResult).length>0){resultData=mergedResult;renderResult(mergedResult);}
+    else renderRaw("Erro ao processar resposta.");
+  })
+  .catch(function(err){
     clearInterval(mint);
     document.getElementById("vLoading").style.display="none";
     document.getElementById("vWelcome").style.display="flex";
-    alert("Erro: "+err.message+"\n\nVerifique as configurações do servidor.");
+    alert("Erro: "+err.message);
   });
 }
 
-// ── RENDER ──
+
 function esc(t){ return String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 function mkField(k,label,val){
