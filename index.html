@@ -805,7 +805,7 @@ function stopRec(){
 }
 
 // Máximo por parte: 18MB (seguro abaixo do limite de 25MB do Whisper)
-var MAX_CHUNK_BYTES = 3 * 1024 * 1024; // 3MB blob = ~4MB base64, seguro abaixo do limite de 4.5MB do Vercel
+var MAX_PART_BYTES = 3 * 1024 * 1024; // 3MB por parte
 
 function procAudio(){
   appendTx("sys","Preparando áudio...");
@@ -818,26 +818,45 @@ function procAudio(){
   var mimeType = "audio/webm";
   if(audioChunks[0] && audioChunks[0].type) mimeType = audioChunks[0].type;
 
-  var blob = new Blob(audioChunks, {type: mimeType});
-  var totalKB = Math.round(blob.size/1024);
-  appendTx("sys","Áudio capturado: "+totalKB+"KB");
+  var totalSize = 0;
+  audioChunks.forEach(function(c){ totalSize += c.size; });
+  var totalKB = Math.round(totalSize / 1024);
+  appendTx("sys","Áudio capturado: "+totalKB+"KB ("+audioChunks.length+" chunks)");
 
-  // Dividir em partes se necessário
+  // Agrupar chunks originais do MediaRecorder em partes de ~3MB
+  // Chunk 0 contém o cabeçalho WebM — incluímos em cada parte
   var parts = [];
-  if(blob.size <= MAX_CHUNK_BYTES){
-    parts.push(blob);
+  var headerChunk = audioChunks[0];
+
+  if(totalSize <= MAX_PART_BYTES){
+    parts.push(new Blob(audioChunks, {type: mimeType}));
   } else {
-    var numParts = Math.ceil(blob.size / MAX_CHUNK_BYTES);
-    appendTx("sys","Áudio longo detectado — dividindo em "+numParts+" partes para transcrição...");
-    for(var i=0; i<numParts; i++){
-      var start = i * MAX_CHUNK_BYTES;
-      var end = Math.min(start + MAX_CHUNK_BYTES, blob.size);
-      parts.push(blob.slice(start, end, mimeType));
+    var currentGroup = [headerChunk];
+    var currentSize = headerChunk.size;
+
+    for(var i = 1; i < audioChunks.length; i++){
+      var chunk = audioChunks[i];
+
+      if(currentSize + chunk.size > MAX_PART_BYTES && currentGroup.length > 1){
+        parts.push(new Blob(currentGroup, {type: mimeType}));
+        currentGroup = [headerChunk];
+        currentSize = headerChunk.size;
+      }
+
+      currentGroup.push(chunk);
+      currentSize += chunk.size;
     }
+
+    if(currentGroup.length > 1){
+      parts.push(new Blob(currentGroup, {type: mimeType}));
+    }
+
+    appendTx("sys","Áudio longo — dividido em "+parts.length+" partes...");
   }
 
   transcribePartes(parts, mimeType, 0, []);
 }
+
 
 function transcribePartes(parts, mimeType, idx, resultados){
   if(idx >= parts.length){
