@@ -420,8 +420,7 @@ body{
 
 /* ── SYNTHESIS CARDS ── */
 .syn{background:var(--branco);border:1.5px solid #FAC775;border-radius:var(--r);margin-bottom:.6rem;overflow:hidden;}
-.synh{padding:10px 14px;background:var(--amber-l);display:flex;align-items:center;gap:8px;}
-.synh-i{font-size:16px;}
+.synh{padding:10px 14px;background:var(--amber-l);}
 .syt{font-weight:700;font-size:12px;color:var(--amber);}
 .sys2{font-size:10px;color:#BA7517;}
 .synb{padding:12px 14px;}
@@ -513,13 +512,7 @@ body{
       Backend conectado
     </div>
   </div>
-  <div>
-    <div class="lbl">Fase da consulta</div>
-    <div class="ptabs">
-      <button class="ptab active" id="pt-an" onclick="setPhase('an')">🩺 Anamnese</button>
-      <button class="ptab" id="pt-ef" onclick="setPhase('ef')">🔬 Exame Físico</button>
-    </div>
-  </div>
+
   <div>
     <div class="lbl">Gravação</div>
     <div class="reca" id="recArea">
@@ -658,7 +651,7 @@ body{
 </div>
 
 <script>
-var phase="an", isRec=false, timerInt=null, secs=0, fullTx="", resultData={}, editActive=false, expFmt="pdf";
+var phase="an", isRec=false, timerInt=null, secs=0, fullTx="", anTx="", efTx="", resultData={}, editActive=false, expFmt="pdf";
 var mediaRec=null, audioChunks=[];
 
 var SECTIONS=[
@@ -748,9 +741,7 @@ function saveKey(){ console.log("API keys managed by backend"); }
 
 // ── PHASE ──
 function setPhase(p){
-  phase=p;
-  document.getElementById("pt-an").classList.toggle("active",p==="an");
-  document.getElementById("pt-ef").classList.toggle("active",p==="ef");
+  phase=p; // kept for compatibility
 }
 function toggleRec(){ isRec ? stopRec() : startRec(); }
 
@@ -909,6 +900,12 @@ function mostrarTranscricao(transcript){
       appendTx("sys", line);
     }
   });
+  // Armazena separado por fase
+  if(phase==="an"){
+    anTx += (anTx?"\n":"") + transcript;
+  } else {
+    efTx += (efTx?"\n":"") + transcript;
+  }
   fullTx += (fullTx?"\n":"") + transcript;
   document.getElementById("manTx").value = fullTx;
   document.getElementById("recSt").textContent = "Gravação encerrada";
@@ -1009,27 +1006,35 @@ function savePrefs(){
 }
 
 // ── PROCESS ──
+// Campos de exame físico — preenchidos apenas com transcrição da fase EF
+var EF_KEYS = ["efg_estado_geral", "efg_consciencia", "efg_glasgow", "efg_fala", "efg_hidratacao", "efg_peso", "efg_altura", "efg_imc", "efg_circ_cintura", "efg_nutricional", "efg_facies", "efg_atitude", "efg_mucosas", "efg_pele", "efg_cabelos", "efg_unhas", "efg_tcs", "efg_edema", "efg_musculatura", "efg_linfonodos", "efg_temperatura", "efg_biotipo", "efg_marcha", "efg_fc", "efg_pa", "efg_fr", "efg_spo2", "efe_resp_insp", "efe_resp_palp", "efe_resp_perc", "efe_resp_ausc", "efe_cardio_insp", "efe_cardio_palp", "efe_cardio_perc", "efe_cardio_ausc", "efe_digest_insp", "efe_digest_ausc", "efe_digest_perc", "efe_digest_palp", "efe_neuro_mental", "efe_neuro_motor", "efe_neuro_sensitivo", "efe_neuro_meningeo", "efe_loco_coluna", "efe_loco_articulacoes", "efe_genito_rins", "efe_genito_bexiga", "efe_genito_externo", "efe_mamas", "efe_cabeca_pescoco"];
+
 function processTranscript(){
-  var tx=document.getElementById("manTx").value.trim()||fullTx;
-  if(!tx){ alert("Cole ou grave uma transcrição antes de processar."); return; }
+  var txManual = document.getElementById("manTx").value.trim();
+  if(!txManual && !fullTx){ alert("Cole ou grave uma transcrição antes de processar."); return; }
 
   showView("record");
   document.getElementById("vWelcome").style.display="none";
   document.getElementById("vResult").style.display="none";
   document.getElementById("vLoading").style.display="flex";
 
-  var activeList=Object.keys(activeKeys).filter(function(k){return activeKeys[k];});
   var fldMap={};SECTIONS.forEach(function(s){getAllFields(s).forEach(function(f){fldMap[f.k]=f.l;});});
+  var activeList=Object.keys(activeKeys).filter(function(k){return activeKeys[k];});
 
-  // Divide campos em 2 lotes para evitar timeout de 60s
-  var mid=Math.ceil(activeList.length/2);
-  var batch1=activeList.slice(0,mid);
-  var batch2=activeList.slice(mid);
+  // Separar campos: EF usa efTx, demais usam anTx (ou fullTx se colado manualmente)
+  var txAn = anTx || txManual || fullTx;
+  var txEf = efTx || "";
+
+  // Se não há transcrição separada por fase, usa tudo para tudo
+  if(!anTx && !efTx) { txAn = txManual || fullTx; txEf = txAn; }
+
+  var efKeys   = activeList.filter(function(k){ return EF_KEYS.indexOf(k) !== -1; });
+  var nonEfKeys= activeList.filter(function(k){ return EF_KEYS.indexOf(k) === -1; });
 
   var msgs=[
     ["Analisando a consulta...","Identificando médico e paciente"],
-    ["Preenchendo identificação e HDA...","Extraindo dados clínicos — parte 1 de 2"],
-    ["Preenchendo IS e antecedentes...","Extraindo dados clínicos — parte 2 de 2"],
+    ["Preenchendo identificação e HDA...","Extraindo dados clínicos"],
+    ["Preenchendo exame físico...","Analisando achados do exame"],
     ["Gerando hipóteses diagnósticas...","Raciocínio diagnóstico"]
   ];
   var mi=0;
@@ -1043,18 +1048,31 @@ function processTranscript(){
 
   var mergedResult={};
 
-  fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({transcript:tx,activeKeys:batch1,fieldMap:fldMap})})
-  .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;});})
-  .then(function(data1){
-    if(data1.result) Object.assign(mergedResult,data1.result);
+  // Divide campos não-EF em 2 lotes + 1 lote EF
+  var mid=Math.ceil(nonEfKeys.length/2);
+  var batch1=nonEfKeys.slice(0,mid);
+  var batch2=nonEfKeys.slice(mid);
+  var batch3=efKeys; // exame físico com transcrição própria
+
+  function runBatch(keys, tx){
+    if(!keys || keys.length===0) return Promise.resolve({result:{}});
     return fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({transcript:tx,activeKeys:batch2,fieldMap:fldMap})});
+      body:JSON.stringify({transcript:tx,activeKeys:keys,fieldMap:fldMap})})
+    .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;});});
+  }
+
+  runBatch(batch1, txAn)
+  .then(function(d1){
+    if(d1.result) Object.assign(mergedResult,d1.result);
+    return runBatch(batch2, txAn);
   })
-  .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;});})
-  .then(function(data2){
+  .then(function(d2){
+    if(d2.result) Object.assign(mergedResult,d2.result);
+    return runBatch(batch3, txEf || txAn);
+  })
+  .then(function(d3){
     clearInterval(mint);
-    if(data2.result) Object.assign(mergedResult,data2.result);
+    if(d3.result) Object.assign(mergedResult,d3.result);
     if(Object.keys(mergedResult).length>0){resultData=mergedResult;renderResult(mergedResult);}
     else renderRaw("Erro ao processar resposta.");
   })
@@ -1205,14 +1223,14 @@ function renderResult(d){
   // S13 Hipóteses
   if(isActive("hipoteses")){
     var sy1=document.createElement("div"); sy1.className="syn";
-    sy1.innerHTML="<div class=\"synh\"><svg viewBox=\"0 0 24 24\"><path d=\"M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z\"/></svg><div><div class=\"synt\">Hipóteses Diagnósticas</div><div class=\"syns\">IA · Revisão médica obrigatória</div></div></div><div class=\"synb\"><textarea class=\"synta\" data-key=\"hipoteses\">"+esc(d["hipoteses"]||"Não gerado")+"</textarea></div>";
+    sy1.innerHTML="<div class=\"synh\"><div><div class=\"syt\">⚠ Hipóteses Diagnósticas</div><div class=\"sys2\">IA · Revisão médica obrigatória</div></div></div><div class=\"synb\"><textarea class=\"synta\" data-key=\"hipoteses\">"+escapeHTML(val2str(d.hipoteses)||"Não gerado")+"</textarea></div>";
     c.appendChild(sy1);
   }
 
   // S14 Conduta
   if(isActive("conduta")){
     var sy2=document.createElement("div"); sy2.className="syn";
-    sy2.innerHTML="<div class=\"synh\"><svg viewBox=\"0 0 24 24\"><path d=\"M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z\"/></svg><div><div class=\"synt\">Conduta Sugerida</div><div class=\"syns\">IA · Revisão médica obrigatória</div></div></div><div class=\"synb\"><textarea class=\"synta\" data-key=\"conduta\">"+esc(d["conduta"]||"Não gerado")+"</textarea></div>";
+    sy2.innerHTML="<div class=\"synh\"><div><div class=\"syt\">📋 Conduta Sugerida</div><div class=\"sys2\">IA · Revisão médica obrigatória</div></div></div><div class=\"synb\"><textarea class=\"synta\" data-key=\"conduta\">"+escapeHTML(val2str(d.conduta)||"Não gerado")+"</textarea></div>";
     c.appendChild(sy2);
   }
 }
