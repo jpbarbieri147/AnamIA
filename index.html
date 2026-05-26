@@ -805,7 +805,7 @@ function stopRec(){
 }
 
 // Máximo por parte: 18MB (seguro abaixo do limite de 25MB do Whisper)
-var MAX_CHUNK_BYTES = 18 * 1024 * 1024;
+var MAX_CHUNK_BYTES = 8 * 1024 * 1024; // 8MB blob = ~10MB base64, seguro abaixo do limite de 25MB do Whisper
 
 function procAudio(){
   appendTx("sys","Preparando áudio...");
