@@ -1054,11 +1054,27 @@ function processTranscript(){
   var batch2=nonEfKeys.slice(mid);
   var batch3=efKeys; // exame físico com transcrição própria
 
+  // Max chars per batch call — keeps Claude well under 60s timeout
+  var MAX_TX_PER_BATCH = 20000;
+
   function runBatch(keys, tx){
     if(!keys || keys.length===0) return Promise.resolve({result:{}});
+    // Truncate transcript per batch to avoid timeout
+    var txTrunc = tx.length > MAX_TX_PER_BATCH
+      ? tx.substring(0, MAX_TX_PER_BATCH) + "\n[...transcrição longa — primeiros 20.000 caracteres processados]"
+      : tx;
     return fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({transcript:tx,activeKeys:keys,fieldMap:fldMap})})
-    .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;});});
+      body:JSON.stringify({transcript:txTrunc,activeKeys:keys,fieldMap:fldMap})})
+    .then(function(r){
+      return r.text().then(function(txt){
+        try{ var d=JSON.parse(txt); if(!r.ok) throw new Error(d.error||"HTTP "+r.status); return d; }
+        catch(e){
+          if(r.status===504) throw new Error("Tempo esgotado. Tente recarregar e gerar novamente.");
+          if(r.status===413) throw new Error("Transcrição muito grande. Tente reduzir o texto.");
+          throw new Error("Erro "+r.status+": tente novamente.");
+        }
+      });
+    });
   }
 
   runBatch(batch1, txAn)
