@@ -1116,8 +1116,10 @@ function processTranscript(){
 function esc(t){ return String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 function mkField(k,label,val){
-  var empty=!val||val==="Não investigado"||val==="Não examinado";
-  return "<div class=\"fr\"><div class=\"fl\">"+label+"</div><div class=\"fv"+(empty?" empty":"")+"\" data-key=\""+k+"\">"+esc(val||"Não investigado")+"</div></div>";
+  var EMPTY_VALS=["Não investigado","Não examinado","Não informado","nao investigado","nao examinado",""];
+  var txt=val||"Não investigado";
+  var empty=!val||EMPTY_VALS.indexOf(txt.trim())!==-1||EMPTY_VALS.indexOf(txt.trim().toLowerCase())!==-1;
+  return "<div class=\"fr\"><div class=\"fl\">"+label+"</div><div class=\"fv"+(empty?" empty":"")+"\" data-key=\""+k+"\">"+escapeHTML(txt)+"</div></div>";
 }
 
 function mkSub(title,rows){ return "<div class=\"sub\"><div class=\"subt\">"+title+"</div>"+rows+"</div>"; }
@@ -1317,7 +1319,8 @@ function toggleEdit(){
       var txt=el.textContent.trim();
       var k=el.dataset.key;
       if(k&&resultData) resultData[k]=txt;
-      var isEmpty=!txt||txt==="Não investigado"||txt==="Não examinado"||txt==="Não informado";
+      var EMPTY_VARIANTS=["Não investigado","Não examinado","Não informado","nao investigado",""];
+      var isEmpty=!txt||EMPTY_VARIANTS.indexOf(txt.trim())!==-1;
       el.classList.toggle("empty",isEmpty);
     });
   }
