@@ -942,7 +942,9 @@ function buildCustomize(){
         var el=document.getElementById("ck_"+f.k);
         if(el) el.checked=on;
       });
-    });
+      // Re-render instantly
+      if(Object.keys(resultData).length>0){document.getElementById("vResult").style.display="block";renderResult(resultData);}
+    });;
     hdr.addEventListener("click",function(e){
       if(e.target.tagName==="INPUT") return;
       var body=this.nextElementSibling;
@@ -983,6 +985,11 @@ function mkChk(f){
       var allOn=allF.every(function(ff){return isActive(ff.k);});
       var mck=document.getElementById("mck_"+s.id);
       if(mck) mck.checked=allOn;
+    }
+    // Re-render instantly if anamnese already generated
+    if(Object.keys(resultData).length>0){
+      document.getElementById("vResult").style.display="block";
+      renderResult(resultData);
     }
   });
   return d;
@@ -1292,26 +1299,31 @@ function toggleEdit(){
   var btn=document.getElementById("editBtn");
   if(editActive){
     btn.textContent="✅ Concluir edição";
-    btn.style.background="var(--tl)"; btn.style.color="var(--teal)"; btn.style.borderColor="var(--teal)";
     document.querySelectorAll(".fv").forEach(function(el){
       el.contentEditable="true";
-      el.style.outline="1.5px dashed var(--tm)";
-      el.style.cursor="text";
+      el.style.outline="1.5px dashed var(--verde-m)";
+      el.oninput=function(){
+        if(this.textContent.trim()!==""){
+          this.classList.remove("empty");
+        }
+      };
     });
-  } else {
+  }else{
     btn.textContent="✏️ Editar";
-    btn.style.background=""; btn.style.color=""; btn.style.borderColor="";
     document.querySelectorAll(".fv").forEach(function(el){
       el.contentEditable="false";
       el.style.outline="";
-      el.style.cursor="";
+      el.oninput=null;
+      var txt=el.textContent.trim();
       var k=el.dataset.key;
-      if(k && resultData) resultData[k]=el.textContent.trim();
+      if(k&&resultData) resultData[k]=txt;
+      var isEmpty=!txt||txt==="Não investigado"||txt==="Não examinado"||txt==="Não informado";
+      el.classList.toggle("empty",isEmpty);
     });
   }
 }
 
-// ── EXPORT ──
+
 function openExport(){
   if(!Object.keys(resultData).length){alert("Gere a anamnese primeiro.");return;}
   document.getElementById("exportModal").classList.add("open");
