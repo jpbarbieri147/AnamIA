@@ -461,6 +461,36 @@ body{
 .cchev.open{transform:rotate(180deg);}
 .mchk{width:14px;height:14px;accent-color:var(--verde);cursor:pointer;flex-shrink:0;}
 
+/* ── OSLER CHAT ── */
+.osler-wrap{margin:0 1.5rem 1.5rem;border:1px solid var(--verde-b);border-radius:var(--r);overflow:hidden;background:var(--branco);}
+.osler-hdr{background:var(--verde-l);padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--verde-b);}
+.osler-mark{width:30px;height:30px;background:var(--verde);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.osler-mark svg{width:18px;height:18px;}
+.osler-title{font-family:'EB Garamond',Georgia,serif;font-size:15px;color:var(--verde);font-weight:400;}
+.osler-sub{font-size:10px;color:var(--cinza);margin-top:1px;}
+.osler-msgs{padding:12px 14px;max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.osler-msg{display:flex;gap:8px;align-items:flex-start;}
+.osler-msg.user{flex-direction:row-reverse;}
+.osler-bubble{max-width:85%;padding:9px 12px;border-radius:10px;font-size:12px;line-height:1.6;}
+.osler-msg.osler .osler-bubble{background:var(--verde-l);color:var(--preto);border-radius:0 10px 10px 10px;}
+.osler-msg.user .osler-bubble{background:var(--verde);color:#fff;border-radius:10px 0 10px 10px;}
+.osler-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:600;}
+.osler-avatar.osler-av{background:var(--verde);color:#fff;}
+.osler-avatar.user-av{background:var(--cinza-l);color:var(--cinza);}
+.osler-typing{display:none;align-items:center;gap:4px;padding:4px 0;}
+.osler-typing.show{display:flex;}
+.osler-dot{width:6px;height:6px;border-radius:50%;background:var(--verde-b);animation:osler-bounce .8s infinite;}
+.osler-dot:nth-child(2){animation-delay:.15s;}
+.osler-dot:nth-child(3){animation-delay:.3s;}
+@keyframes osler-bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-5px);}}
+.osler-input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--cinza-l);background:var(--pergaminho);}
+.osler-input{flex:1;border:1px solid var(--cinza-l);border-radius:var(--rs);padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;resize:none;outline:none;min-height:38px;max-height:100px;background:var(--branco);}
+.osler-input:focus{border-color:var(--verde);}
+.osler-send{width:36px;height:36px;border-radius:var(--rs);background:var(--verde);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-end;}
+.osler-send:hover{background:#0D6E50;}
+.osler-send svg{width:16px;height:16px;fill:#fff;}
+.osler-disclaimer{font-size:10px;color:var(--cinza);font-style:italic;padding:6px 14px 10px;text-align:center;line-height:1.5;}
+
 /* ── EXPORT MODAL ── */
 .ovl{position:fixed;inset:0;background:rgba(10,10,10,.5);z-index:500;display:none;align-items:center;justify-content:center;}
 .ovl.open{display:flex;}
@@ -1148,6 +1178,74 @@ function val2str(v){
   return String(v);
 }
 
+
+// ── OSLER CHAT ──
+var oslerHistory=[];
+
+function oslerKeydown(e){
+  if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();oslerSend();}
+}
+
+function oslerSend(){
+  var input=document.getElementById("oslerInput");
+  if(!input) return;
+  var msg=input.value.trim();
+  if(!msg) return;
+  input.value="";
+  oslerAddMsg("user", msg);
+  oslerHistory.push({role:"user", content:msg});
+  var typing=document.getElementById("oslerTyping");
+  if(typing) typing.classList.add("show");
+
+  var anamCtx="";
+  if(Object.keys(resultData).length>0){
+    anamCtx="Anamnese gerada (JSON):\n"+JSON.stringify(resultData).substring(0,3000);
+  }
+  var txCtx=fullTx?"\n\nTranscrição (resumo):\n"+fullTx.substring(0,2000):"";
+
+  var systemPrompt="Você é o Osler, assistente de raciocínio clínico da AnamIA. "+
+    "Você tem acesso à anamnese e à transcrição desta consulta. "+
+    "Responda em linguagem médica formal, baseando-se nos dados da consulta. "+
+    "Cite achados específicos quando relevante. Nunca invente dados não presentes. "+
+    "Em respostas sobre diagnóstico ou conduta, lembre que são sugestões de raciocínio clínico."+
+    "\n\n"+anamCtx+txCtx;
+
+  fetch("/api/osler",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      system: systemPrompt,
+      messages: oslerHistory
+    })
+  })
+  .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;});})
+  .then(function(data){
+    if(typing) typing.classList.remove("show");
+    var resp=data.response||"Não consegui processar sua pergunta. Tente novamente.";
+    oslerHistory.push({role:"assistant",content:resp});
+    oslerAddMsg("osler", resp);
+  })
+  .catch(function(err){
+    if(typing) typing.classList.remove("show");
+    oslerAddMsg("osler","Erro: "+err.message+". Tente novamente.");
+  });
+}
+
+function oslerAddMsg(type, text){
+  var msgs=document.getElementById("oslerMsgs");
+  if(!msgs) return;
+  var div=document.createElement("div");
+  div.className="osler-msg "+type;
+  var avatar=type==="osler"
+    ?'<div class="osler-avatar osler-av">O</div>'
+    :'<div class="osler-avatar user-av">M</div>';
+  div.innerHTML=avatar+'<div class="osler-bubble">'+escapeHTML(text)+'</div>';
+  var typing=document.getElementById("oslerTyping");
+  if(typing) msgs.insertBefore(div,typing);
+  else msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
 function renderResult(d){
   document.getElementById("vLoading").style.display="none";
   document.getElementById("vResult").style.display="block";
@@ -1281,6 +1379,45 @@ function renderResult(d){
     sy2.innerHTML="<div class=\"synh\"><div><div class=\"syt\">📋 Conduta Sugerida</div><div class=\"sys2\">IA · Revisão médica obrigatória</div></div></div><div class=\"synb\"><textarea class=\"synta\" data-key=\"conduta\">"+escapeHTML(val2str(d.conduta)||"Não gerado")+"</textarea></div>";
     c.appendChild(sy2);
   }
+
+  // Osler Chat — sempre o último elemento
+  var oslerWrap=document.createElement("div");
+  oslerWrap.className="osler-wrap";
+  oslerWrap.id="oslerWrap";
+  oslerWrap.innerHTML=[
+    '<div class="osler-hdr">',
+      '<div class="osler-mark">',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">',
+          '<path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V12h-4V9.5C8.8 8.8 8 7.5 8 6a4 4 0 0 1 4-4z"/>',
+          '<path d="M10 12v2a2 2 0 0 0 4 0v-2"/>',
+          '<circle cx="12" cy="18" r="3"/>',
+        '</svg>',
+      '</div>',
+      '<div>',
+        '<div class="osler-title">Osler</div>',
+        '<div class="osler-sub">Consultoria clínica baseada na anamnese gerada</div>',
+      '</div>',
+    '</div>',
+    '<div class="osler-msgs" id="oslerMsgs">',
+      '<div class="osler-msg osler">',
+        '<div class="osler-avatar osler-av">O</div>',
+        '<div class="osler-bubble">Olá! Analisei a anamnese. Pode me perguntar sobre as hipóteses diagnósticas, solicitar raciocínio clínico diferencial, discutir a conduta ou questionar qualquer aspecto desta consulta.</div>',
+      '</div>',
+      '<div class="osler-typing" id="oslerTyping">',
+        '<div class="osler-dot"></div>',
+        '<div class="osler-dot"></div>',
+        '<div class="osler-dot"></div>',
+      '</div>',
+    '</div>',
+    '<div class="osler-input-row">',
+      '<textarea class="osler-input" id="oslerInput" placeholder="Pergunte ao Osler sobre esta consulta..." rows="1" onkeydown="oslerKeydown(event)"></textarea>',
+      '<button class="osler-send" onclick="oslerSend()">',
+        '<svg viewBox="0 0 24 24" fill="white"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>',
+      '</button>',
+    '</div>',
+    '<div class="osler-disclaimer">As respostas não substituem julgamento médico, literatura científica ou consulta com especialista.</div>'
+  ].join("");
+  c.appendChild(oslerWrap);
 }
 
 function renderRaw(txt){
