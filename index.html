@@ -1021,21 +1021,19 @@ function processTranscript(){
   var fldMap={};SECTIONS.forEach(function(s){getAllFields(s).forEach(function(f){fldMap[f.k]=f.l;});});
   var activeList=Object.keys(activeKeys).filter(function(k){return activeKeys[k];});
 
-  // Separar campos: EF usa efTx, demais usam anTx (ou fullTx se colado manualmente)
+  // Transcrição para cada contexto
   var txAn = anTx || txManual || fullTx;
-  var txEf = efTx || "";
-
-  // Se não há transcrição separada por fase, usa tudo para tudo
-  if(!anTx && !efTx) { txAn = txManual || fullTx; txEf = txAn; }
+  var txEf = efTx || txAn;
 
   var efKeys   = activeList.filter(function(k){ return EF_KEYS.indexOf(k) !== -1; });
   var nonEfKeys= activeList.filter(function(k){ return EF_KEYS.indexOf(k) === -1; });
 
   var msgs=[
     ["Analisando a consulta...","Identificando médico e paciente"],
-    ["Preenchendo identificação e HDA...","Extraindo dados clínicos"],
-    ["Preenchendo exame físico...","Analisando achados do exame"],
-    ["Gerando hipóteses diagnósticas...","Raciocínio diagnóstico"]
+    ["Preenchendo identificação e HDA...","Parte 1 de 4"],
+    ["Preenchendo IS e antecedentes...","Parte 2 de 4"],
+    ["Preenchendo hábitos e condições...","Parte 3 de 4"],
+    ["Preenchendo exame físico e hipóteses...","Parte 4 de 4"]
   ];
   var mi=0;
   var mint=setInterval(function(){
@@ -1049,19 +1047,22 @@ function processTranscript(){
   var mergedResult={};
 
   // Divide campos não-EF em 2 lotes + 1 lote EF
-  var mid=Math.ceil(nonEfKeys.length/2);
-  var batch1=nonEfKeys.slice(0,mid);
-  var batch2=nonEfKeys.slice(mid);
-  var batch3=efKeys; // exame físico com transcrição própria
+  // 4 lotes menores — cada um ~15-20 campos = ~15-20s por chamada
+  var q1=Math.ceil(nonEfKeys.length/3);
+  var q2=Math.ceil(nonEfKeys.length*2/3);
+  var batch1=nonEfKeys.slice(0,q1);
+  var batch2=nonEfKeys.slice(q1,q2);
+  var batch3=nonEfKeys.slice(q2);
+  var batch4=efKeys;
 
   // Max chars per batch call — keeps Claude well under 60s timeout
-  var MAX_TX_PER_BATCH = 20000;
+  var MAX_TX_PER_BATCH = 10000; // ~5min de consulta por lote, bem abaixo do timeout de 60s
 
   function runBatch(keys, tx){
     if(!keys || keys.length===0) return Promise.resolve({result:{}});
     // Truncate transcript per batch to avoid timeout
     var txTrunc = tx.length > MAX_TX_PER_BATCH
-      ? tx.substring(0, MAX_TX_PER_BATCH) + "\n[...transcrição longa — primeiros 20.000 caracteres processados]"
+      ? tx.substring(0, MAX_TX_PER_BATCH) + "\n[...transcrição resumida para processamento]"
       : tx;
     return fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({transcript:txTrunc,activeKeys:keys,fieldMap:fldMap})})
@@ -1084,11 +1085,15 @@ function processTranscript(){
   })
   .then(function(d2){
     if(d2.result) Object.assign(mergedResult,d2.result);
-    return runBatch(batch3, txEf || txAn);
+    return runBatch(batch3, txAn);
   })
   .then(function(d3){
-    clearInterval(mint);
     if(d3.result) Object.assign(mergedResult,d3.result);
+    return runBatch(batch4, txEf);
+  })
+  .then(function(d4){
+    clearInterval(mint);
+    if(d4.result) Object.assign(mergedResult,d4.result);
     if(Object.keys(mergedResult).length>0){resultData=mergedResult;renderResult(mergedResult);}
     else renderRaw("Erro ao processar resposta.");
   })
