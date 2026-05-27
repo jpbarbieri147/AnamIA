@@ -471,7 +471,17 @@ body{
 .osler-msgs{padding:12px 14px;max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
 .osler-msg{display:flex;gap:8px;align-items:flex-start;}
 .osler-msg.user{flex-direction:row-reverse;}
-.osler-bubble{max-width:85%;padding:9px 12px;border-radius:10px;font-size:12px;line-height:1.6;}
+.osler-bubble{max-width:85%;padding:9px 13px;border-radius:10px;font-size:12.5px;line-height:1.65;}
+.osler-bubble p{margin:0 0 8px 0;}
+.osler-bubble p:last-child{margin-bottom:0;}
+.osler-bubble .md-h{font-family:'EB Garamond',Georgia,serif;font-weight:500;color:var(--verde);margin:10px 0 5px 0;font-size:14px;line-height:1.3;}
+.osler-bubble .md-h:first-child{margin-top:0;}
+.osler-bubble h5.md-h{font-size:12.5px;color:var(--preto);}
+.osler-bubble strong{font-weight:600;color:var(--verde);}
+.osler-bubble em{font-style:italic;}
+.osler-bubble .md-ul{margin:6px 0 8px 0;padding-left:18px;}
+.osler-bubble .md-ul li{margin-bottom:3px;line-height:1.55;}
+.osler-msg.user .osler-bubble strong{color:#fff;text-decoration:underline;}
 .osler-msg.osler .osler-bubble{background:var(--verde-l);color:var(--preto);border-radius:0 10px 10px 10px;}
 .osler-msg.user .osler-bubble{background:var(--verde);color:#fff;border-radius:10px 0 10px 10px;}
 .osler-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:600;}
@@ -731,7 +741,8 @@ var SECTIONS=[
   {id:"s11",num:"11",title:"Exames Laboratoriais",fields:[{k:"lab_resultados",l:"Resultados"}],isTA:true},
   {id:"s12",num:"12",title:"Exames de Imagem",fields:[{k:"img_achados",l:"Achados"}],isTA:true},
   {id:"s13",num:"13",title:"Hipóteses Diagnósticas",fields:[{k:"hipoteses",l:"Hipóteses"}],isSyn:true},
-  {id:"s14",num:"14",title:"Conduta Sugerida",fields:[{k:"conduta",l:"Conduta"}],isSyn:true}
+  {id:"s14",num:"14",title:"Conduta Sugerida",fields:[{k:"conduta",l:"Conduta"}],isSyn:true},
+  {id:"s15",num:"15",title:"Osler — Consultoria Clínica",fields:[{k:"osler_chat",l:"Habilitar chat com Osler após a anamnese"}]}
 ];
 
 var activeKeys={};
@@ -1231,6 +1242,41 @@ function oslerSend(){
   });
 }
 
+function mdToHtml(text){
+  if(!text) return "";
+  var s = escapeHTML(text);
+  // Cabeçalhos: ## Título  →  <h4>
+  s = s.replace(/^###\s+(.+)$/gm, '<h5 class="md-h">$1</h5>');
+  s = s.replace(/^##\s+(.+)$/gm, '<h4 class="md-h">$1</h4>');
+  s = s.replace(/^#\s+(.+)$/gm, '<h3 class="md-h">$1</h3>');
+  // Negrito **texto**
+  s = s.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
+  // Itálico *texto*
+  s = s.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
+  // Listas com - ou *
+  s = s.replace(/^[\-\*]\s+(.+)$/gm, '<li>$1</li>');
+  // Agrupar <li> consecutivos em <ul>
+  s = s.replace(/(<li>[\s\S]*?<\/li>)(?:\s*(<li>))/g, '$1$2');
+  s = s.replace(/(<li>(?:(?!<\/?li>).)*<\/li>(?:\s*<li>(?:(?!<\/?li>).)*<\/li>)*)/g, '<ul class="md-ul">$1</ul>');
+  // Quebras de linha duplas → parágrafo
+  s = s.replace(/\n\n+/g, '</p><p>');
+  // Quebras simples → <br>
+  s = s.replace(/\n/g, '<br>');
+  // Envolver tudo em <p> se ainda não tiver
+  if(s.indexOf('<p>') === -1 && s.indexOf('<h') === -1 && s.indexOf('<ul') === -1){
+    s = '<p>' + s + '</p>';
+  } else if(s.indexOf('</p><p>') !== -1){
+    s = '<p>' + s + '</p>';
+  }
+  // Limpar artefatos
+  s = s.replace(/<p>\s*<\/p>/g, '');
+  s = s.replace(/<p>(<h\d)/g, '$1');
+  s = s.replace(/(<\/h\d>)<\/p>/g, '$1');
+  s = s.replace(/<p>(<ul)/g, '$1');
+  s = s.replace(/(<\/ul>)<\/p>/g, '$1');
+  return s;
+}
+
 function oslerAddMsg(type, text){
   var msgs=document.getElementById("oslerMsgs");
   if(!msgs) return;
@@ -1239,7 +1285,7 @@ function oslerAddMsg(type, text){
   var avatar=type==="osler"
     ?'<div class="osler-avatar osler-av">O</div>'
     :'<div class="osler-avatar user-av">M</div>';
-  div.innerHTML=avatar+'<div class="osler-bubble">'+escapeHTML(text)+'</div>';
+  div.innerHTML=avatar+'<div class="osler-bubble">'+(type==="osler"?mdToHtml(text):escapeHTML(text))+'</div>';
   var typing=document.getElementById("oslerTyping");
   if(typing) msgs.insertBefore(div,typing);
   else msgs.appendChild(div);
@@ -1380,7 +1426,8 @@ function renderResult(d){
     c.appendChild(sy2);
   }
 
-  // Osler Chat — sempre o último elemento
+  // Osler Chat — controlado pela personalização
+  if(!isActive("osler_chat")) return;
   var oslerWrap=document.createElement("div");
   oslerWrap.className="osler-wrap";
   oslerWrap.id="oslerWrap";
