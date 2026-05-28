@@ -6,6 +6,7 @@
 <title>AnamIA — Prontuário Inteligente</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -518,6 +519,30 @@ body{
 .mcan:hover{background:var(--pergaminho);}
 .mdl{padding:8px 18px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
 .mdl:hover{background:#0D6E50;}
+
+/* === AUTH OVERLAY === */
+.auth-ovl{position:fixed;inset:0;background:rgba(247,245,240,.97);z-index:999;display:flex;align-items:center;justify-content:center;}
+.auth-card{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);padding:2rem;width:360px;box-shadow:0 8px 40px rgba(0,0,0,.1);}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;}
+.auth-title{font-family:'EB Garamond',Georgia,serif;font-size:22px;font-weight:400;color:var(--preto);margin-bottom:.25rem;}
+.auth-sub{font-size:12px;color:var(--cinza);margin-bottom:1.5rem;line-height:1.5;}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:1.5rem;border:1px solid var(--cinza-l);border-radius:var(--rs);overflow:hidden;}
+.auth-tab{padding:9px;font-size:12px;font-weight:500;cursor:pointer;text-align:center;background:none;border:none;font-family:'Inter',sans-serif;color:var(--cinza);transition:all .15s;}
+.auth-tab.active{background:var(--verde);color:#fff;}
+.auth-field{margin-bottom:.9rem;}
+.auth-field label{display:block;font-size:10px;font-weight:600;color:var(--cinza);letter-spacing:.7px;text-transform:uppercase;margin-bottom:.3rem;}
+.auth-field input{width:100%;padding:9px 11px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:'Inter',sans-serif;color:var(--preto);background:var(--branco);outline:none;transition:border-color .15s;}
+.auth-field input:focus{border-color:var(--verde);}
+.auth-err{font-size:11px;color:var(--red);background:var(--red-l);border:1px solid #F7C1C1;border-radius:var(--rs);padding:7px 10px;margin-bottom:.9rem;display:none;}
+.auth-err.show{display:block;}
+.auth-btn{width:100%;padding:11px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:.2rem;}
+.auth-btn:hover{background:#0D6E50;}
+.auth-btn:disabled{opacity:.6;cursor:not-allowed;}
+.hdr-user{display:none;align-items:center;gap:8px;font-size:12px;color:var(--cinza);}
+.hdr-user.show{display:flex;}
+.hdr-user-name{font-weight:500;color:var(--preto);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hdr-logout{padding:5px 11px;border:1px solid var(--cinza-l);border-radius:var(--rs);background:none;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--cinza);transition:all .15s;}
+.hdr-logout:hover{background:var(--pergaminho);color:var(--preto);}
 </style>
 </head>
 <body>
@@ -539,6 +564,7 @@ body{
     <button class="htab" id="tab-customize" onclick="showView('customize')">⚙️ Personalizar</button>
   </div>
   <span class="badge">Protótipo</span>
+  <div class="hdr-user" id="hdrUser"><span class="hdr-user-name" id="hdrUserName"></span><button class="hdr-logout" onclick="authLogout()">Sair</button></div>
 </header>
 
 <div class="layout">
@@ -691,6 +717,123 @@ body{
 </div>
 
 <script>
+// === SUPABASE AUTH ===
+var SUPA_URL = 'https://lgrfbtcztziuakokaqtb.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxncmZidGN6dHppdWFrb2thcXRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5OTQwMzEsImV4cCI6MjA5NTU3MDAzMX0.HyU0eoKm74m7Fj3X2xVyTezcQoGAe8CHwvOZjofkigU';
+var supa = null;
+var currentUser = null;
+var authCurrentMode = 'login';
+
+function initSupa() {
+  try {
+    if(typeof supabase !== 'undefined' && supabase.createClient) {
+      supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+      return true;
+    }
+  } catch(e) { console.error('Supabase init error:', e); }
+  return false;
+}
+
+function authMode(m) {
+  authCurrentMode = m;
+  document.getElementById('authTabLogin').classList.toggle('active', m==='login');
+  document.getElementById('authTabRegister').classList.toggle('active', m==='register');
+  document.getElementById('authTitle').textContent = m==='login' ? 'Entrar' : 'Criar conta';
+  document.getElementById('authSub').textContent = m==='login'
+    ? 'Acesse sua conta para continuar.'
+    : 'Crie sua conta AnamIA gratuitamente.';
+  document.getElementById('authNameField').style.display = m==='register' ? 'block' : 'none';
+  document.getElementById('authBtn').textContent = m==='login' ? 'Entrar' : 'Criar conta';
+  document.getElementById('authPwd').autocomplete = m==='login' ? 'current-password' : 'new-password';
+  document.getElementById('authErr').classList.remove('show');
+}
+
+function authShowError(msg) {
+  var el = document.getElementById('authErr');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+async function authSubmit() {
+  if(!supa){ authShowError('Erro de conexão. Recarregue a página.'); return; }
+  var email = document.getElementById('authEmail').value.trim();
+  var pwd = document.getElementById('authPwd').value;
+  var btn = document.getElementById('authBtn');
+  if(!email || !pwd){ authShowError('Preencha e-mail e senha.'); return; }
+  if(authCurrentMode==='register' && pwd.length < 6){ authShowError('Senha deve ter pelo menos 6 caracteres.'); return; }
+  btn.disabled = true;
+  btn.textContent = authCurrentMode==='login' ? 'Entrando...' : 'Criando conta...';
+  document.getElementById('authErr').classList.remove('show');
+
+  if(authCurrentMode === 'login') {
+    var res = await supa.auth.signInWithPassword({email: email, password: pwd});
+    if(res.error){
+      var msg = res.error.message === 'Invalid login credentials'
+        ? 'E-mail ou senha incorretos.' : res.error.message;
+      authShowError(msg); btn.disabled=false; btn.textContent='Entrar'; return;
+    }
+    onAuthSuccess(res.data.user);
+  } else {
+    var nome = document.getElementById('authName').value.trim() || email;
+    var res = await supa.auth.signUp({email: email, password: pwd, options:{data:{nome: nome}}});
+    if(res.error){
+      authShowError(res.error.message); btn.disabled=false; btn.textContent='Criar conta'; return;
+    }
+    if(res.data && res.data.user && res.data.session){
+      onAuthSuccess(res.data.user);
+    } else {
+      authShowError('Conta criada! Verifique seu e-mail para confirmar, depois entre.');
+      btn.disabled=false; btn.textContent='Criar conta';
+      authMode('login');
+    }
+  }
+}
+
+function onAuthSuccess(user) {
+  currentUser = user;
+  document.getElementById('authOvl').style.display = 'none';
+  var name = (user.user_metadata && user.user_metadata.nome) ? user.user_metadata.nome : user.email;
+  document.getElementById('hdrUserName').textContent = name;
+  document.getElementById('hdrUser').classList.add('show');
+}
+
+async function authLogout() {
+  if(supa) await supa.auth.signOut();
+  currentUser = null;
+  resultData = {};
+  document.getElementById('hdrUser').classList.remove('show');
+  document.getElementById('hdrUserName').textContent = '';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPwd').value = '';
+  document.getElementById('authErr').classList.remove('show');
+  document.getElementById('authOvl').style.display = 'flex';
+  document.getElementById('vResult').style.display = 'none';
+  document.getElementById('vWelcome').style.display = 'flex';
+  document.getElementById('vCustomize').style.display = 'none';
+  document.getElementById('tab-record').classList.add('active');
+  document.getElementById('tab-customize').classList.remove('active');
+}
+
+window.addEventListener('DOMContentLoaded', async function() {
+  if(!initSupa()){
+    console.error('Supabase SDK not loaded. Auth disabled.');
+    return;
+  }
+  try {
+    var sessionRes = await supa.auth.getSession();
+    if(sessionRes.data && sessionRes.data.session && sessionRes.data.session.user){
+      onAuthSuccess(sessionRes.data.session.user);
+    }
+    supa.auth.onAuthStateChange(function(event, session){
+      if(event === 'SIGNED_IN' && session) onAuthSuccess(session.user);
+      if(event === 'SIGNED_OUT'){
+        currentUser = null;
+        document.getElementById('hdrUser').classList.remove('show');
+      }
+    });
+  } catch(e) { console.error('Auth session check error:', e); }
+});
+
 var phase="an", isRec=false, timerInt=null, secs=0, fullTx="", anTx="", efTx="", resultData={}, editActive=false, expFmt="pdf";
 var mediaRec=null, audioChunks=[];
 
@@ -1179,7 +1322,7 @@ function processTranscript(){
   .then(function(d4){
     clearInterval(mint);
     if(d4.result) Object.assign(mergedResult,d4.result);
-    if(Object.keys(mergedResult).length>0){resultData=mergedResult;renderResult(mergedResult);}
+    if(Object.keys(mergedResult).length>0){resultData=mergedResult;renderResult(mergedResult);saveConsulta(mergedResult,fullTx);}
     else renderRaw("Erro ao processar resposta.");
   })
   .catch(function(err){
@@ -1613,8 +1756,71 @@ function doPrint(){
   setTimeout(function(){w.print();},600);
 }
 
+// ── SALVAR CONSULTA ──
+async function saveConsulta(data, transcricao) {
+  if(!supa || !currentUser) return;
+  try {
+    var payload = {
+      medico_id: currentUser.id,
+      paciente_nome: data.id_nome || null,
+      paciente_idade: data.id_idade || null,
+      paciente_sexo: data.id_sexo || null,
+      transcricao: transcricao || null,
+      anamnese: data,
+      duracao_segundos: secs || null
+    };
+    var res = await supa.from('consultas').insert(payload).select('id').single();
+    if(res.error){
+      console.error('Erro ao salvar consulta:', res.error.message);
+    } else {
+      var meta = document.getElementById('resMeta');
+      if(meta) meta.textContent += '  ·  ✓ Salvo';
+      console.log('Consulta salva, id:', res.data.id);
+    }
+  } catch(e) {
+    console.error('saveConsulta exception:', e);
+  }
+}
+
 // ── INIT ──
 buildCustomize();
 </script>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-ovl" id="authOvl">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 7L9 37H15.5L18.5 29H25.5L28.5 37H35L22 7Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+          <line x1="18" y1="23.5" x2="26" y2="23.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="logo-wordmark">Anam<em>IA</em></span>
+    </div>
+    <div class="auth-title" id="authTitle">Entrar</div>
+    <div class="auth-sub" id="authSub">Acesse sua conta para continuar.</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="authTabLogin" onclick="authMode('login')">Entrar</button>
+      <button class="auth-tab" id="authTabRegister" onclick="authMode('register')">Criar conta</button>
+    </div>
+    <div class="auth-err" id="authErr"></div>
+    <div class="auth-field" id="authNameField" style="display:none">
+      <label>Nome completo</label>
+      <input type="text" id="authName" placeholder="Dr. João Pedro Barbieri" autocomplete="name"/>
+    </div>
+    <div class="auth-field">
+      <label>E-mail</label>
+      <input type="email" id="authEmail" placeholder="seu@email.com" autocomplete="email"/>
+    </div>
+    <div class="auth-field">
+      <label>Senha</label>
+      <input type="password" id="authPwd" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')authSubmit()"/>
+    </div>
+    <button class="auth-btn" id="authBtn" onclick="authSubmit()">Entrar</button>
+  </div>
+</div>
+
 </body>
 </html>
