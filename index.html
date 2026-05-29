@@ -1772,15 +1772,10 @@ async function saveConsulta(data, transcricao) {
       anamnese: data,
       duracao_segundos: secs || null
     };
-    var res = await fetch(SUPA_URL + '/rest/v1/consultas', {
+    var res = await fetch('/api/save', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + session.access_token,
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: session.access_token, payload: payload })
     });
     if(!res.ok) {
       var errText = await res.text();
@@ -1789,7 +1784,7 @@ async function saveConsulta(data, transcricao) {
       var saved = await res.json();
       var meta = document.getElementById('resMeta');
       if(meta) meta.textContent += '  ·  ✓ Salvo';
-      console.log('Consulta salva, id:', saved[0] && saved[0].id);
+      console.log('Consulta salva, id:', saved.id);
     }
   } catch(e) {
     console.error('saveConsulta exception:', e);
