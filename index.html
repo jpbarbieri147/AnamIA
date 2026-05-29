@@ -1762,11 +1762,7 @@ async function saveConsulta(data, transcricao) {
   try {
     var sessRes = await supa.auth.getSession();
     var session = sessRes.data && sessRes.data.session;
-    if(!session) {
-      console.error('saveConsulta: sem sessao ativa');
-      return;
-    }
-    console.log('saveConsulta: sessao ok, user=', session.user.id);
+    if(!session) { console.error('saveConsulta: sem sessao'); return; }
     var payload = {
       medico_id: session.user.id,
       paciente_nome: data.id_nome || null,
@@ -1776,13 +1772,24 @@ async function saveConsulta(data, transcricao) {
       anamnese: data,
       duracao_segundos: secs || null
     };
-    var res = await supa.from('consultas').insert(payload).select('id').single();
-    if(res.error){
-      console.error('Erro ao salvar consulta:', res.error.message, res.error);
+    var res = await fetch(SUPA_URL + '/rest/v1/consultas', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + session.access_token,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) {
+      var errText = await res.text();
+      console.error('Erro ao salvar consulta:', res.status, errText);
     } else {
+      var saved = await res.json();
       var meta = document.getElementById('resMeta');
       if(meta) meta.textContent += '  ·  ✓ Salvo';
-      console.log('Consulta salva, id:', res.data.id);
+      console.log('Consulta salva, id:', saved[0] && saved[0].id);
     }
   } catch(e) {
     console.error('saveConsulta exception:', e);
