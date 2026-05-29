@@ -38,72 +38,187 @@ body{
   line-height:1.6;
 }
 
-/* ── HEADER ── */
-.hdr{
-  background:var(--branco);
-  border-bottom:1px solid var(--cinza-l);
-  padding:0 1.5rem;
-  height:60px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  position:sticky;
-  top:0;
-  z-index:200;
-}
-.logo{display:flex;align-items:center;gap:10px;}
-.logo-mark{
-  width:36px;height:36px;
+/* ── NAV VERTICAL ── */
+.nav{
+  position:fixed;top:0;left:0;
+  height:100vh;
+  width:64px;
   background:var(--verde);
+  display:flex;flex-direction:column;
+  z-index:300;
+  transition:width .25s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.nav.open{ width:260px; }
+
+.nav-top{
+  display:flex;align-items:center;
+  padding:0 14px;
+  height:64px;
+  gap:12px;
+  flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+.nav-logo-mark{
+  width:36px;height:36px;flex-shrink:0;
+  background:rgba(255,255,255,.12);
   border-radius:8px;
   display:flex;align-items:center;justify-content:center;
+}
+.nav-logo-mark svg{width:22px;height:22px;}
+.nav-wordmark{
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:21px;font-weight:400;
+  color:#fff;
+  white-space:nowrap;
+  opacity:0;
+  transition:opacity .15s .05s;
+  letter-spacing:-0.2px;
+}
+.nav-wordmark em{font-style:normal;color:var(--verde-m);}
+.nav.open .nav-wordmark{opacity:1;}
+
+.nav-toggle{
+  position:absolute;top:14px;right:14px;
+  width:36px;height:36px;
+  background:none;border:none;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:6px;
+  color:#fff;
+  transition:background .15s;
   flex-shrink:0;
 }
-.logo-mark svg{width:22px;height:22px;}
-.logo-wordmark{
-  font-family:'EB Garamond',Georgia,serif;
-  font-size:22px;
-  font-weight:400;
-  color:var(--preto);
-  letter-spacing:-0.2px;
-  line-height:1;
+.nav-toggle:hover{background:rgba(255,255,255,.12);}
+.nav-toggle svg{width:20px;height:20px;fill:#fff;transition:transform .25s;}
+.nav.open .nav-toggle svg{transform:rotate(180deg);}
+
+.nav-items{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  padding:10px 0;
+  display:flex;flex-direction:column;gap:2px;
 }
-.logo-wordmark em{font-style:normal;color:var(--verde);}
-.badge{
-  font-size:10px;font-weight:500;
-  color:var(--verde);
-  background:var(--verde-l);
-  border:1px solid var(--verde-b);
-  padding:2px 10px;
-  border-radius:20px;
-  letter-spacing:0.3px;
-}
-.htabs{display:flex;gap:4px;}
-.htab{
-  padding:6px 14px;
-  border-radius:var(--rs);
-  font-size:12px;font-weight:500;
+.nav-items::-webkit-scrollbar{width:0;}
+
+.nav-item{
+  display:flex;align-items:center;
+  gap:13px;
+  padding:0 14px;
+  height:48px;
   cursor:pointer;
-  color:var(--cinza);
-  border:1px solid transparent;
-  background:none;
+  border-radius:0;
+  background:none;border:none;
   font-family:'Inter',sans-serif;
-  transition:all .15s;
+  color:rgba(255,255,255,.7);
+  text-align:left;
+  transition:background .15s, color .15s;
+  white-space:nowrap;
+  width:100%;
+  position:relative;
 }
-.htab:hover{background:var(--pergaminho);}
-.htab.active{background:var(--verde-l);color:var(--verde);border-color:var(--verde-b);}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,.14);color:#fff;}
+.nav-item.active::before{
+  content:'';position:absolute;left:0;top:8px;bottom:8px;
+  width:3px;background:var(--verde-m);border-radius:0 3px 3px 0;
+}
+.nav-item-ico{
+  width:36px;height:36px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:8px;
+  transition:background .15s;
+}
+.nav-item.active .nav-item-ico{background:rgba(255,255,255,.12);}
+.nav-item-ico svg{width:18px;height:18px;fill:currentColor;}
+.nav-item-label{
+  font-size:13px;font-weight:500;
+  opacity:0;transition:opacity .15s .05s;
+  pointer-events:none;
+}
+.nav.open .nav-item-label{opacity:1;}
+
+.nav-bottom{
+  padding:10px 0 16px;
+  border-top:1px solid rgba(255,255,255,.12);
+  display:flex;flex-direction:column;gap:2px;
+}
+.nav-user{
+  display:flex;align-items:center;gap:13px;
+  padding:0 14px;height:48px;
+  white-space:nowrap;overflow:hidden;
+}
+.nav-avatar{
+  width:36px;height:36px;flex-shrink:0;
+  background:rgba(255,255,255,.15);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;color:#fff;
+}
+.nav-user-info{opacity:0;transition:opacity .15s .05s;min-width:0;}
+.nav.open .nav-user-info{opacity:1;}
+.nav-user-name{font-size:12px;font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
+.nav-user-role{font-size:10px;color:rgba(255,255,255,.55);}
+.nav-logout-btn{
+  display:flex;align-items:center;gap:13px;
+  padding:0 14px;height:40px;
+  cursor:pointer;background:none;border:none;
+  font-family:'Inter',sans-serif;
+  color:rgba(255,255,255,.55);
+  transition:color .15s, background .15s;
+  width:100%;white-space:nowrap;
+}
+.nav-logout-btn:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9);}
+.nav-logout-btn svg{width:16px;height:16px;fill:currentColor;flex-shrink:0;}
+.nav-logout-label{font-size:12px;opacity:0;transition:opacity .15s .05s;}
+.nav.open .nav-logout-label{opacity:1;}
+
+/* badge protótipo no nav */
+.nav-badge{
+  opacity:0;transition:opacity .15s .05s;
+  font-size:9px;font-weight:600;
+  color:var(--verde);background:var(--verde-m);
+  padding:1px 7px;border-radius:10px;
+  margin-left:auto;letter-spacing:.3px;
+}
+.nav.open .nav-badge{opacity:1;}
 
 /* ── LAYOUT ── */
-.layout{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 60px);}
+body{padding-left:64px;transition:padding-left .25s cubic-bezier(.4,0,.2,1);}
+body.nav-open{padding-left:260px;}
+.layout{display:flex;height:100vh;}
 
-/* ── SIDEBAR ── */
-.sb{
+/* ── PAINEL LATERAL (conteúdo dos itens do nav) ── */
+.panel{
+  width:300px;flex-shrink:0;
   background:var(--branco);
   border-right:1px solid var(--cinza-l);
-  padding:1.1rem;
-  display:flex;flex-direction:column;gap:.9rem;
-  overflow-y:auto;
+  display:flex;flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+  transition:width .2s, opacity .2s;
 }
+.panel.hidden{width:0;opacity:0;pointer-events:none;}
+.panel-hdr{
+  padding:20px 18px 14px;
+  border-bottom:1px solid var(--cinza-l);
+  flex-shrink:0;
+}
+.panel-hdr h2{
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:20px;font-weight:400;
+  color:var(--preto);margin-bottom:2px;
+}
+.panel-hdr p{font-size:11px;color:var(--cinza);line-height:1.5;}
+.panel-body{
+  flex:1;overflow-y:auto;
+  padding:1rem;
+  display:flex;flex-direction:column;gap:.9rem;
+}
+.panel-body::-webkit-scrollbar{width:4px;}
+.panel-body::-webkit-scrollbar-thumb{background:var(--cinza-l);border-radius:4px;}
+
+/* ── LEGADO: mantém .sb para compatibilidade interna ── */
+.sb{ display:contents; }
 .lbl{
   font-size:10px;font-weight:600;
   letter-spacing:.9px;text-transform:uppercase;
@@ -220,7 +335,7 @@ body{
 .ast{font-size:10px;margin-top:2px;}
 
 /* ── MAIN ── */
-.main{overflow-y:auto;height:calc(100vh - 60px);}
+.main{overflow-y:auto;height:100vh;flex:1;}
 
 /* ── WELCOME SCREEN ── */
 .wel{
@@ -551,82 +666,237 @@ body{
 .auth-btn{width:100%;padding:11px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:.2rem;}
 .auth-btn:hover{background:#0D6E50;}
 .auth-btn:disabled{opacity:.6;cursor:not-allowed;}
-.hdr-user{display:none;align-items:center;gap:8px;font-size:12px;color:var(--cinza);}
-.hdr-user.show{display:flex;}
-.hdr-user-name{font-weight:500;color:var(--preto);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.hdr-logout{padding:5px 11px;border:1px solid var(--cinza-l);border-radius:var(--rs);background:none;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--cinza);transition:all .15s;}
-.hdr-logout:hover{background:var(--pergaminho);color:var(--preto);}
+/* hdr-user legacy — substituído pelo nav-user */
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="hdr">
-  <div class="logo">
-    <div class="logo-mark">
-      <!-- Logo: A outline -->
+<!-- NAV VERTICAL -->
+<nav class="nav" id="mainNav">
+  <!-- Topo: logo + toggle -->
+  <div class="nav-top">
+    <div class="nav-logo-mark">
       <svg width="22" height="22" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M22 7L9 37H15.5L18.5 29H25.5L28.5 37H35L22 7Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
         <line x1="18" y1="23.5" x2="26" y2="23.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/>
       </svg>
     </div>
-    <span class="logo-wordmark">Anam<em>IA</em></span>
+    <span class="nav-wordmark">Anam<em>IA</em></span>
+    <button class="nav-toggle" onclick="toggleNav()" title="Expandir menu">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 18l6-6-6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </button>
   </div>
-  <div class="htabs">
-    <button class="htab active" id="tab-record" onclick="showView('record')">🩺 Consulta</button>
-    <button class="htab" id="tab-customize" onclick="showView('customize')">⚙️ Personalizar</button>
-    <button class="htab" id="tab-history" onclick="showView('history')">📁 Histórico</button>
+
+  <!-- Itens de navegação -->
+  <div class="nav-items">
+    <button class="nav-item active" id="nav-record" onclick="showView('record')">
+      <span class="nav-item-ico">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="9" y="2" width="6" height="12" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M5 10a7 7 0 0014 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="8" y1="22" x2="16" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="nav-item-label">Nova Consulta</span>
+      <span class="nav-badge">Beta</span>
+    </button>
+
+    <button class="nav-item" id="nav-history" onclick="showView('history')">
+      <span class="nav-item-ico">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="nav-item-label">Histórico</span>
+    </button>
+
+    <button class="nav-item" id="nav-customize" onclick="showView('customize')">
+      <span class="nav-item-ico">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2a10 10 0 100 20A10 10 0 0012 2z" stroke="currentColor" stroke-width="2" fill="none"/>
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="nav-item-label">Personalização</span>
+    </button>
+
+    <button class="nav-item" id="nav-osler" onclick="showView('osler')">
+      <span class="nav-item-ico">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M15 3h6v6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 14L21 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="nav-item-label">Osler</span>
+    </button>
   </div>
-  <span class="badge">Protótipo</span>
-  <div class="hdr-user" id="hdrUser"><span class="hdr-user-name" id="hdrUserName"></span><button class="hdr-logout" onclick="authLogout()">Sair</button></div>
-</header>
+
+  <!-- Rodapé: usuário + logout -->
+  <div class="nav-bottom">
+    <div class="nav-user" id="hdrUser" style="display:none">
+      <div class="nav-avatar" id="navAvatar">?</div>
+      <div class="nav-user-info">
+        <div class="nav-user-name" id="hdrUserName"></div>
+        <div class="nav-user-role">Médico</div>
+      </div>
+    </div>
+    <button class="nav-logout-btn" onclick="authLogout()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="nav-logout-label">Sair</span>
+    </button>
+  </div>
+</nav>
 
 <div class="layout">
 
-<!-- SIDEBAR -->
-<aside class="sb">
-  <div>
-    <div class="lbl">Status</div>
-    <div style="color:var(--verde);font-size:11px;display:flex;align-items:center;gap:5px;">
-      <span style="width:7px;height:7px;border-radius:50%;background:var(--verde-m);display:inline-block;flex-shrink:0;"></span>
-      Backend conectado
+<!-- PAINEL: NOVA CONSULTA -->
+<aside class="panel" id="panel-record">
+  <div class="panel-hdr">
+    <h2>Nova Consulta</h2>
+    <p>Grave ou cole a transcrição da consulta</p>
+  </div>
+  <div class="panel-body sb">
+    <div>
+      <div class="lbl">Status</div>
+      <div style="color:var(--verde);font-size:11px;display:flex;align-items:center;gap:5px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--verde-m);display:inline-block;flex-shrink:0;"></span>
+        Backend conectado
+      </div>
+    </div>
+    <div>
+      <div class="lbl">Gravação</div>
+      <div class="reca" id="recArea">
+        <button class="rbtn" id="recBtn" onclick="toggleRec()">
+          <svg id="micIco" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+            <rect x="9" y="2" width="6" height="12" rx="3"/>
+            <path d="M5 10a7 7 0 0014 0"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="8" y1="22" x2="16" y2="22"/>
+          </svg>
+          <svg id="stopIco" viewBox="0 0 24 24" style="display:none" fill="white" width="20" height="20">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+          </svg>
+        </button>
+        <div class="tmr" id="timer">00:00</div>
+        <div class="rst" id="recSt">Clique para gravar</div>
+      </div>
+    </div>
+    <div>
+      <div class="lbl">Transcrição ao vivo</div>
+      <div class="txb" id="txBox"><p class="txph">A transcrição aparecerá aqui...</p></div>
+      <div class="log-mini" id="logMini"></div>
+    </div>
+    <div>
+      <div class="lbl">Ou cole a transcrição</div>
+      <textarea class="mta" id="manTx" placeholder="[MEDICO]: Qual o motivo da consulta?&#10;[PACIENTE]: Estou com dor no peito..."></textarea>
+    </div>
+    <button class="pbtn" onclick="processTranscript()">
+      <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M5 3l14 9-14 9V3z"/></svg>
+      Gerar Anamnese com IA
+    </button>
+    <div class="note">
+      <strong>⚠️ Aviso importante</strong>
+      Protótipo em desenvolvimento. Transcrições e hipóteses diagnósticas requerem revisão médica obrigatória.
     </div>
   </div>
+</aside>
 
-  <div>
-    <div class="lbl">Gravação</div>
-    <div class="reca" id="recArea">
-      <button class="rbtn" id="recBtn" onclick="toggleRec()">
-        <svg id="micIco" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-          <rect x="9" y="2" width="6" height="12" rx="3"/>
-          <path d="M5 10a7 7 0 0014 0"/>
-          <line x1="12" y1="19" x2="12" y2="22"/>
-          <line x1="8" y1="22" x2="16" y2="22"/>
-        </svg>
-        <svg id="stopIco" viewBox="0 0 24 24" style="display:none" fill="white" width="20" height="20">
-          <rect x="6" y="6" width="12" height="12" rx="2"/>
-        </svg>
-      </button>
-      <div class="tmr" id="timer">00:00</div>
-      <div class="rst" id="recSt">Clique para gravar</div>
+<!-- PAINEL: HISTÓRICO -->
+<aside class="panel hidden" id="panel-history">
+  <div class="panel-hdr">
+    <h2>Histórico</h2>
+    <p>Suas anamneses salvas. Clique para reabrir.</p>
+  </div>
+  <div class="panel-body">
+    <div id="hList" class="hlist">
+      <div class="hloading">Carregando...</div>
     </div>
   </div>
-  <div>
-    <div class="lbl">Transcrição ao vivo</div>
-    <div class="txb" id="txBox"><p class="txph">A transcrição aparecerá aqui...</p></div>
-    <div class="log-mini" id="logMini"></div>
+</aside>
+
+<!-- PAINEL: PERSONALIZAÇÃO -->
+<aside class="panel hidden" id="panel-customize">
+  <div class="panel-hdr">
+    <h2>Personalização</h2>
+    <p>Selecione as seções que a IA deve preencher</p>
   </div>
-  <div>
-    <div class="lbl">Ou cole a transcrição</div>
-    <textarea class="mta" id="manTx" placeholder="[MEDICO]: Qual o motivo da consulta?&#10;[PACIENTE]: Estou com dor no peito..."></textarea>
+  <div class="panel-body">
+    <div class="cacts">
+      <button class="cbtn" onclick="selAll(true)">✅ Marcar todos</button>
+      <button class="cbtn" onclick="selAll(false)">☐ Desmarcar todos</button>
+      <button class="cbtn sv" onclick="savePrefs()">💾 Salvar</button>
+      <span class="csaved" id="cSaved">✓ Salvo!</span>
+    </div>
+    <div id="custSecs"></div>
   </div>
-  <button class="pbtn" onclick="processTranscript()">
-    <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M5 3l14 9-14 9V3z"/></svg>
-    Gerar Anamnese com IA
-  </button>
-  <div class="note">
-    <strong>⚠️ Aviso importante</strong>
-    Protótipo em desenvolvimento. Transcrições e hipóteses diagnósticas requerem revisão médica obrigatória.
+</aside>
+
+<!-- PAINEL: OSLER -->
+<aside class="panel hidden" id="panel-osler">
+  <div class="panel-hdr">
+    <h2>Osler</h2>
+    <p>Configure o assistente de raciocínio clínico</p>
+  </div>
+  <div class="panel-body">
+    <div class="lbl">Modo de operação</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;" id="osler-opt-claude">
+        <input type="radio" name="oslerMode" value="claude" style="margin-top:2px;accent-color:var(--verde);" onchange="setOslerMode('claude')" checked>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--preto);">Somente Claude</div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Raciocínio clínico baseado no conhecimento geral do modelo.</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;" id="osler-opt-pdf">
+        <input type="radio" name="oslerMode" value="pdf" style="margin-top:2px;accent-color:var(--verde);" onchange="setOslerMode('pdf')">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--preto);">Somente PDF</div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Responde exclusivamente com base nos seus documentos carregados.</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;" id="osler-opt-hybrid">
+        <input type="radio" name="oslerMode" value="hybrid" style="margin-top:2px;accent-color:var(--verde);" onchange="setOslerMode('hybrid')">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--preto);">Híbrido <span style="font-size:10px;background:var(--verde-l);color:var(--verde);padding:1px 6px;border-radius:8px;font-weight:500;">Recomendado</span></div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">PDFs têm prioridade; Claude complementa quando necessário.</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="lbl">Habilitar Osler na anamnese</div>
+    <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;margin-bottom:1rem;">
+      <input type="checkbox" id="oslerEnabledChk" style="width:16px;height:16px;accent-color:var(--verde);" onchange="toggleOslerEnabled(this.checked)">
+      <div>
+        <div style="font-size:12px;font-weight:500;color:var(--preto);">Mostrar chat Osler após gerar anamnese</div>
+        <div style="font-size:10px;color:var(--cinza);margin-top:1px;">O Osler aparece ao final do resultado gerado</div>
+      </div>
+    </label>
+
+    <div class="lbl">PDFs de referência</div>
+    <div style="border:1.5px dashed var(--cinza-l);border-radius:var(--rs);padding:14px;text-align:center;color:var(--cinza);font-size:11px;">
+      <svg viewBox="0 0 24 24" style="width:24px;height:24px;margin:0 auto 6px;display:block;fill:none;stroke:var(--cinza-l);stroke-width:1.5;">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linejoin="round"/>
+        <polyline points="14 2 14 8 20 8" stroke-linejoin="round"/>
+        <line x1="12" y1="18" x2="12" y2="12" stroke-linecap="round"/>
+        <line x1="9" y1="15" x2="15" y2="15" stroke-linecap="round"/>
+      </svg>
+      Upload de PDFs disponível na Fase C<br>
+      <span style="font-size:10px;color:var(--cinza-l);">(RAG com pgvector)</span>
+    </div>
+
+    <div style="margin-top:.5rem;background:var(--verde-l);border:1px solid var(--verde-b);border-radius:var(--rs);padding:8px 10px;font-size:10px;color:var(--verde);line-height:1.5;">
+      <strong style="display:block;margin-bottom:2px;">Sobre o Osler</strong>
+      Homenagem a William Osler, pai da medicina moderna. O Osler analisa a consulta e a anamnese gerada para fornecer raciocínio clínico de apoio — não substitui o julgamento médico.
+    </div>
   </div>
 </aside>
 
@@ -691,26 +961,6 @@ body{
     <div class="rb" id="resCont"></div>
   </div>
 
-  <!-- HISTORICO -->
-  <div id="vHistory" style="display:none" class="hpanel">
-    <h1>Histórico de Consultas</h1>
-    <p class="hintro">Suas anamneses salvas. Clique em uma consulta para reabri-la.</p>
-    <div id="hList" class="hlist">
-      <div class="hloading">Carregando...</div>
-    </div>
-  </div>
-
-  <!-- CUSTOMIZE -->
-  <div id="vCustomize" style="display:none" class="cpanel">
-    <p class="cintro">Selecione as seções e campos que a IA deve preencher. Apenas os itens marcados serão processados e exibidos na anamnese gerada.</p>
-    <div class="cacts">
-      <button class="cbtn" onclick="selAll(true)">✅ Marcar todos</button>
-      <button class="cbtn" onclick="selAll(false)">☐ Desmarcar todos</button>
-      <button class="cbtn sv" onclick="savePrefs()">💾 Salvar preferências</button>
-      <span class="csaved" id="cSaved">✓ Salvo!</span>
-    </div>
-    <div id="custSecs"></div>
-  </div>
 
 </main>
 </div>
@@ -817,14 +1067,19 @@ function onAuthSuccess(user) {
   document.getElementById('authOvl').style.display = 'none';
   var name = (user.user_metadata && user.user_metadata.nome) ? user.user_metadata.nome : user.email;
   document.getElementById('hdrUserName').textContent = name;
-  document.getElementById('hdrUser').classList.add('show');
+  // Mostra bloco de usuário no nav
+  var hdrUser = document.getElementById('hdrUser');
+  hdrUser.style.display = 'flex';
+  // Avatar: primeira letra do nome
+  var av = document.getElementById('navAvatar');
+  if(av) av.textContent = name.charAt(0).toUpperCase();
 }
 
 async function authLogout() {
   if(supa) await supa.auth.signOut();
   currentUser = null;
   resultData = {};
-  document.getElementById('hdrUser').classList.remove('show');
+  document.getElementById('hdrUser').style.display = 'none';
   document.getElementById('hdrUserName').textContent = '';
   document.getElementById('authEmail').value = '';
   document.getElementById('authPwd').value = '';
@@ -832,9 +1087,7 @@ async function authLogout() {
   document.getElementById('authOvl').style.display = 'flex';
   document.getElementById('vResult').style.display = 'none';
   document.getElementById('vWelcome').style.display = 'flex';
-  document.getElementById('vCustomize').style.display = 'none';
-  document.getElementById('tab-record').classList.add('active');
-  document.getElementById('tab-customize').classList.remove('active');
+  showView('record');
 }
 
 window.addEventListener('DOMContentLoaded', async function() {
@@ -851,7 +1104,7 @@ window.addEventListener('DOMContentLoaded', async function() {
       if(event === 'SIGNED_IN' && session) onAuthSuccess(session.user);
       if(event === 'SIGNED_OUT'){
         currentUser = null;
-        document.getElementById('hdrUser').classList.remove('show');
+        document.getElementById('hdrUser').style.display = 'none';
       }
     });
   } catch(e) { console.error('Auth session check error:', e); }
@@ -926,28 +1179,61 @@ function isActive(k){ return activeKeys[k]===true; }
 
 // ── VIEWS ──
 function showView(v){
-  document.getElementById("tab-record").classList.toggle("active", v==="record");
-  document.getElementById("tab-customize").classList.toggle("active", v==="customize");
-  var th = document.getElementById("tab-history");
-  if(th) th.classList.toggle("active", v==="history");
+  // Atualiza nav items
+  ['record','history','customize','osler'].forEach(function(id){
+    var el = document.getElementById('nav-'+id);
+    if(el) el.classList.toggle('active', id===v);
+  });
+
+  // Mostra/oculta painéis laterais
+  ['record','history','customize','osler'].forEach(function(id){
+    var p = document.getElementById('panel-'+id);
+    if(p) p.classList.toggle('hidden', id!==v);
+  });
+
+  // Controla área principal (vWelcome / vResult / vLoading)
   document.getElementById("vWelcome").style.display="none";
   document.getElementById("vResult").style.display="none";
   document.getElementById("vLoading").style.display="none";
-  document.getElementById("vCustomize").style.display="none";
-  var vh = document.getElementById("vHistory");
-  if(vh) vh.style.display="none";
-  if(v==="customize"){
-    document.getElementById("vCustomize").style.display="block";
-  } else if(v==="history"){
-    if(vh) vh.style.display="block";
+
+  if(v==="history"){
     loadHistory();
+    // Mantém a view principal visível se já tiver resultado
+    if(Object.keys(resultData).length>0){
+      document.getElementById("vResult").style.display="block";
+    } else {
+      document.getElementById("vWelcome").style.display="flex";
+    }
+  } else if(v==="record"){
+    if(Object.keys(resultData).length>0){
+      document.getElementById("vResult").style.display="block";
+    } else {
+      document.getElementById("vWelcome").style.display="flex";
+    }
   } else {
+    // customize / osler: mantém estado atual da main area
     if(Object.keys(resultData).length>0){
       document.getElementById("vResult").style.display="block";
     } else {
       document.getElementById("vWelcome").style.display="flex";
     }
   }
+}
+
+// ── TOGGLE NAV ──
+function toggleNav(){
+  var nav = document.getElementById('mainNav');
+  nav.classList.toggle('open');
+  document.body.classList.toggle('nav-open');
+}
+
+// ── OSLER MODE ──
+var oslerMode = 'claude';
+function setOslerMode(m){ oslerMode = m; }
+
+// ── OSLER ENABLED ──
+function toggleOslerEnabled(v){
+  activeKeys['osler_chat'] = v;
 }
 
 // ── API KEY (gerenciada pelo backend) ──
