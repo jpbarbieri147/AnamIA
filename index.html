@@ -437,6 +437,19 @@ body{
 /* ── CUSTOMIZE PANEL ── */
 .cpanel{padding:1.25rem 1.5rem;overflow-y:auto;}
 .cintro{font-size:12px;color:var(--cinza);margin-bottom:1rem;line-height:1.6;}
+/* === HISTORICO === */
+.hpanel{padding:1.25rem 1.5rem;overflow-y:auto;}
+.hpanel h1{font-family:'EB Garamond',Georgia,serif;font-size:26px;font-weight:400;color:var(--preto);margin-bottom:.25rem;}
+.hintro{font-size:12px;color:var(--cinza);margin-bottom:1.25rem;line-height:1.6;}
+.hlist{display:flex;flex-direction:column;gap:.6rem;}
+.hcard{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:14px 16px;border:1px solid var(--cinza-l);border-radius:var(--rs);background:var(--branco);cursor:pointer;transition:all .15s;}
+.hcard:hover{border-color:var(--verde-b);background:var(--verde-l);}
+.hcard-main{flex:1;min-width:0;}
+.hcard-name{font-size:14px;font-weight:500;color:var(--preto);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hcard-sub{font-size:11px;color:var(--cinza);}
+.hcard-open{font-size:12px;color:var(--verde);font-weight:500;white-space:nowrap;}
+.hempty{text-align:center;padding:3rem 1rem;color:var(--cinza);font-size:13px;}
+.hloading{text-align:center;padding:2rem 1rem;color:var(--cinza);font-size:13px;}
 .cacts{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
 .cbtn{
   padding:7px 12px;border:1px solid var(--cinza-l);
@@ -562,6 +575,7 @@ body{
   <div class="htabs">
     <button class="htab active" id="tab-record" onclick="showView('record')">🩺 Consulta</button>
     <button class="htab" id="tab-customize" onclick="showView('customize')">⚙️ Personalizar</button>
+    <button class="htab" id="tab-history" onclick="showView('history')">📁 Histórico</button>
   </div>
   <span class="badge">Protótipo</span>
   <div class="hdr-user" id="hdrUser"><span class="hdr-user-name" id="hdrUserName"></span><button class="hdr-logout" onclick="authLogout()">Sair</button></div>
@@ -675,6 +689,15 @@ body{
       <span>Hipóteses e conduta são sugestões de IA. <strong>Revisão médica obrigatória antes de qualquer decisão clínica.</strong></span>
     </div>
     <div class="rb" id="resCont"></div>
+  </div>
+
+  <!-- HISTORICO -->
+  <div id="vHistory" style="display:none" class="hpanel">
+    <h1>Histórico de Consultas</h1>
+    <p class="hintro">Suas anamneses salvas. Clique em uma consulta para reabri-la.</p>
+    <div id="hList" class="hlist">
+      <div class="hloading">Carregando...</div>
+    </div>
   </div>
 
   <!-- CUSTOMIZE -->
@@ -905,12 +928,19 @@ function isActive(k){ return activeKeys[k]===true; }
 function showView(v){
   document.getElementById("tab-record").classList.toggle("active", v==="record");
   document.getElementById("tab-customize").classList.toggle("active", v==="customize");
+  var th = document.getElementById("tab-history");
+  if(th) th.classList.toggle("active", v==="history");
   document.getElementById("vWelcome").style.display="none";
   document.getElementById("vResult").style.display="none";
   document.getElementById("vLoading").style.display="none";
   document.getElementById("vCustomize").style.display="none";
+  var vh = document.getElementById("vHistory");
+  if(vh) vh.style.display="none";
   if(v==="customize"){
     document.getElementById("vCustomize").style.display="block";
+  } else if(v==="history"){
+    if(vh) vh.style.display="block";
+    loadHistory();
   } else {
     if(Object.keys(resultData).length>0){
       document.getElementById("vResult").style.display="block";
@@ -1788,6 +1818,111 @@ async function saveConsulta(data, transcricao) {
     }
   } catch(e) {
     console.error('saveConsulta exception:', e);
+  }
+}
+
+// ── HISTORICO ──
+function fmtData(iso){
+  if(!iso) return '';
+  try {
+    var d = new Date(iso);
+    return d.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
+  } catch(e){ return iso; }
+}
+
+function fmtDur(seg){
+  if(!seg) return '';
+  var m = Math.floor(seg/60), s = seg%60;
+  return ' · ' + m + 'min' + (s>0 ? ' '+s+'s' : '');
+}
+
+async function loadHistory(){
+  var box = document.getElementById('hList');
+  if(!box) return;
+  if(!supa || !currentUser){
+    box.innerHTML = '<div class="hempty">Faca login para ver o historico.</div>';
+    return;
+  }
+  box.innerHTML = '<div class="hloading">Carregando...</div>';
+  try {
+    var sessRes = await supa.auth.getSession();
+    var session = sessRes.data && sessRes.data.session;
+    if(!session){ box.innerHTML = '<div class="hempty">Sessao expirada. Recarregue a pagina.</div>'; return; }
+
+    var res = await fetch('/api/list', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: session.access_token })
+    });
+    if(!res.ok){
+      var errText = await res.text();
+      console.error('Erro ao listar consultas:', res.status, errText);
+      box.innerHTML = '<div class="hempty">Erro ao carregar o historico.</div>';
+      return;
+    }
+    var data = await res.json();
+    var rows = data.consultas || [];
+    if(rows.length === 0){
+      box.innerHTML = '<div class="hempty">Nenhuma consulta salva ainda.<br>Gere uma anamnese para ve-la aqui.</div>';
+      return;
+    }
+
+    var html = '';
+    for(var i=0; i<rows.length; i++){
+      var r = rows[i];
+      var nome = r.paciente_nome ? escapeHTML(r.paciente_nome) : 'Paciente sem nome';
+      var detalhes = [];
+      if(r.paciente_idade) detalhes.push(escapeHTML(r.paciente_idade));
+      if(r.paciente_sexo) detalhes.push(escapeHTML(r.paciente_sexo));
+      var sub = fmtData(r.created_at) + (detalhes.length ? ' · ' + detalhes.join(', ') : '') + fmtDur(r.duracao_segundos);
+      html += '<div class="hcard" onclick="abrirConsulta(\'' + r.id + '\')">'
+            + '<div class="hcard-main">'
+            + '<div class="hcard-name">' + nome + '</div>'
+            + '<div class="hcard-sub">' + sub + '</div>'
+            + '</div>'
+            + '<div class="hcard-open">Abrir &rarr;</div>'
+            + '</div>';
+    }
+    box.innerHTML = html;
+  } catch(e) {
+    console.error('loadHistory exception:', e);
+    box.innerHTML = '<div class="hempty">Erro ao carregar o historico.</div>';
+  }
+}
+
+async function abrirConsulta(id){
+  if(!supa || !currentUser) return;
+  try {
+    var sessRes = await supa.auth.getSession();
+    var session = sessRes.data && sessRes.data.session;
+    if(!session) return;
+
+    var res = await fetch('/api/get', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: session.access_token, id: id })
+    });
+    if(!res.ok){
+      var errText = await res.text();
+      console.error('Erro ao abrir consulta:', res.status, errText);
+      alert('Nao foi possivel abrir a consulta.');
+      return;
+    }
+    var data = await res.json();
+    var c = data.consulta;
+    if(!c || !c.anamnese){ alert('Consulta sem dados de anamnese.'); return; }
+
+    // Reabre a anamnese salva na view de resultado
+    resultData = c.anamnese;
+    showView('record');
+    document.getElementById('vWelcome').style.display='none';
+    document.getElementById('vResult').style.display='block';
+    renderResult(resultData);
+    var meta = document.getElementById('resMeta');
+    if(meta) meta.textContent = 'Consulta salva em ' + fmtData(c.created_at) + ' · Porto, Semiologia Médica 8ª ed.';
+  } catch(e) {
+    console.error('abrirConsulta exception:', e);
+    alert('Erro ao abrir a consulta.');
   }
 }
 
