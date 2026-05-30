@@ -219,6 +219,12 @@ body.nav-open{padding-left:276px;}
 
 /* ── LEGADO: mantém .sb para compatibilidade interna ── */
 .sb{ display:contents; }
+/* Como .sb usa display:contents, o padding do .panel-body é ignorado.
+   Aplicamos margem lateral diretamente nos filhos diretos do painel de gravação. */
+#panel-record .panel-body.sb > *{
+  margin-left:1.75rem;
+  margin-right:1.75rem;
+}
 .lbl{
   font-size:10px;font-weight:600;
   letter-spacing:.9px;text-transform:uppercase;
