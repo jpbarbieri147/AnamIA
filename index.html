@@ -633,6 +633,7 @@ body.nav-open{padding-left:276px;}
 .mover-btn.primary{background:var(--verde);color:#fff;border-color:var(--verde);}
 .mover-btn.primary:hover{background:#0D6E50;}
 .mover-btn:disabled{opacity:.5;cursor:not-allowed;}
+.hmodal-ovl{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,10,10,.4);z-index:9999;display:none;align-items:center;justify-content:center;}
 .hmodal-ovl.open{display:flex;}
 .hmodal{background:var(--branco);border-radius:var(--r);padding:1.5rem;width:340px;box-shadow:0 12px 48px rgba(0,0,0,.2);}
 .hmodal-title{font-family:'EB Garamond',Georgia,serif;font-size:19px;color:var(--preto);margin-bottom:1rem;}
@@ -2547,18 +2548,21 @@ document.addEventListener('click', function(){
 });
 
 // ── HISTORICO: modal (criar/renomear) ──
+function hModalClose(){
+  var ovl = document.getElementById('hModalOvl');
+  if(ovl){ ovl.classList.remove('open'); ovl.style.display='none'; }
+  histModalCtx = null;
+}
 function hModalOpen(titulo, valor, okLabel, ctx){
   histModalCtx = ctx;
   document.getElementById('hModalTitle').textContent = titulo;
   var inp = document.getElementById('hModalInput');
   inp.value = valor || '';
   document.getElementById('hModalOk').textContent = okLabel || 'Confirmar';
-  document.getElementById('hModalOvl').classList.add('open');
+  var ovl = document.getElementById('hModalOvl');
+  ovl.style.display = '';  // remove inline display:none se existir
+  ovl.classList.add('open');
   setTimeout(function(){ inp.focus(); inp.select(); }, 50);
-}
-function hModalClose(){
-  document.getElementById('hModalOvl').classList.remove('open');
-  histModalCtx = null;
 }
 function hModalNovaPasta(){
   hModalOpen('Nova pasta', '', 'Criar', { tipo: 'criar_pasta' });
