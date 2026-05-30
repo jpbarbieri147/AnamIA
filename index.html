@@ -633,37 +633,6 @@ body.nav-open{padding-left:276px;}
 .mover-btn.primary{background:var(--verde);color:#fff;border-color:var(--verde);}
 .mover-btn.primary:hover{background:#0D6E50;}
 .mover-btn:disabled{opacity:.5;cursor:not-allowed;}
-/* ── MODAL TESTE MICROFONE ── */
-.mictest-ovl{position:fixed;inset:0;background:rgba(10,10,10,.5);z-index:950;display:none;align-items:center;justify-content:center;}
-.mictest-ovl.open{display:flex;}
-.mictest-card{background:var(--branco);border-radius:var(--r);padding:1.75rem;width:340px;box-shadow:0 12px 48px rgba(0,0,0,.18);}
-.mictest-logo{display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;}
-.mictest-logo-ico{width:32px;height:32px;background:var(--verde);border-radius:7px;display:flex;align-items:center;justify-content:center;}
-.mictest-logo-ico svg{width:18px;height:18px;}
-.mictest-title{font-family:'EB Garamond',Georgia,serif;font-size:19px;font-weight:400;color:var(--preto);}
-.mictest-sub{font-size:11px;color:var(--cinza);margin-bottom:1.25rem;line-height:1.6;}
-.mictest-meter{
-  background:var(--pergaminho);border:1px solid var(--cinza-l);
-  border-radius:var(--rs);padding:14px 14px 10px;margin-bottom:1rem;
-}
-.mictest-bars{display:flex;align-items:flex-end;gap:3px;height:40px;margin-bottom:8px;}
-.mictest-bar{
-  flex:1;background:var(--cinza-l);border-radius:3px 3px 0 0;
-  height:4px;transition:height .08s ease-out,background .2s;
-}
-.mictest-bar.active{background:var(--verde-m);}
-.mictest-bar.peak{background:var(--verde);}
-.mictest-status{font-size:11px;color:var(--cinza);text-align:center;font-weight:500;min-height:18px;}
-.mictest-status.ok{color:var(--verde);}
-.mictest-status.err{color:var(--red);}
-.mictest-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;}
-.mictest-btn-cancel{padding:9px 16px;border:1px solid var(--cinza-l);border-radius:var(--rs);background:var(--branco);font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;color:var(--preto);transition:all .15s;}
-.mictest-btn-cancel:hover{background:var(--pergaminho);}
-.mictest-btn-start{padding:9px 18px;border:none;border-radius:var(--rs);background:var(--cinza-l);color:var(--cinza);font-size:12px;font-weight:600;cursor:not-allowed;font-family:'Inter',sans-serif;transition:all .2s;}
-.mictest-btn-start.ready{background:var(--verde);color:#fff;cursor:pointer;}
-.mictest-btn-start.ready:hover{background:#0D6E50;}
-
-.hmodal-ovl{position:fixed;inset:0;background:rgba(10,10,10,.4);z-index:900;display:none;align-items:center;justify-content:center;}
 .hmodal-ovl.open{display:flex;}
 .hmodal{background:var(--branco);border-radius:var(--r);padding:1.5rem;width:340px;box-shadow:0 12px 48px rgba(0,0,0,.2);}
 .hmodal-title{font-family:'EB Garamond',Georgia,serif;font-size:19px;color:var(--preto);margin-bottom:1rem;}
@@ -1347,134 +1316,11 @@ function toggleOslerEnabled(v){
 // ── API KEY (gerenciada pelo backend) ──
 function saveKey(){ console.log("API keys managed by backend"); }
 
-// ── TESTE DE MICROFONE ──
-var _mictestStream = null;
-var _mictestAnalyser = null;
-var _mictestCtx = null;
-var _mictestRaf = null;
-var _mictestReady = false;
-var _mictestConfirmed = false;
-var _NBARS = 18;
-
-// Gera as barras do medidor
-(function buildBars(){
-  var wrap = document.getElementById('mictestBars');
-  if(!wrap) return;
-  for(var i=0;i<_NBARS;i++){
-    var b = document.createElement('div');
-    b.className = 'mictest-bar';
-    b.id = 'mbar-'+i;
-    wrap.appendChild(b);
-  }
-})();
-
-function toggleRec(){ isRec ? stopRec() : mictestOpen(); }
-
-function mictestOpen(){
-  if(typeof MediaRecorder === "undefined"){
-    appendTx("sys","⚠ Gravação não suportada neste dispositivo.");
-    appendTx("sys","→ Atualize o iOS/iPadOS para a versão 14.3 ou superior.");
-    appendTx("sys","→ Ou use a opção Cole a transcrição abaixo.");
-    document.getElementById("recSt").textContent="Não suportado";
-    return;
-  }
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    appendTx("sys","⚠ Microfone não disponível neste dispositivo.");
-    return;
-  }
-  _mictestReady = false;
-  _mictestConfirmed = false;
-  var btn = document.getElementById('mictestStartBtn');
-  btn.disabled = true;
-  btn.classList.remove('ready');
-  document.getElementById('mictestStatus').textContent = 'Aguardando permissão do microfone...';
-  document.getElementById('mictestStatus').className = 'mictest-status';
-  document.getElementById('mictestOvl').classList.add('open');
-
-  navigator.mediaDevices.getUserMedia({audio:true,video:false}).then(function(stream){
-    _mictestStream = stream;
-    _mictestCtx = new (window.AudioContext || window.webkitAudioContext)();
-    var source = _mictestCtx.createMediaStreamSource(stream);
-    _mictestAnalyser = _mictestCtx.createAnalyser();
-    _mictestAnalyser.fftSize = 256;
-    _mictestAnalyser.smoothingTimeConstant = 0.75;
-    source.connect(_mictestAnalyser);
-
-    var dataArr = new Uint8Array(_mictestAnalyser.frequencyBinCount);
-    var silenceCount = 0;
-    var signalCount = 0;
-
-    document.getElementById('mictestStatus').textContent = 'Fale algo para testar...';
-
-    function draw(){
-      _mictestRaf = requestAnimationFrame(draw);
-      _mictestAnalyser.getByteFrequencyData(dataArr);
-
-      // Calcula volume médio
-      var sum = 0;
-      for(var i=0;i<dataArr.length;i++) sum += dataArr[i];
-      var avg = sum / dataArr.length;
-      var norm = Math.min(avg / 60, 1); // normaliza 0-1
-
-      // Atualiza barras
-      for(var b=0;b<_NBARS;b++){
-        var bar = document.getElementById('mbar-'+b);
-        if(!bar) continue;
-        // Cada barra tem uma frequência diferente
-        var freq = Math.floor((b / _NBARS) * dataArr.length * 0.6);
-        var val = dataArr[freq] / 255;
-        var h = Math.max(4, Math.round(val * 40));
-        bar.style.height = h + 'px';
-        bar.className = 'mictest-bar' + (val > 0.5 ? ' peak' : val > 0.1 ? ' active' : '');
-      }
-
-      // Detecta sinal real
-      if(avg > 8) signalCount++; else silenceCount++;
-
-      if(!_mictestReady && signalCount >= 6){
-        _mictestReady = true;
-        var st = document.getElementById('mictestStatus');
-        st.textContent = '✓ Microfone funcionando corretamente';
-        st.className = 'mictest-status ok';
-        var btn = document.getElementById('mictestStartBtn');
-        btn.disabled = false;
-        btn.classList.add('ready');
-      }
-    }
-    draw();
-  }).catch(function(e){
-    var msg = e.name === 'NotAllowedError'
-      ? 'Permissão negada. Habilite o microfone nas configurações do navegador.'
-      : 'Erro ao acessar microfone: ' + e.message;
-    var st = document.getElementById('mictestStatus');
-    st.textContent = msg;
-    st.className = 'mictest-status err';
-  });
+// ── PHASE ──
+function setPhase(p){
+  phase=p; // kept for compatibility
 }
-
-function mictestClose(){
-  _mictestStopStream();
-  document.getElementById('mictestOvl').classList.remove('open');
-}
-
-function mictestConfirm(){
-  if(!_mictestReady) return;
-  _mictestConfirmed = true;
-  _mictestStopStream();
-  document.getElementById('mictestOvl').classList.remove('open');
-  startRec();
-}
-
-function _mictestStopStream(){
-  if(_mictestRaf){ cancelAnimationFrame(_mictestRaf); _mictestRaf=null; }
-  if(_mictestCtx){ try{ _mictestCtx.close(); }catch(e){} _mictestCtx=null; }
-  if(_mictestStream){ _mictestStream.getTracks().forEach(function(t){t.stop();}); _mictestStream=null; }
-  // Zera barras
-  for(var b=0;b<_NBARS;b++){
-    var bar = document.getElementById('mbar-'+b);
-    if(bar){ bar.style.height='4px'; bar.className='mictest-bar'; }
-  }
-}
+function toggleRec(){ isRec ? stopRec() : startRec(); }
 
 function startRec(){
   // Verificar suporte a MediaRecorder (indisponível em iOS < 14.3)
@@ -2341,6 +2187,7 @@ async function showSaveBar(data, transcricao) {
     for(var j=0; j<pacientes.length; j++){
       opts += '<option value="' + pacientes[j].id + '">' + escapeHTML(pacientes[j].nome) + '</option>';
     }
+    opts += '<option value="__nova__">+ Nova pasta...</option>';
     sel.innerHTML = opts;
     btn.disabled = false;
 
@@ -2358,6 +2205,31 @@ async function executarSave() {
   if(!sel || !btn) return;
 
   var pacienteId = sel.value || null;
+
+  // Se escolheu "+ Nova pasta...", cria via gerenciar
+  if(pacienteId === '__nova__'){
+    var novoNome = prompt('Nome da nova pasta (paciente):');
+    if(!novoNome || !novoNome.trim()) return;
+    var token0 = await getToken();
+    if(!token0) return;
+    try {
+      var cr = await fetch('/api/gerenciar', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ access_token: token0, acao: 'pacientes_create', nome: novoNome.trim() })
+      });
+      var crData = await cr.json();
+      if(cr.status === 409){
+        // Pasta ja existe — usa ela
+        pacienteId = crData.id;
+      } else if(!cr.ok){
+        alert('Erro ao criar pasta: ' + (crData.error || cr.status));
+        return;
+      } else {
+        pacienteId = crData.id;
+      }
+    } catch(e){ alert('Erro ao criar pasta.'); return; }
+  }
+
   btn.disabled = true;
   btn.textContent = 'Salvando...';
 
@@ -2919,32 +2791,6 @@ buildCustomize();
     <div class="mover-btns">
       <button class="mover-btn" onclick="moverClose()">Cancelar</button>
       <button class="mover-btn primary" id="moverConfirmBtn" onclick="moverConfirm()">Mover</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL TESTE MICROFONE -->
-<div class="mictest-ovl" id="mictestOvl">
-  <div class="mictest-card">
-    <div class="mictest-logo">
-      <div class="mictest-logo-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="2" width="6" height="12" rx="3"/>
-          <path d="M5 10a7 7 0 0014 0"/>
-          <line x1="12" y1="19" x2="12" y2="22"/>
-          <line x1="8" y1="22" x2="16" y2="22"/>
-        </svg>
-      </div>
-      <span class="mictest-title">Teste de microfone</span>
-    </div>
-    <p class="mictest-sub">Fale algo para confirmar que o microfone está captando o áudio antes de iniciar a consulta.</p>
-    <div class="mictest-meter">
-      <div class="mictest-bars" id="mictestBars"></div>
-      <div class="mictest-status" id="mictestStatus">Aguardando permissão do microfone...</div>
-    </div>
-    <div class="mictest-actions">
-      <button class="mictest-btn-cancel" onclick="mictestClose()">Cancelar</button>
-      <button class="mictest-btn-start" id="mictestStartBtn" onclick="mictestConfirm()" disabled>Iniciar gravação</button>
     </div>
   </div>
 </div>
