@@ -217,14 +217,8 @@ body.nav-open{padding-left:276px;}
 .panel-body::-webkit-scrollbar{width:4px;}
 .panel-body::-webkit-scrollbar-thumb{background:var(--cinza-l);border-radius:4px;}
 
-/* ── LEGADO: mantém .sb para compatibilidade interna ── */
+/* ── LEGADO: .sb mantido para outros usos, mas painel de gravação não usa mais ── */
 .sb{ display:contents; }
-/* Como .sb usa display:contents, o padding do .panel-body é ignorado.
-   Aplicamos margem lateral diretamente nos filhos diretos do painel de gravação. */
-#panel-record .panel-body.sb > *{
-  margin-left:1.75rem;
-  margin-right:1.75rem;
-}
 .lbl{
   font-size:10px;font-weight:600;
   letter-spacing:.9px;text-transform:uppercase;
@@ -803,7 +797,7 @@ body.nav-open{padding-left:276px;}
     <h2>Nova Consulta</h2>
     <p>Grave ou cole a transcrição da consulta</p>
   </div>
-  <div class="panel-body sb">
+  <div class="panel-body" id="recordPanelBody">
     <div>
       <div class="lbl">Status</div>
       <div style="color:var(--verde);font-size:11px;display:flex;align-items:center;gap:5px;">
@@ -842,10 +836,6 @@ body.nav-open{padding-left:276px;}
       <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M5 3l14 9-14 9V3z"/></svg>
       Gerar Anamnese com IA
     </button>
-    <div class="note">
-      <strong>⚠️ Aviso importante</strong>
-      Protótipo em desenvolvimento. Transcrições e hipóteses diagnósticas requerem revisão médica obrigatória.
-    </div>
   </div>
 </aside>
 
