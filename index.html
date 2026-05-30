@@ -183,8 +183,8 @@ body{
 .nav.open .nav-badge{opacity:1;}
 
 /* ── LAYOUT ── */
-body{padding-left:64px;transition:padding-left .25s cubic-bezier(.4,0,.2,1);}
-body.nav-open{padding-left:260px;}
+body{padding-left:80px;transition:padding-left .25s cubic-bezier(.4,0,.2,1);}
+body.nav-open{padding-left:276px;}
 .layout{display:flex;height:100vh;}
 
 /* ── PAINEL LATERAL (conteúdo dos itens do nav) ── */
@@ -565,6 +565,44 @@ body.nav-open{padding-left:260px;}
 .hcard-open{font-size:12px;color:var(--verde);font-weight:500;white-space:nowrap;}
 .hempty{text-align:center;padding:3rem 1rem;color:var(--cinza);font-size:13px;}
 .hloading{text-align:center;padding:2rem 1rem;color:var(--cinza);font-size:13px;}
+/* === HISTORICO: pastas, busca, ordenacao, menus === */
+.htools{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem;}
+.hsearch{width:100%;padding:9px 12px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:'Inter',sans-serif;color:var(--preto);outline:none;transition:border-color .15s;}
+.hsearch:focus{border-color:var(--verde);}
+.htools-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.hnewbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s;}
+.hnewbtn:hover{background:#0D6E50;}
+.hsort{padding:8px 10px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:12px;font-family:'Inter',sans-serif;color:var(--preto);background:var(--branco);cursor:pointer;outline:none;}
+.hsort:focus{border-color:var(--verde);}
+.hback{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:var(--verde);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;padding:4px 0;margin-bottom:.5rem;}
+.hback:hover{text-decoration:underline;}
+.hfolder-ico{flex-shrink:0;width:34px;height:34px;border-radius:8px;background:var(--verde-l);display:flex;align-items:center;justify-content:center;color:var(--verde);}
+.hfolder-ico svg{width:18px;height:18px;}
+.hcard-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
+/* Menu de 3 pontos */
+.hmenu-wrap{position:relative;flex-shrink:0;}
+.hmenu-btn{background:none;border:none;cursor:pointer;color:var(--cinza);padding:6px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.hmenu-btn:hover{background:var(--cinza-l);color:var(--preto);}
+.hmenu-btn svg{width:18px;height:18px;}
+.hmenu{position:absolute;right:0;top:calc(100% + 4px);background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:0 6px 24px rgba(0,0,0,.12);z-index:50;min-width:170px;overflow:hidden;display:none;}
+.hmenu.open{display:block;}
+.hmenu-item{display:block;width:100%;text-align:left;padding:10px 14px;background:none;border:none;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--preto);transition:background .15s;}
+.hmenu-item:hover{background:var(--pergaminho);}
+.hmenu-item.danger{color:var(--red);}
+.hmenu-item.danger:hover{background:var(--red-l);}
+.hcount{font-size:11px;color:var(--verde);background:var(--verde-l);border-radius:10px;padding:2px 9px;font-weight:600;white-space:nowrap;}
+/* Modal de input (criar/renomear) */
+.hmodal-ovl{position:fixed;inset:0;background:rgba(10,10,10,.4);z-index:900;display:none;align-items:center;justify-content:center;}
+.hmodal-ovl.open{display:flex;}
+.hmodal{background:var(--branco);border-radius:var(--r);padding:1.5rem;width:340px;box-shadow:0 12px 48px rgba(0,0,0,.2);}
+.hmodal-title{font-family:'EB Garamond',Georgia,serif;font-size:19px;color:var(--preto);margin-bottom:1rem;}
+.hmodal input{width:100%;padding:10px 12px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:14px;font-family:'Inter',sans-serif;color:var(--preto);outline:none;margin-bottom:1rem;}
+.hmodal input:focus{border-color:var(--verde);}
+.hmodal-btns{display:flex;gap:8px;justify-content:flex-end;}
+.hmodal-btn{padding:9px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;border:1px solid var(--cinza-l);background:var(--branco);color:var(--preto);transition:all .15s;}
+.hmodal-btn:hover{background:var(--pergaminho);}
+.hmodal-btn.primary{background:var(--verde);color:#fff;border-color:var(--verde);}
+.hmodal-btn.primary:hover{background:#0D6E50;}
 .cacts{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
 .cbtn{
   padding:7px 12px;border:1px solid var(--cinza-l);
@@ -814,7 +852,7 @@ body.nav-open{padding-left:260px;}
 <aside class="panel hidden" id="panel-history">
   <div class="panel-hdr">
     <h2>Histórico</h2>
-    <p>Suas anamneses salvas. Clique para reabrir.</p>
+    <p>Pastas de pacientes e consultas salvas.</p>
   </div>
   <div class="panel-body">
     <div id="hList" class="hlist">
@@ -2122,83 +2160,376 @@ function fmtDur(seg){
   return ' · ' + m + 'min' + (s>0 ? ' '+s+'s' : '');
 }
 
+// ── HISTORICO: estado ──
+var histState = {
+  view: 'folders',        // 'folders' | 'inside'
+  pacientes: [],          // pastas carregadas
+  semPasta: 0,            // qtd de consultas sem pasta
+  sort: 'recente',        // recente | antigo | az | za | atualizacao
+  search: '',             // texto de busca
+  pastaAtual: null,       // {id, nome} quando view==='inside' (null = "Sem pasta")
+  consultas: []           // consultas da pasta atual
+};
+var histModalCtx = null;  // contexto do modal: {tipo, id, ...}
+
+async function getToken(){
+  if(!supa || !currentUser) return null;
+  var sessRes = await supa.auth.getSession();
+  var session = sessRes.data && sessRes.data.session;
+  return session ? session.access_token : null;
+}
+
+// ── HISTORICO: carregar pastas ──
 async function loadHistory(){
   var box = document.getElementById('hList');
   if(!box) return;
   if(!supa || !currentUser){
-    box.innerHTML = '<div class="hempty">Faca login para ver o historico.</div>';
+    box.innerHTML = '<div class="hempty">Faça login para ver o histórico.</div>';
     return;
   }
+  histState.view = 'folders';
+  histState.pastaAtual = null;
   box.innerHTML = '<div class="hloading">Carregando...</div>';
   try {
-    var sessRes = await supa.auth.getSession();
-    var session = sessRes.data && sessRes.data.session;
-    if(!session){ box.innerHTML = '<div class="hempty">Sessao expirada. Recarregue a pagina.</div>'; return; }
+    var token = await getToken();
+    if(!token){ box.innerHTML = '<div class="hempty">Sessão expirada. Recarregue a página.</div>'; return; }
 
-    var res = await fetch('/api/list', {
+    var res = await fetch('/api/pacientes_list', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: session.access_token })
+      body: JSON.stringify({ access_token: token })
     });
     if(!res.ok){
       var errText = await res.text();
-      console.error('Erro ao listar consultas:', res.status, errText);
-      box.innerHTML = '<div class="hempty">Erro ao carregar o historico.</div>';
+      console.error('Erro ao listar pastas:', res.status, errText);
+      box.innerHTML = '<div class="hempty">Erro ao carregar o histórico.</div>';
       return;
     }
     var data = await res.json();
-    var rows = data.consultas || [];
-    if(rows.length === 0){
-      box.innerHTML = '<div class="hempty">Nenhuma consulta salva ainda.<br>Gere uma anamnese para ve-la aqui.</div>';
-      return;
-    }
-
-    var html = '';
-    for(var i=0; i<rows.length; i++){
-      var r = rows[i];
-      var nome = r.paciente_nome ? escapeHTML(r.paciente_nome) : 'Paciente sem nome';
-      var detalhes = [];
-      if(r.paciente_idade) detalhes.push(escapeHTML(r.paciente_idade));
-      if(r.paciente_sexo) detalhes.push(escapeHTML(r.paciente_sexo));
-      var sub = fmtData(r.created_at) + (detalhes.length ? ' · ' + detalhes.join(', ') : '') + fmtDur(r.duracao_segundos);
-      html += '<div class="hcard" onclick="abrirConsulta(\'' + r.id + '\')">'
-            + '<div class="hcard-main">'
-            + '<div class="hcard-name">' + nome + '</div>'
-            + '<div class="hcard-sub">' + sub + '</div>'
-            + '</div>'
-            + '<div class="hcard-open">Abrir &rarr;</div>'
-            + '</div>';
-    }
-    box.innerHTML = html;
+    histState.pacientes = data.pacientes || [];
+    histState.semPasta = data.sem_pasta || 0;
+    renderFolders();
   } catch(e) {
     console.error('loadHistory exception:', e);
-    box.innerHTML = '<div class="hempty">Erro ao carregar o historico.</div>';
+    box.innerHTML = '<div class="hempty">Erro ao carregar o histórico.</div>';
   }
+}
+
+function sortPacientes(arr){
+  var a = arr.slice();
+  if(histState.sort === 'az'){
+    a.sort(function(x,y){ return (x.nome||'').localeCompare(y.nome||'', 'pt'); });
+  } else if(histState.sort === 'za'){
+    a.sort(function(x,y){ return (y.nome||'').localeCompare(x.nome||'', 'pt'); });
+  } else if(histState.sort === 'antigo'){
+    a.sort(function(x,y){ return (x.created_at||'').localeCompare(y.created_at||''); });
+  } else if(histState.sort === 'atualizacao'){
+    a.sort(function(x,y){ return (y.updated_at||'').localeCompare(x.updated_at||''); });
+  } else { // recente (default)
+    a.sort(function(x,y){ return (y.created_at||'').localeCompare(x.created_at||''); });
+  }
+  return a;
+}
+
+function renderFolders(){
+  var box = document.getElementById('hList');
+  if(!box) return;
+
+  var tools = ''
+    + '<div class="htools">'
+    + '<input type="text" class="hsearch" id="hSearchInput" placeholder="Buscar paciente..." '
+    +   'value="' + escapeHTML(histState.search) + '" oninput="onSearchInput(this.value)"/>'
+    + '<div class="htools-row">'
+    + '<button class="hnewbtn" onclick="hModalNovaPasta()">'
+    +   '<svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+    +   'Nova pasta</button>'
+    + '<select class="hsort" onchange="onSortChange(this.value)">'
+    +   '<option value="recente"' + (histState.sort==='recente'?' selected':'') + '>Mais recente</option>'
+    +   '<option value="antigo"' + (histState.sort==='antigo'?' selected':'') + '>Mais antigo</option>'
+    +   '<option value="az"' + (histState.sort==='az'?' selected':'') + '>Nome A-Z</option>'
+    +   '<option value="za"' + (histState.sort==='za'?' selected':'') + '>Nome Z-A</option>'
+    +   '<option value="atualizacao"' + (histState.sort==='atualizacao'?' selected':'') + '>Última atualização</option>'
+    + '</select>'
+    + '</div>'
+    + '</div>';
+
+  // Filtra por busca
+  var termo = normalizarBusca(histState.search);
+  var lista = histState.pacientes.filter(function(p){
+    if(!termo) return true;
+    return normalizarBusca(p.nome).indexOf(termo) !== -1;
+  });
+  lista = sortPacientes(lista);
+
+  var cards = '';
+
+  // Card "Sem pasta" (so aparece se houver consultas soltas e sem busca ativa)
+  if(histState.semPasta > 0 && !termo){
+    cards += '<div class="hcard" onclick="abrirPasta(null, \'Sem pasta\')">'
+      + '<div class="hcard-left">'
+      + '<div class="hfolder-ico"><svg viewBox="0 0 24 24" fill="none"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>'
+      + '<div class="hcard-main">'
+      + '<div class="hcard-name">Sem pasta</div>'
+      + '<div class="hcard-sub">' + histState.semPasta + ' consulta' + (histState.semPasta>1?'s':'') + '</div>'
+      + '</div></div>'
+      + '<span class="hcount">' + histState.semPasta + '</span>'
+      + '</div>';
+  }
+
+  if(lista.length === 0 && histState.semPasta === 0){
+    cards += '<div class="hempty">Nenhuma pasta ainda.<br>Gere uma anamnese ou crie uma pasta.</div>';
+  } else if(lista.length === 0 && termo){
+    cards += '<div class="hempty">Nenhuma pasta encontrada para "' + escapeHTML(histState.search) + '".</div>';
+  }
+
+  for(var i=0; i<lista.length; i++){
+    var p = lista[i];
+    var nome = escapeHTML(p.nome || 'Paciente');
+    var subParts = [];
+    subParts.push(p.num_consultas + ' consulta' + (p.num_consultas!==1?'s':''));
+    if(p.ultima_consulta) subParts.push('última ' + fmtData(p.ultima_consulta));
+    var sub = subParts.join(' · ');
+    cards += '<div class="hcard">'
+      + '<div class="hcard-left" onclick="abrirPasta(\'' + p.id + '\', \'' + escapeAttr(p.nome) + '\')">'
+      + '<div class="hfolder-ico"><svg viewBox="0 0 24 24" fill="none"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>'
+      + '<div class="hcard-main">'
+      + '<div class="hcard-name">' + nome + '</div>'
+      + '<div class="hcard-sub">' + sub + '</div>'
+      + '</div></div>'
+      + '<div class="hmenu-wrap">'
+      + '<button class="hmenu-btn" onclick="toggleMenu(event, \'pf-' + p.id + '\')"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg></button>'
+      + '<div class="hmenu" id="pf-' + p.id + '">'
+      + '<button class="hmenu-item" onclick="hModalRenomearPasta(\'' + p.id + '\', \'' + escapeAttr(p.nome) + '\')">Renomear pasta</button>'
+      + '<button class="hmenu-item danger" onclick="excluirPasta(\'' + p.id + '\', \'' + escapeAttr(p.nome) + '\', ' + p.num_consultas + ')">Excluir pasta</button>'
+      + '</div></div>'
+      + '</div>';
+  }
+
+  box.innerHTML = tools + '<div class="hlist">' + cards + '</div>';
+}
+
+// ── HISTORICO: dentro de uma pasta ──
+async function abrirPasta(id, nome){
+  var box = document.getElementById('hList');
+  if(!box) return;
+  histState.view = 'inside';
+  histState.pastaAtual = { id: id, nome: nome };
+  box.innerHTML = '<div class="hloading">Carregando consultas...</div>';
+  try {
+    var token = await getToken();
+    if(!token) return;
+    var body = id ? { access_token: token, paciente_id: id } : { access_token: token, sem_pasta: true };
+    var res = await fetch('/api/list', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if(!res.ok){
+      var errText = await res.text();
+      console.error('Erro ao listar consultas da pasta:', res.status, errText);
+      box.innerHTML = '<div class="hempty">Erro ao carregar consultas.</div>';
+      return;
+    }
+    var data = await res.json();
+    histState.consultas = data.consultas || [];
+    renderConsultas();
+  } catch(e) {
+    console.error('abrirPasta exception:', e);
+    box.innerHTML = '<div class="hempty">Erro ao carregar consultas.</div>';
+  }
+}
+
+function renderConsultas(){
+  var box = document.getElementById('hList');
+  if(!box) return;
+  var nomePasta = histState.pastaAtual ? histState.pastaAtual.nome : 'Sem pasta';
+
+  var head = '<button class="hback" onclick="loadHistory()">'
+    + '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    + 'Voltar às pastas</button>'
+    + '<h1 style="font-family:\'EB Garamond\',Georgia,serif;font-size:22px;font-weight:400;color:var(--preto);margin-bottom:1rem;">'
+    + escapeHTML(nomePasta) + '</h1>';
+
+  var cards = '';
+  if(histState.consultas.length === 0){
+    cards = '<div class="hempty">Nenhuma consulta nesta pasta.</div>';
+  }
+  for(var i=0; i<histState.consultas.length; i++){
+    var c = histState.consultas[i];
+    var titulo = c.titulo ? escapeHTML(c.titulo) : ('Consulta de ' + fmtData(c.created_at));
+    var detalhes = [];
+    if(c.paciente_idade) detalhes.push(escapeHTML(c.paciente_idade));
+    if(c.paciente_sexo) detalhes.push(escapeHTML(c.paciente_sexo));
+    var sub = fmtData(c.created_at) + (detalhes.length ? ' · ' + detalhes.join(', ') : '') + fmtDur(c.duracao_segundos);
+    cards += '<div class="hcard">'
+      + '<div class="hcard-left" onclick="abrirConsulta(\'' + c.id + '\')">'
+      + '<div class="hcard-main">'
+      + '<div class="hcard-name">' + titulo + '</div>'
+      + '<div class="hcard-sub">' + sub + '</div>'
+      + '</div></div>'
+      + '<div class="hmenu-wrap">'
+      + '<button class="hmenu-btn" onclick="toggleMenu(event, \'cf-' + c.id + '\')"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg></button>'
+      + '<div class="hmenu" id="cf-' + c.id + '">'
+      + '<button class="hmenu-item" onclick="abrirConsulta(\'' + c.id + '\')">Abrir</button>'
+      + '<button class="hmenu-item" onclick="hModalRenomearConsulta(\'' + c.id + '\', \'' + escapeAttr(c.titulo || '') + '\')">Renomear consulta</button>'
+      + '<button class="hmenu-item danger" onclick="excluirConsulta(\'' + c.id + '\')">Excluir consulta</button>'
+      + '</div></div>'
+      + '</div>';
+  }
+  box.innerHTML = head + '<div class="hlist">' + cards + '</div>';
+}
+
+// ── HISTORICO: busca e ordenacao ──
+function onSearchInput(val){
+  histState.search = val;
+  renderFolders();
+  // mantem foco no input apos re-render
+  var inp = document.getElementById('hSearchInput');
+  if(inp){ inp.focus(); var v=inp.value; inp.value=''; inp.value=v; }
+}
+function onSortChange(val){
+  histState.sort = val;
+  renderFolders();
+}
+function normalizarBusca(s){
+  if(!s) return '';
+  return String(s).trim().toLowerCase();
+}
+
+// ── HISTORICO: menus de 3 pontos ──
+function toggleMenu(ev, menuId){
+  ev.stopPropagation();
+  var alvo = document.getElementById(menuId);
+  var aberto = alvo && alvo.classList.contains('open');
+  // fecha todos
+  var todos = document.querySelectorAll('.hmenu.open');
+  for(var i=0;i<todos.length;i++){ todos[i].classList.remove('open'); }
+  if(alvo && !aberto){ alvo.classList.add('open'); }
+}
+document.addEventListener('click', function(){
+  var todos = document.querySelectorAll('.hmenu.open');
+  for(var i=0;i<todos.length;i++){ todos[i].classList.remove('open'); }
+});
+
+// ── HISTORICO: modal (criar/renomear) ──
+function hModalOpen(titulo, valor, okLabel, ctx){
+  histModalCtx = ctx;
+  document.getElementById('hModalTitle').textContent = titulo;
+  var inp = document.getElementById('hModalInput');
+  inp.value = valor || '';
+  document.getElementById('hModalOk').textContent = okLabel || 'Confirmar';
+  document.getElementById('hModalOvl').classList.add('open');
+  setTimeout(function(){ inp.focus(); inp.select(); }, 50);
+}
+function hModalClose(){
+  document.getElementById('hModalOvl').classList.remove('open');
+  histModalCtx = null;
+}
+function hModalNovaPasta(){
+  hModalOpen('Nova pasta', '', 'Criar', { tipo: 'criar_pasta' });
+}
+function hModalRenomearPasta(id, nomeAtual){
+  hModalOpen('Renomear pasta', nomeAtual, 'Salvar', { tipo: 'renomear_pasta', id: id });
+}
+function hModalRenomearConsulta(id, tituloAtual){
+  hModalOpen('Renomear consulta', tituloAtual, 'Salvar', { tipo: 'renomear_consulta', id: id });
+}
+async function hModalConfirm(){
+  if(!histModalCtx) return;
+  var valor = document.getElementById('hModalInput').value.trim();
+  var ctx = histModalCtx;
+  if((ctx.tipo === 'criar_pasta' || ctx.tipo === 'renomear_pasta') && !valor){ return; }
+  var token = await getToken();
+  if(!token){ alert('Sessão expirada.'); return; }
+
+  try {
+    if(ctx.tipo === 'criar_pasta'){
+      var r = await fetch('/api/pacientes_create', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ access_token: token, nome: valor })
+      });
+      if(r.status === 409){ alert('Já existe uma pasta com esse nome.'); return; }
+      if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao criar pasta.'); return; }
+      hModalClose(); loadHistory();
+    } else if(ctx.tipo === 'renomear_pasta'){
+      var r2 = await fetch('/api/pacientes_update', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ access_token: token, id: ctx.id, nome: valor })
+      });
+      if(!r2.ok){ var e2=await r2.text(); console.error(e2); alert('Erro ao renomear.'); return; }
+      hModalClose(); loadHistory();
+    } else if(ctx.tipo === 'renomear_consulta'){
+      var r3 = await fetch('/api/consulta_update', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ access_token: token, id: ctx.id, titulo: valor })
+      });
+      if(!r3.ok){ var e3=await r3.text(); console.error(e3); alert('Erro ao renomear.'); return; }
+      hModalClose();
+      // recarrega a pasta atual
+      if(histState.pastaAtual){ abrirPasta(histState.pastaAtual.id, histState.pastaAtual.nome); }
+      else { abrirPasta(null, 'Sem pasta'); }
+    }
+  } catch(e){ console.error('hModalConfirm exception:', e); alert('Erro inesperado.'); }
+}
+
+// ── HISTORICO: exclusoes ──
+async function excluirPasta(id, nome, numConsultas){
+  var msg = 'Excluir a pasta "' + nome + '"?';
+  if(numConsultas > 0){ msg += '\n\nIsso vai excluir tambem ' + numConsultas + ' consulta' + (numConsultas>1?'s':'') + ' dentro dela. Esta acao nao pode ser desfeita.'; }
+  if(!confirm(msg)) return;
+  var token = await getToken();
+  if(!token) return;
+  try {
+    var r = await fetch('/api/pacientes_delete', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, id: id })
+    });
+    if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao excluir pasta.'); return; }
+    loadHistory();
+  } catch(e){ console.error('excluirPasta exception:', e); alert('Erro inesperado.'); }
+}
+
+async function excluirConsulta(id){
+  if(!confirm('Excluir esta consulta? Esta acao nao pode ser desfeita.')) return;
+  var token = await getToken();
+  if(!token) return;
+  try {
+    var r = await fetch('/api/consulta_delete', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, id: id })
+    });
+    if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao excluir consulta.'); return; }
+    if(histState.pastaAtual){ abrirPasta(histState.pastaAtual.id, histState.pastaAtual.nome); }
+    else { abrirPasta(null, 'Sem pasta'); }
+  } catch(e){ console.error('excluirConsulta exception:', e); alert('Erro inesperado.'); }
+}
+
+// escapa aspas simples para uso em atributos onclick
+function escapeAttr(s){
+  if(s === undefined || s === null) return '';
+  return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
 }
 
 async function abrirConsulta(id){
   if(!supa || !currentUser) return;
   try {
-    var sessRes = await supa.auth.getSession();
-    var session = sessRes.data && sessRes.data.session;
-    if(!session) return;
-
+    var token = await getToken();
+    if(!token) return;
     var res = await fetch('/api/get', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: session.access_token, id: id })
+      body: JSON.stringify({ access_token: token, id: id })
     });
     if(!res.ok){
       var errText = await res.text();
       console.error('Erro ao abrir consulta:', res.status, errText);
-      alert('Nao foi possivel abrir a consulta.');
+      alert('Não foi possível abrir a consulta.');
       return;
     }
     var data = await res.json();
     var c = data.consulta;
     if(!c || !c.anamnese){ alert('Consulta sem dados de anamnese.'); return; }
 
-    // Reabre a anamnese salva na view de resultado
     resultData = c.anamnese;
     showView('record');
     document.getElementById('vWelcome').style.display='none';
@@ -2215,6 +2546,19 @@ async function abrirConsulta(id){
 // ── INIT ──
 buildCustomize();
 </script>
+
+<!-- MODAL DE INPUT (criar/renomear pasta ou consulta) -->
+<div class="hmodal-ovl" id="hModalOvl">
+  <div class="hmodal">
+    <div class="hmodal-title" id="hModalTitle">Nova pasta</div>
+    <input type="text" id="hModalInput" placeholder="Nome do paciente"
+      onkeydown="if(event.key==='Enter')hModalConfirm();if(event.key==='Escape')hModalClose();"/>
+    <div class="hmodal-btns">
+      <button class="hmodal-btn" onclick="hModalClose()">Cancelar</button>
+      <button class="hmodal-btn primary" id="hModalOk" onclick="hModalConfirm()">Criar</button>
+    </div>
+  </div>
+</div>
 
 <!-- AUTH OVERLAY -->
 <div class="auth-ovl" id="authOvl">
