@@ -619,7 +619,20 @@ body.nav-open{padding-left:276px;}
 .hmenu-item.danger:hover{background:var(--red-l);}
 .hcount{font-size:11px;color:var(--verde);background:var(--verde-l);border-radius:10px;padding:2px 9px;font-weight:600;white-space:nowrap;}
 /* Modal de input (criar/renomear) */
-.hmodal-ovl{position:fixed;inset:0;background:rgba(10,10,10,.4);z-index:900;display:none;align-items:center;justify-content:center;}
+/* Modal de mover consulta (reutiliza estrutura do hmodal) */
+.mover-ovl{position:fixed;inset:0;background:rgba(10,10,10,.4);z-index:900;display:none;align-items:center;justify-content:center;}
+.mover-ovl.open{display:flex;}
+.mover-modal{background:var(--branco);border-radius:var(--r);padding:1.5rem;width:340px;box-shadow:0 12px 48px rgba(0,0,0,.2);}
+.mover-modal h3{font-family:'EB Garamond',Georgia,serif;font-size:19px;color:var(--preto);margin-bottom:.35rem;}
+.mover-modal p{font-size:12px;color:var(--cinza);margin-bottom:1rem;line-height:1.5;}
+.mover-modal select{width:100%;padding:10px 12px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:'Inter',sans-serif;color:var(--preto);outline:none;margin-bottom:1rem;}
+.mover-modal select:focus{border-color:var(--verde);}
+.mover-btns{display:flex;gap:8px;justify-content:flex-end;}
+.mover-btn{padding:9px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;border:1px solid var(--cinza-l);background:var(--branco);color:var(--preto);transition:all .15s;}
+.mover-btn:hover{background:var(--pergaminho);}
+.mover-btn.primary{background:var(--verde);color:#fff;border-color:var(--verde);}
+.mover-btn.primary:hover{background:#0D6E50;}
+.mover-btn:disabled{opacity:.5;cursor:not-allowed;}
 .hmodal-ovl.open{display:flex;}
 .hmodal{background:var(--branco);border-radius:var(--r);padding:1.5rem;width:340px;box-shadow:0 12px 48px rgba(0,0,0,.2);}
 .hmodal-title{font-family:'EB Garamond',Georgia,serif;font-size:19px;color:var(--preto);margin-bottom:1rem;}
@@ -2137,7 +2150,7 @@ function doPrint(){
 }
 
 // ── SALVAR CONSULTA ──
-// ── SALVAR CONSULTA: fluxo híbrido com seletor de pasta ──
+// ── SALVAR CONSULTA: fluxo simples com seletor de pasta ──
 var pendingSave = null; // {data, transcricao} aguardando confirmacao
 
 async function showSaveBar(data, transcricao) {
@@ -2149,7 +2162,6 @@ async function showSaveBar(data, transcricao) {
   var btn = document.getElementById('saveBarBtn');
   if(!bar || !sel) return;
 
-  // Mostra barra com estado de carregamento
   bar.style.display = 'flex';
   sel.innerHTML = '<option value="">Carregando pastas...</option>';
   btn.disabled = true;
@@ -2158,7 +2170,6 @@ async function showSaveBar(data, transcricao) {
     var token = await getToken();
     if(!token){ bar.style.display='none'; return; }
 
-    // Busca as pastas existentes
     var res = await fetch('/api/pacientes_list', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2171,32 +2182,17 @@ async function showSaveBar(data, transcricao) {
       pacientes = d.pacientes || [];
     }
 
-    // Detecta pasta sugerida pelo nome do paciente na anamnese
-    var nomeDetectado = (data && data.id_nome) ? String(data.id_nome).trim() : '';
-    var nomeNorm = nomeDetectado.toLowerCase().replace(/\s+/g,' ');
-    var sugeridoId = '';
-    for(var i=0; i<pacientes.length; i++){
-      if(pacientes[i].nome.toLowerCase().replace(/\s+/g,' ') === nomeNorm){
-        sugeridoId = pacientes[i].id;
-        break;
-      }
-    }
-
-    // Monta as opções do seletor
+    // Monta opcoes — sem pre-selecao automatica
     var opts = '<option value="">— Sem pasta —</option>';
     for(var j=0; j<pacientes.length; j++){
-      var p = pacientes[j];
-      var sel2 = (p.id === sugeridoId) ? ' selected' : '';
-      opts += '<option value="' + p.id + '"' + sel2 + '>' + escapeHTML(p.nome) + '</option>';
+      opts += '<option value="' + pacientes[j].id + '">' + escapeHTML(pacientes[j].nome) + '</option>';
     }
-    // Opção de criar nova pasta
-    opts += '<option value="__nova__">+ Nova pasta...</option>';
     sel.innerHTML = opts;
     btn.disabled = false;
 
   } catch(e) {
     console.error('showSaveBar exception:', e);
-    sel.innerHTML = '<option value="">— Sem pasta —</option><option value="__nova__">+ Nova pasta...</option>';
+    sel.innerHTML = '<option value="">— Sem pasta —</option>';
     btn.disabled = false;
   }
 }
@@ -2207,42 +2203,18 @@ async function executarSave() {
   var btn = document.getElementById('saveBarBtn');
   if(!sel || !btn) return;
 
-  var pacienteId = sel.value;
-
-  // Se escolheu "+ Nova pasta...", pede o nome
-  if(pacienteId === '__nova__'){
-    var novoNome = prompt('Nome da nova pasta (paciente):');
-    if(!novoNome || !novoNome.trim()) return;
-    var token = await getToken();
-    if(!token) return;
-    try {
-      var cr = await fetch('/api/pacientes_create', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ access_token: token, nome: novoNome.trim() })
-      });
-      var crData = await cr.json();
-      if(cr.status === 409){
-        // Pasta ja existe com esse nome — usa ela
-        pacienteId = crData.id;
-      } else if(!cr.ok){
-        alert('Erro ao criar pasta.'); return;
-      } else {
-        pacienteId = crData.id;
-      }
-    } catch(e){ alert('Erro ao criar pasta.'); return; }
-  }
-
+  var pacienteId = sel.value || null;
   btn.disabled = true;
   btn.textContent = 'Salvando...';
 
   try {
-    var token2 = await getToken();
-    if(!token2){ btn.disabled=false; btn.textContent='Salvar'; return; }
+    var token = await getToken();
+    if(!token){ btn.disabled=false; btn.textContent='Salvar'; return; }
 
     var data = pendingSave.data;
     var payload = {
       medico_id: currentUser.id,
-      paciente_id: pacienteId || null,
+      paciente_id: pacienteId,
       paciente_nome: (data && data.id_nome) ? String(data.id_nome).trim() || null : null,
       paciente_idade: (data && data.id_idade) ? String(data.id_idade).trim() || null : null,
       paciente_sexo: (data && data.id_sexo) ? String(data.id_sexo).trim() || null : null,
@@ -2254,7 +2226,7 @@ async function executarSave() {
     var res = await fetch('/api/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: token2, payload: payload })
+      body: JSON.stringify({ access_token: token, payload: payload })
     });
 
     if(!res.ok){
@@ -2268,12 +2240,9 @@ async function executarSave() {
     var saved = await res.json();
     console.log('Consulta salva, id:', saved.id);
 
-    // Substitui barra pelo indicador de sucesso
-    var nomePasta = sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].text || 'Sem pasta';
+    var nomePasta = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'Sem pasta';
     var bar = document.getElementById('saveBar');
-    if(bar){
-      bar.innerHTML = '<span class="save-bar-done">✓ Salvo em: ' + escapeHTML(nomePasta) + '</span>';
-    }
+    if(bar) bar.innerHTML = '<span class="save-bar-done">✓ Salvo em: ' + escapeHTML(nomePasta) + '</span>';
     var meta = document.getElementById('resMeta');
     if(meta) meta.textContent += '  ·  ✓ Salvo';
     pendingSave = null;
@@ -2510,6 +2479,7 @@ function renderConsultas(){
       + '<button class="hmenu-btn" onclick="toggleMenu(event, \'cf-' + c.id + '\')"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg></button>'
       + '<div class="hmenu" id="cf-' + c.id + '">'
       + '<button class="hmenu-item" onclick="abrirConsulta(\'' + c.id + '\')">Abrir</button>'
+      + '<button class="hmenu-item" onclick="abrirMover(\'' + c.id + '\', \'' + escapeAttr(nomePasta) + '\')">Mover consulta</button>'
       + '<button class="hmenu-item" onclick="hModalRenomearConsulta(\'' + c.id + '\', \'' + escapeAttr(c.titulo || '') + '\')">Renomear consulta</button>'
       + '<button class="hmenu-item danger" onclick="excluirConsulta(\'' + c.id + '\')">Excluir consulta</button>'
       + '</div></div>'
@@ -2686,6 +2656,87 @@ async function abrirConsulta(id){
   }
 }
 
+// ── MOVER CONSULTA ──
+var moverCtx = null; // {id, nomePastaAtual}
+
+async function abrirMover(consultaId, nomePastaAtual){
+  moverCtx = { id: consultaId };
+  var ovl = document.getElementById('moverOvl');
+  var sel = document.getElementById('moverSelect');
+  var btn = document.getElementById('moverConfirmBtn');
+  var desc = document.getElementById('moverDesc');
+  if(!ovl || !sel) return;
+
+  desc.textContent = 'Pasta atual: ' + (nomePastaAtual || 'Sem pasta') + '. Escolha o destino:';
+  sel.innerHTML = '<option value="">Carregando...</option>';
+  btn.disabled = true;
+  ovl.classList.add('open');
+
+  try {
+    var token = await getToken();
+    if(!token){ ovl.classList.remove('open'); return; }
+    var res = await fetch('/api/pacientes_list', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token })
+    });
+    var pacientes = [];
+    if(res.ok){ var d = await res.json(); pacientes = d.pacientes || []; }
+
+    var opts = '<option value="">— Sem pasta —</option>';
+    for(var i=0; i<pacientes.length; i++){
+      opts += '<option value="' + pacientes[i].id + '">' + escapeHTML(pacientes[i].nome) + '</option>';
+    }
+    sel.innerHTML = opts;
+    btn.disabled = false;
+  } catch(e){
+    console.error('abrirMover exception:', e);
+    sel.innerHTML = '<option value="">— Sem pasta —</option>';
+    btn.disabled = false;
+  }
+}
+
+function moverClose(){
+  var ovl = document.getElementById('moverOvl');
+  if(ovl) ovl.classList.remove('open');
+  moverCtx = null;
+}
+
+async function moverConfirm(){
+  if(!moverCtx) return;
+  var sel = document.getElementById('moverSelect');
+  var btn = document.getElementById('moverConfirmBtn');
+  if(!sel) return;
+
+  var novaPastaId = sel.value || null;
+  var nomeDest = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'Sem pasta';
+
+  if(!confirm('Mover consulta para "' + nomeDest + '"?')){ return; }
+
+  btn.disabled = true;
+  try {
+    var token = await getToken();
+    if(!token){ btn.disabled=false; return; }
+    var r = await fetch('/api/consulta_mover', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, id: moverCtx.id, paciente_id: novaPastaId })
+    });
+    if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao mover consulta.'); btn.disabled=false; return; }
+    moverClose();
+    // Recarrega a visao atual do historico
+    if(histState.view === 'inside' && histState.pastaAtual){
+      abrirPasta(histState.pastaAtual.id, histState.pastaAtual.nome);
+    } else if(histState.view === 'inside'){
+      abrirPasta(null, 'Sem pasta');
+    } else {
+      loadHistory();
+    }
+  } catch(e){
+    console.error('moverConfirm exception:', e);
+    alert('Erro inesperado.');
+    btn.disabled = false;
+  }
+}
+
 // ── INIT ──
 buildCustomize();
 </script>
@@ -2699,6 +2750,21 @@ buildCustomize();
     <div class="hmodal-btns">
       <button class="hmodal-btn" onclick="hModalClose()">Cancelar</button>
       <button class="hmodal-btn primary" id="hModalOk" onclick="hModalConfirm()">Criar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE MOVER CONSULTA -->
+<div class="mover-ovl" id="moverOvl">
+  <div class="mover-modal">
+    <h3>Mover consulta</h3>
+    <p id="moverDesc">Escolha a pasta de destino:</p>
+    <select id="moverSelect">
+      <option value="">Carregando...</option>
+    </select>
+    <div class="mover-btns">
+      <button class="mover-btn" onclick="moverClose()">Cancelar</button>
+      <button class="mover-btn primary" id="moverConfirmBtn" onclick="moverConfirm()">Mover</button>
     </div>
   </div>
 </div>
