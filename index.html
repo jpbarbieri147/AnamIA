@@ -1840,7 +1840,20 @@ async function oslerSend(){
 
   var anamCtx="";
   if(Object.keys(resultData).length>0){
-    anamCtx="Anamnese gerada (JSON):\n"+JSON.stringify(resultData).substring(0,3000);
+    // Usa collectSections() para capturar o estado ATUAL da anamnese,
+    // incluindo todas as edições manuais feitas após a geração
+    var secsAtuais = collectSections();
+    if(secsAtuais.length > 0){
+      var anamTexto = secsAtuais.map(function(s){
+        var linhas = [s.title];
+        s.rows.forEach(function(r){ if(r.v && r.v !== 'Não investigado' && r.v !== 'Não examinado') linhas.push('  ' + r.l + ': ' + r.v); });
+        s.texts.forEach(function(t){ if(t) linhas.push('  ' + t); });
+        return linhas.join('\n');
+      }).join('\n\n');
+      anamCtx = "Anamnese atual (com edições do médico):\n" + anamTexto.substring(0, 4000);
+    } else {
+      anamCtx = "Anamnese gerada (JSON):\n" + JSON.stringify(resultData).substring(0,3000);
+    }
   }
   var txCtx=fullTx?"\n\nTranscrição (resumo):\n"+fullTx.substring(0,2000):"";
 
@@ -1910,7 +1923,13 @@ async function oslerSend(){
       messages: oslerHistory
     })
   })
-  .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;});})
+  .then(function(r){return r.json().then(function(d){
+    if(!r.ok){
+      var errMsg = typeof d.error === 'string' ? d.error : (d.error && d.error.message ? d.error.message : JSON.stringify(d.error) || "HTTP "+r.status);
+      throw new Error(errMsg);
+    }
+    return d;
+  });})
   .then(function(data){
     if(typing) typing.classList.remove("show");
     var resp=data.response||"Não consegui processar sua pergunta. Tente novamente.";
@@ -1919,7 +1938,8 @@ async function oslerSend(){
   })
   .catch(function(err){
     if(typing) typing.classList.remove("show");
-    oslerAddMsg("osler","Erro: "+err.message+". Tente novamente.");
+    var errMsg = err && err.message ? err.message : (typeof err === 'string' ? err : JSON.stringify(err));
+    oslerAddMsg("osler","Erro: "+errMsg+". Tente novamente.");
   });
 }
 
