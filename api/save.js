@@ -1,10 +1,6 @@
-// /api/save.js — Salva consulta + agrupa automaticamente em pasta de paciente (pelo nome)
-// fetch puro, sem SDK. Valida o dono do token antes de inserir.
-
-function normalizar(nome){
-  if(!nome) return '';
-  return String(nome).trim().toLowerCase().replace(/\s+/g, ' ');
-}
+// /api/save.js — Salva consulta na pasta (paciente_id) escolhida pelo frontend.
+// NAO infere nem cria pasta automaticamente. Respeita exatamente o paciente_id recebido.
+// fetch puro, valida o dono do token antes de inserir.
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -38,41 +34,26 @@ export default async function handler(req, res) {
     if (!user || !user.id) return res.status(401).json({ error: 'Could not resolve user from token' });
     if (user.id !== payload.medico_id) return res.status(403).json({ error: 'Token does not match medico_id' });
 
-    // 2. Agrupamento automatico por nome do paciente
-    let paciente_id = null;
-    const nome = payload.paciente_nome ? String(payload.paciente_nome).trim() : '';
-    const nomeNorm = normalizar(nome);
+    // 2. paciente_id vem PRONTO do frontend (a pasta que o medico escolheu).
+    //    Pode ser null (= "Sem pasta"). Nao inferimos nem criamos nada aqui.
+    let paciente_id = payload.paciente_id || null;
 
-    if (nomeNorm) {
-      // 2a. Procura pasta existente desse medico com esse nome normalizado
-      const findUrl = SUPA_URL + '/rest/v1/pacientes'
-        + '?select=id'
-        + '&medico_id=eq.' + encodeURIComponent(user.id)
-        + '&nome_normalizado=eq.' + encodeURIComponent(nomeNorm)
-        + '&limit=1';
-      const findResp = await fetch(findUrl, { method: 'GET', headers: H });
-      if (findResp.ok) {
-        const found = await findResp.json();
-        if (found && found.length > 0) {
-          paciente_id = found[0].id;
-        }
-      }
-
-      // 2b. Nao existe -> cria a pasta
-      if (!paciente_id) {
-        const createResp = await fetch(SUPA_URL + '/rest/v1/pacientes', {
-          method: 'POST',
-          headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
-          body: JSON.stringify({ medico_id: user.id, nome: nome, nome_normalizado: nomeNorm })
-        });
-        if (createResp.ok) {
-          const created = await createResp.json();
-          if (created && created.length > 0) paciente_id = created[0].id;
+    // 2b. (Seguranca) Se veio um paciente_id, confirma que a pasta pertence a este medico.
+    if (paciente_id) {
+      const checkUrl = SUPA_URL + '/rest/v1/pacientes'
+        + '?select=id&id=eq.' + encodeURIComponent(paciente_id)
+        + '&medico_id=eq.' + encodeURIComponent(user.id) + '&limit=1';
+      const checkResp = await fetch(checkUrl, { method: 'GET', headers: H });
+      if (checkResp.ok) {
+        const found = await checkResp.json();
+        if (!found || found.length === 0) {
+          // pasta nao e do medico -> ignora, salva sem pasta (em vez de falhar)
+          paciente_id = null;
         }
       }
     }
 
-    // 3. Insere a consulta (com paciente_id quando houver)
+    // 3. Insere a consulta exatamente com o paciente_id recebido
     const insertResp = await fetch(SUPA_URL + '/rest/v1/consultas', {
       method: 'POST',
       headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
