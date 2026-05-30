@@ -461,8 +461,35 @@ body.nav-open{padding-left:276px;}
 }
 .wbn svg{width:13px;height:13px;fill:var(--red);flex-shrink:0;margin-top:1px;}
 
-/* ── RESULT BODY ── */
-.rb{padding:0 1.5rem 1.5rem;}
+/* ── SAVE BAR ── */
+.save-bar{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin:0 1.5rem .75rem;
+  padding:10px 14px;
+  background:var(--verde-l);
+  border:1px solid var(--verde-b);
+  border-radius:var(--rs);
+}
+.save-bar label{font-size:11px;font-weight:600;color:var(--verde);white-space:nowrap;}
+.save-bar select{
+  flex:1;min-width:120px;
+  padding:6px 8px;
+  border:1px solid var(--verde-b);border-radius:var(--rs);
+  font-size:12px;font-family:'Inter',sans-serif;color:var(--preto);
+  background:var(--branco);outline:none;cursor:pointer;
+}
+.save-bar select:focus{border-color:var(--verde);}
+.save-bar-btn{
+  padding:7px 14px;background:var(--verde);color:#fff;
+  border:none;border-radius:var(--rs);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;
+  transition:background .15s;
+}
+.save-bar-btn:hover{background:#0D6E50;}
+.save-bar-btn:disabled{opacity:.5;cursor:not-allowed;}
+.save-bar-done{font-size:12px;color:var(--verde);font-weight:500;}
+
+
 
 /* ── SECTION CARDS ── */
 .sc{
@@ -986,6 +1013,14 @@ body.nav-open{padding-left:276px;}
     <div class="wbn">
       <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/></svg>
       <span>Hipóteses e conduta são sugestões de IA. <strong>Revisão médica obrigatória antes de qualquer decisão clínica.</strong></span>
+    </div>
+    <!-- BARRA DE SALVAMENTO -->
+    <div class="save-bar" id="saveBar" style="display:none">
+      <label>📁 Salvar em:</label>
+      <select id="savePastaSelect">
+        <option value="">Carregando...</option>
+      </select>
+      <button class="save-bar-btn" id="saveBarBtn" onclick="executarSave()">Salvar</button>
     </div>
     <div class="rb" id="resCont"></div>
   </div>
@@ -1667,7 +1702,7 @@ function processTranscript(){
   .then(function(d4){
     clearInterval(mint);
     if(d4.result) Object.assign(mergedResult,d4.result);
-    if(Object.keys(mergedResult).length>0){resultData=mergedResult;renderResult(mergedResult);saveConsulta(mergedResult,fullTx);}
+    if(Object.keys(mergedResult).length>0){resultData=mergedResult;renderResult(mergedResult);showSaveBar(mergedResult,fullTx);}
     else renderRaw("Erro ao processar resposta.");
   })
   .catch(function(err){
@@ -2102,37 +2137,150 @@ function doPrint(){
 }
 
 // ── SALVAR CONSULTA ──
-async function saveConsulta(data, transcricao) {
+// ── SALVAR CONSULTA: fluxo híbrido com seletor de pasta ──
+var pendingSave = null; // {data, transcricao} aguardando confirmacao
+
+async function showSaveBar(data, transcricao) {
   if(!supa || !currentUser) return;
+  pendingSave = { data: data, transcricao: transcricao };
+
+  var bar = document.getElementById('saveBar');
+  var sel = document.getElementById('savePastaSelect');
+  var btn = document.getElementById('saveBarBtn');
+  if(!bar || !sel) return;
+
+  // Mostra barra com estado de carregamento
+  bar.style.display = 'flex';
+  sel.innerHTML = '<option value="">Carregando pastas...</option>';
+  btn.disabled = true;
+
   try {
-    var sessRes = await supa.auth.getSession();
-    var session = sessRes.data && sessRes.data.session;
-    if(!session) { console.error('saveConsulta: sem sessao'); return; }
+    var token = await getToken();
+    if(!token){ bar.style.display='none'; return; }
+
+    // Busca as pastas existentes
+    var res = await fetch('/api/pacientes_list', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: token })
+    });
+
+    var pacientes = [];
+    if(res.ok){
+      var d = await res.json();
+      pacientes = d.pacientes || [];
+    }
+
+    // Detecta pasta sugerida pelo nome do paciente na anamnese
+    var nomeDetectado = (data && data.id_nome) ? String(data.id_nome).trim() : '';
+    var nomeNorm = nomeDetectado.toLowerCase().replace(/\s+/g,' ');
+    var sugeridoId = '';
+    for(var i=0; i<pacientes.length; i++){
+      if(pacientes[i].nome.toLowerCase().replace(/\s+/g,' ') === nomeNorm){
+        sugeridoId = pacientes[i].id;
+        break;
+      }
+    }
+
+    // Monta as opções do seletor
+    var opts = '<option value="">— Sem pasta —</option>';
+    for(var j=0; j<pacientes.length; j++){
+      var p = pacientes[j];
+      var sel2 = (p.id === sugeridoId) ? ' selected' : '';
+      opts += '<option value="' + p.id + '"' + sel2 + '>' + escapeHTML(p.nome) + '</option>';
+    }
+    // Opção de criar nova pasta
+    opts += '<option value="__nova__">+ Nova pasta...</option>';
+    sel.innerHTML = opts;
+    btn.disabled = false;
+
+  } catch(e) {
+    console.error('showSaveBar exception:', e);
+    sel.innerHTML = '<option value="">— Sem pasta —</option><option value="__nova__">+ Nova pasta...</option>';
+    btn.disabled = false;
+  }
+}
+
+async function executarSave() {
+  if(!pendingSave) return;
+  var sel = document.getElementById('savePastaSelect');
+  var btn = document.getElementById('saveBarBtn');
+  if(!sel || !btn) return;
+
+  var pacienteId = sel.value;
+
+  // Se escolheu "+ Nova pasta...", pede o nome
+  if(pacienteId === '__nova__'){
+    var novoNome = prompt('Nome da nova pasta (paciente):');
+    if(!novoNome || !novoNome.trim()) return;
+    var token = await getToken();
+    if(!token) return;
+    try {
+      var cr = await fetch('/api/pacientes_create', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ access_token: token, nome: novoNome.trim() })
+      });
+      var crData = await cr.json();
+      if(cr.status === 409){
+        // Pasta ja existe com esse nome — usa ela
+        pacienteId = crData.id;
+      } else if(!cr.ok){
+        alert('Erro ao criar pasta.'); return;
+      } else {
+        pacienteId = crData.id;
+      }
+    } catch(e){ alert('Erro ao criar pasta.'); return; }
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  try {
+    var token2 = await getToken();
+    if(!token2){ btn.disabled=false; btn.textContent='Salvar'; return; }
+
+    var data = pendingSave.data;
     var payload = {
-      medico_id: session.user.id,
-      paciente_nome: data.id_nome || null,
-      paciente_idade: data.id_idade || null,
-      paciente_sexo: data.id_sexo || null,
-      transcricao: transcricao || null,
+      medico_id: currentUser.id,
+      paciente_id: pacienteId || null,
+      paciente_nome: (data && data.id_nome) ? String(data.id_nome).trim() || null : null,
+      paciente_idade: (data && data.id_idade) ? String(data.id_idade).trim() || null : null,
+      paciente_sexo: (data && data.id_sexo) ? String(data.id_sexo).trim() || null : null,
+      transcricao: pendingSave.transcricao || null,
       anamnese: data,
       duracao_segundos: secs || null
     };
+
     var res = await fetch('/api/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: session.access_token, payload: payload })
+      body: JSON.stringify({ access_token: token2, payload: payload })
     });
-    if(!res.ok) {
+
+    if(!res.ok){
       var errText = await res.text();
-      console.error('Erro ao salvar consulta:', res.status, errText);
-    } else {
-      var saved = await res.json();
-      var meta = document.getElementById('resMeta');
-      if(meta) meta.textContent += '  ·  ✓ Salvo';
-      console.log('Consulta salva, id:', saved.id);
+      console.error('Erro ao salvar:', res.status, errText);
+      alert('Erro ao salvar a consulta. Tente novamente.');
+      btn.disabled=false; btn.textContent='Salvar';
+      return;
     }
-  } catch(e) {
-    console.error('saveConsulta exception:', e);
+
+    var saved = await res.json();
+    console.log('Consulta salva, id:', saved.id);
+
+    // Substitui barra pelo indicador de sucesso
+    var nomePasta = sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].text || 'Sem pasta';
+    var bar = document.getElementById('saveBar');
+    if(bar){
+      bar.innerHTML = '<span class="save-bar-done">✓ Salvo em: ' + escapeHTML(nomePasta) + '</span>';
+    }
+    var meta = document.getElementById('resMeta');
+    if(meta) meta.textContent += '  ·  ✓ Salvo';
+    pendingSave = null;
+  } catch(e){
+    console.error('executarSave exception:', e);
+    alert('Erro inesperado ao salvar.');
+    btn.disabled=false; btn.textContent='Salvar';
   }
 }
 
@@ -2526,6 +2674,10 @@ async function abrirConsulta(id){
     document.getElementById('vWelcome').style.display='none';
     document.getElementById('vResult').style.display='block';
     renderResult(resultData);
+    // Consulta ja salva — esconde barra de save
+    var saveBar = document.getElementById('saveBar');
+    if(saveBar) saveBar.style.display = 'none';
+    pendingSave = null;
     var meta = document.getElementById('resMeta');
     if(meta) meta.textContent = 'Consulta salva em ' + fmtData(c.created_at) + ' · Porto, Semiologia Médica 8ª ed.';
   } catch(e) {
