@@ -185,6 +185,43 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, id: body.id });
     }
 
+    // ── SEARCH (busca semantica) ──────────────────────────────────
+    if (acao === 'search') {
+      if (!OPENAI_KEY) return res.status(500).json({ error: 'OPENAI_API_KEY not configured' });
+      const { query, limite } = body;
+      if (!query || !query.trim()) return res.status(400).json({ error: 'Missing query' });
+
+      // 1. Gera embedding da pergunta
+      const embedResp = await fetch('https://api.openai.com/v1/embeddings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + OPENAI_KEY },
+        body: JSON.stringify({ model: 'text-embedding-3-small', input: query.trim() })
+      });
+      if (!embedResp.ok) {
+        const err = await embedResp.text();
+        return res.status(500).json({ error: 'Embedding error: ' + err });
+      }
+      const embedData = await embedResp.json();
+      const embedding = embedData.data[0].embedding;
+
+      // 2. Chama a funcao SQL de busca semantica via RPC
+      const rpcResp = await fetch(SUPA_URL + '/rest/v1/rpc/busca_semantica', {
+        method: 'POST',
+        headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
+        body: JSON.stringify({
+          p_medico_id: uid,
+          p_embedding: JSON.stringify(embedding),
+          p_limite: limite || 5
+        })
+      });
+      if (!rpcResp.ok) {
+        const err = await rpcResp.text();
+        return res.status(500).json({ error: 'Search RPC error: ' + err });
+      }
+      const chunks = await rpcResp.json();
+      return res.status(200).json({ chunks: chunks || [] });
+    }
+
     return res.status(400).json({ error: 'Acao desconhecida: ' + acao });
   } catch (e) {
     console.error('documentos handler error:', e);

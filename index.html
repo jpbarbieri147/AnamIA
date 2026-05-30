@@ -1800,7 +1800,7 @@ function oslerKeydown(e){
   if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();oslerSend();}
 }
 
-function oslerSend(){
+async function oslerSend(){
   var input=document.getElementById("oslerInput");
   if(!input) return;
   var msg=input.value.trim();
@@ -1817,12 +1817,63 @@ function oslerSend(){
   }
   var txCtx=fullTx?"\n\nTranscrição (resumo):\n"+fullTx.substring(0,2000):"";
 
-  var systemPrompt="Você é o Osler, assistente de raciocínio clínico da AnamIA. "+
-    "Você tem acesso à anamnese e à transcrição desta consulta. "+
-    "Responda em linguagem médica formal, baseando-se nos dados da consulta. "+
-    "Cite achados específicos quando relevante. Nunca invente dados não presentes. "+
-    "Em respostas sobre diagnóstico ou conduta, lembre que são sugestões de raciocínio clínico."+
-    "\n\n"+anamCtx+txCtx;
+  // === RAG: busca chunks relevantes nos PDFs (modo pdf ou hybrid) ===
+  var ragCtx = "";
+  if((oslerMode === 'pdf' || oslerMode === 'hybrid') && currentUser){
+    try {
+      var token = await getToken();
+      if(token){
+        var searchRes = await fetch('/api/documentos', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ access_token: token, acao: 'search', query: msg, limite: 5 })
+        });
+        if(searchRes.ok){
+          var searchData = await searchRes.json();
+          var chunks = searchData.chunks || [];
+          if(chunks.length > 0){
+            ragCtx = "\n\n=== TRECHOS RELEVANTES DOS SEUS DOCUMENTOS ===\n";
+            chunks.forEach(function(c, i){
+              ragCtx += "\n[Fonte: " + c.documento_nome + " | Similaridade: " + (c.similaridade*100).toFixed(0) + "%]\n";
+              ragCtx += c.conteudo + "\n";
+            });
+            ragCtx += "=== FIM DOS TRECHOS ===";
+          }
+        }
+      }
+    } catch(e){ console.error('RAG search error:', e); }
+  }
+
+  // === System prompt de acordo com o modo ===
+  var systemPrompt;
+  if(oslerMode === 'pdf' && ragCtx){
+    systemPrompt = "Você é o Osler, assistente de raciocínio clínico da AnamIA.\n\n" +
+      "INSTRUÇÃO: Responda EXCLUSIVAMENTE com base nos trechos de documentos fornecidos abaixo. " +
+      "Se a resposta não estiver nos documentos, diga: 'Esta informação não consta nos documentos fornecidos.'\n\n" +
+      "Ao responder, cite a fonte: 'Segundo [nome do documento]...'\n\n" +
+      anamCtx + txCtx + ragCtx;
+  } else if(oslerMode === 'hybrid'){
+    systemPrompt = "Você é o Osler, assistente de raciocínio clínico da AnamIA.\n\n" +
+      "HIERARQUIA DE FONTES (obrigatório):\n" +
+      "1. PRIMEIRO: busque nos trechos de documentos fornecidos abaixo. Se encontrar, cite: 'Segundo [nome do documento]...'\n" +
+      "2. SEGUNDO: se os documentos não cobrirem, use conhecimento base — deixe claro: " +
+      "'Esta informação não consta nos documentos fornecidos. Com base no conhecimento clínico geral...'\n\n" +
+      "PADRÃO DE RIGOR:\n" +
+      "- Nunca afirme sem base. Se não souber: 'Não tenho informação suficiente.'\n" +
+      "- Hipóteses: sempre ≥ 3 diferenciais com justificativa baseada na consulta\n" +
+      "- Aponte red flags e urgências identificados na consulta\n" +
+      "- Linguagem médica formal\n" +
+      "- Finalize respostas sobre diagnóstico/conduta com: 'Revisão médica obrigatória antes de qualquer decisão clínica.'\n\n" +
+      anamCtx + txCtx + (ragCtx || "");
+  } else {
+    // Modo claude (sem RAG) ou pdf sem chunks encontrados
+    systemPrompt = "Você é o Osler, assistente de raciocínio clínico da AnamIA. " +
+      "Você tem acesso à anamnese e à transcrição desta consulta. " +
+      "Responda em linguagem médica formal, baseando-se nos dados da consulta. " +
+      "Cite achados específicos quando relevante. Nunca invente dados não presentes. " +
+      "Em respostas sobre diagnóstico ou conduta, lembre que são sugestões de raciocínio clínico." +
+      "\n\n"+anamCtx+txCtx;
+  }
 
   fetch("/api/osler",{
     method:"POST",
