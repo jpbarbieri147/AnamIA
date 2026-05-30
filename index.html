@@ -730,6 +730,21 @@ body.nav-open{padding-left:276px;}
 /* === AUTH OVERLAY === */
 .auth-ovl{position:fixed;inset:0;background:rgba(247,245,240,.97);z-index:999;display:flex;align-items:center;justify-content:center;}
 .auth-card{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);padding:2rem;width:360px;box-shadow:0 8px 40px rgba(0,0,0,.1);}
+/* Logo mark (container verde arredondado) — brandbook */
+.logo-mark{
+  width:36px;height:36px;border-radius:8px;
+  background:#0A5A43;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.logo-mark svg{width:22px;height:22px;}
+/* Wordmark no modal de auth */
+.auth-logo .logo-wordmark{
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:22px;font-weight:400;
+  color:var(--preto);letter-spacing:-.3px;
+}
+.auth-logo .logo-wordmark em{font-style:normal;color:var(--verde);}
 .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;}
 .auth-title{font-family:'EB Garamond',Georgia,serif;font-size:22px;font-weight:400;color:var(--preto);margin-bottom:.25rem;}
 .auth-sub{font-size:12px;color:var(--cinza);margin-bottom:1.5rem;line-height:1.5;}
