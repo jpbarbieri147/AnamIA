@@ -1361,6 +1361,10 @@ function setOslerMode(m){ oslerMode = m; }
 // ── OSLER ENABLED ──
 function toggleOslerEnabled(v){
   activeKeys['osler_chat'] = v;
+  if(Object.keys(resultData).length>0){
+    document.getElementById("vResult").style.display="block";
+    renderResult(resultData);
+  }
 }
 
 // ── API KEY (gerenciada pelo backend) ──
