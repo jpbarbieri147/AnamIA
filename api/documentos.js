@@ -142,12 +142,30 @@ export default async function handler(req, res) {
     // ── LIST ─────────────────────────────────────────────────────
     if (acao === 'list') {
       const listUrl = SUPA_URL + '/rest/v1/documentos'
-        + '?select=id,nome,tamanho_bytes,num_chunks,status,created_at'
+        + '?select=id,nome,tamanho_bytes,num_chunks,status,ativo,created_at'
         + '&medico_id=eq.' + encodeURIComponent(uid)
         + '&order=created_at.desc';
       const listResp = await fetch(listUrl, { method: 'GET', headers: H });
       if (!listResp.ok) return res.status(500).json({ error: 'List failed: ' + await listResp.text() });
       return res.status(200).json({ documentos: await listResp.json() });
+    }
+
+    // ── TOGGLE (ativar/desativar) ─────────────────────────────────
+    if (acao === 'toggle') {
+      if (!body.id) return res.status(400).json({ error: 'Missing id' });
+      const novoAtivo = body.ativo === true || body.ativo === 'true';
+      const updUrl = SUPA_URL + '/rest/v1/documentos'
+        + '?id=eq.' + encodeURIComponent(body.id)
+        + '&medico_id=eq.' + encodeURIComponent(uid);
+      const updResp = await fetch(updUrl, {
+        method: 'PATCH',
+        headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
+        body: JSON.stringify({ ativo: novoAtivo })
+      });
+      if (!updResp.ok) return res.status(500).json({ error: 'Toggle failed: ' + await updResp.text() });
+      const updated = await updResp.json();
+      if (!updated || updated.length === 0) return res.status(404).json({ error: 'Documento nao encontrado' });
+      return res.status(200).json({ ok: true, id: body.id, ativo: novoAtivo });
     }
 
     // ── DELETE ───────────────────────────────────────────────────
