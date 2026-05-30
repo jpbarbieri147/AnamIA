@@ -967,6 +967,24 @@ body.nav-open{padding-left:276px;}
       </div>
     </label>
 
+    <div class="lbl">Seções geradas pela IA</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
+      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;">
+        <input type="checkbox" id="hipoteseChk" style="width:16px;height:16px;accent-color:var(--verde);" checked onchange="activeKeys['hipoteses']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">13. Hipóteses Diagnósticas</div>
+          <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Sugestões de diagnóstico diferencial pela IA</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;">
+        <input type="checkbox" id="condutaChk" style="width:16px;height:16px;accent-color:var(--verde);" checked onchange="activeKeys['conduta']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">14. Conduta Sugerida</div>
+          <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Proposta terapêutica e investigação complementar</div>
+        </div>
+      </label>
+    </div>
+
     <div class="lbl" style="margin-top:.25rem;">PDFs de referência</div>
 
     <div id="docUploadArea" style="border:1.5px dashed var(--verde-b);border-radius:var(--rs);padding:14px;text-align:center;cursor:pointer;transition:all .15s;background:var(--verde-l);" onclick="document.getElementById('docFileInput').click()">
@@ -1266,6 +1284,8 @@ var SECTIONS=[
 
 var activeKeys={};
 SECTIONS.forEach(function(s){ getAllFields(s).forEach(function(f){ activeKeys[f.k]=true; }); });
+// Osler chat desabilitado por padrão (usuário habilita no painel Osler)
+activeKeys['osler_chat'] = false;
 
 function getAllFields(s){
   var a=[];
@@ -1572,7 +1592,10 @@ function appendTx(sp,txt){
 // ── CUSTOMIZE ──
 function buildCustomize(){
   var cont=document.getElementById("custSecs"); cont.innerHTML="";
+  // s13, s14, s15 são controlados pelo painel Osler, não aqui
+  var SECOES_CUSTOMIZE = ['s13','s14','s15'];
   SECTIONS.forEach(function(s){
+    if(SECOES_CUSTOMIZE.indexOf(s.id) !== -1) return; // pula 13, 14, 15
     var allF=getAllFields(s);
     var allOn=allF.every(function(f){return isActive(f.k);});
     var wrap=document.createElement("div"); wrap.className="csec";

@@ -48,7 +48,8 @@ ${fieldList}
 Regras clinicas:
 - Nao invente dados. Se nao mencionado: "Nao investigado"
 - Exame fisico nao realizado: "Nao examinado"
-- Converta linguagem leiga para terminologia medica
+- EXCECAO CRITICA para o campo "qp" (Queixa Principal): use EXATAMENTE as palavras do paciente, sem traducao para terminologia medica. Adicione o tempo de duracao se o paciente o mencionar. Exemplo: se o paciente disse "dor de cabeca na nuca ha 3 dias", o valor de qp deve ser "dor de cabeca na nuca ha 3 dias". Nunca converta para "cefaleia occipital" ou similar.
+- Para todos os OUTROS campos (exceto qp): converta linguagem leiga para terminologia medica
 - Registre negativas explicitamente (ex: "Nega dispneia")
 - Para hipoteses e conduta, adicione: "(Revisao medica obrigatoria.)"
 - Se a transcricao for longa, analise o conteudo completo antes de preencher cada campo
