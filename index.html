@@ -1841,18 +1841,25 @@ async function oslerSend(){
   var anamCtx="";
   if(Object.keys(resultData).length>0){
     // Usa collectSections() para capturar o estado ATUAL da anamnese,
-    // incluindo todas as edições manuais feitas após a geração
+    // incluindo todas as edicoes manuais feitas apos a geracao
     var secsAtuais = collectSections();
     if(secsAtuais.length > 0){
       var anamTexto = secsAtuais.map(function(s){
-        var linhas = [s.title];
-        s.rows.forEach(function(r){ if(r.v && r.v !== 'Não investigado' && r.v !== 'Não examinado') linhas.push('  ' + r.l + ': ' + r.v); });
+        var linhas = ['=== ' + s.title + ' ==='];
+        // Inclui TODOS os campos (inclusive Nao investigado) para Claude ter o quadro completo
+        s.rows.forEach(function(r){
+          linhas.push('  ' + r.l + ': ' + (r.v || 'Não informado'));
+        });
         s.texts.forEach(function(t){ if(t) linhas.push('  ' + t); });
         return linhas.join('\n');
       }).join('\n\n');
-      anamCtx = "Anamnese atual (com edições do médico):\n" + anamTexto.substring(0, 4000);
+      anamCtx = "ANAMNESE ATUAL (inclui todas as edicoes manuais do medico):\n" +
+        "INSTRUCAO: Leia e analise TODAS as secoes abaixo antes de responder. " +
+        "Nao assuma que uma informacao esta ausente sem verificar cada secao. " +
+        "Dados inseridos manualmente pelo medico sao tao validos quanto os gerados pela IA.\n\n" +
+        anamTexto.substring(0, 6000);
     } else {
-      anamCtx = "Anamnese gerada (JSON):\n" + JSON.stringify(resultData).substring(0,3000);
+      anamCtx = "Anamnese gerada (JSON):\n" + JSON.stringify(resultData).substring(0,4000);
     }
   }
   var txCtx=fullTx?"\n\nTranscrição (resumo):\n"+fullTx.substring(0,2000):"";
@@ -1908,10 +1915,11 @@ async function oslerSend(){
   } else {
     // Modo claude (sem RAG) ou pdf sem chunks encontrados
     systemPrompt = "Você é o Osler, assistente de raciocínio clínico da AnamIA. " +
-      "Você tem acesso à anamnese e à transcrição desta consulta. " +
-      "Responda em linguagem médica formal, baseando-se nos dados da consulta. " +
-      "Cite achados específicos quando relevante. Nunca invente dados não presentes. " +
-      "Em respostas sobre diagnóstico ou conduta, lembre que são sugestões de raciocínio clínico." +
+      "INSTRUÇÃO CRÍTICA: Antes de qualquer resposta, leia e analise TODAS as seções da anamnese fornecida. " +
+      "Não assuma que uma informação está ausente sem verificar todas as seções — dados podem estar em hábitos de vida, exames laboratoriais, antecedentes, ou outros campos. " +
+      "Responda em linguagem médica formal, citando os achados específicos de cada seção relevante. " +
+      "Nunca invente dados não presentes. " +
+      "Em respostas sobre diagnóstico ou conduta, lembre que são sugestões de raciocínio clínico — revisão médica obrigatória." +
       "\n\n"+anamCtx+txCtx;
   }
 
