@@ -2170,10 +2170,10 @@ async function showSaveBar(data, transcricao) {
     var token = await getToken();
     if(!token){ bar.style.display='none'; return; }
 
-    var res = await fetch('/api/pacientes_list', {
+    var res = await fetch('/api/gerenciar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: token })
+      body: JSON.stringify({ access_token: token, acao: 'pacientes_list' })
     });
 
     var pacientes = [];
@@ -2302,10 +2302,10 @@ async function loadHistory(){
     var token = await getToken();
     if(!token){ box.innerHTML = '<div class="hempty">Sessão expirada. Recarregue a página.</div>'; return; }
 
-    var res = await fetch('/api/pacientes_list', {
+    var res = await fetch('/api/gerenciar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: token })
+      body: JSON.stringify({ access_token: token, acao: 'pacientes_list' })
     });
     if(!res.ok){
       var errText = await res.text();
@@ -2553,24 +2553,24 @@ async function hModalConfirm(){
 
   try {
     if(ctx.tipo === 'criar_pasta'){
-      var r = await fetch('/api/pacientes_create', {
+      var r = await fetch('/api/gerenciar', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ access_token: token, nome: valor })
+        body: JSON.stringify({ access_token: token, acao: 'pacientes_create', nome: valor })
       });
       if(r.status === 409){ alert('Já existe uma pasta com esse nome.'); return; }
       if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao criar pasta.'); return; }
       hModalClose(); loadHistory();
     } else if(ctx.tipo === 'renomear_pasta'){
-      var r2 = await fetch('/api/pacientes_update', {
+      var r2 = await fetch('/api/gerenciar', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ access_token: token, id: ctx.id, nome: valor })
+        body: JSON.stringify({ access_token: token, acao: 'pacientes_update', id: ctx.id, nome: valor })
       });
       if(!r2.ok){ var e2=await r2.text(); console.error(e2); alert('Erro ao renomear.'); return; }
       hModalClose(); loadHistory();
     } else if(ctx.tipo === 'renomear_consulta'){
-      var r3 = await fetch('/api/consulta_update', {
+      var r3 = await fetch('/api/gerenciar', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ access_token: token, id: ctx.id, titulo: valor })
+        body: JSON.stringify({ access_token: token, acao: 'consulta_update', id: ctx.id, titulo: valor })
       });
       if(!r3.ok){ var e3=await r3.text(); console.error(e3); alert('Erro ao renomear.'); return; }
       hModalClose();
@@ -2589,9 +2589,9 @@ async function excluirPasta(id, nome, numConsultas){
   var token = await getToken();
   if(!token) return;
   try {
-    var r = await fetch('/api/pacientes_delete', {
+    var r = await fetch('/api/gerenciar', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ access_token: token, id: id })
+      body: JSON.stringify({ access_token: token, acao: 'pacientes_delete', id: id })
     });
     if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao excluir pasta.'); return; }
     loadHistory();
@@ -2603,9 +2603,9 @@ async function excluirConsulta(id){
   var token = await getToken();
   if(!token) return;
   try {
-    var r = await fetch('/api/consulta_delete', {
+    var r = await fetch('/api/gerenciar', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ access_token: token, id: id })
+      body: JSON.stringify({ access_token: token, acao: 'consulta_delete', id: id })
     });
     if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao excluir consulta.'); return; }
     if(histState.pastaAtual){ abrirPasta(histState.pastaAtual.id, histState.pastaAtual.nome); }
@@ -2675,9 +2675,9 @@ async function abrirMover(consultaId, nomePastaAtual){
   try {
     var token = await getToken();
     if(!token){ ovl.classList.remove('open'); return; }
-    var res = await fetch('/api/pacientes_list', {
+    var res = await fetch('/api/gerenciar', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ access_token: token })
+      body: JSON.stringify({ access_token: token, acao: 'pacientes_list' })
     });
     var pacientes = [];
     if(res.ok){ var d = await res.json(); pacientes = d.pacientes || []; }
@@ -2716,9 +2716,9 @@ async function moverConfirm(){
   try {
     var token = await getToken();
     if(!token){ btn.disabled=false; return; }
-    var r = await fetch('/api/consulta_mover', {
+    var r = await fetch('/api/gerenciar', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ access_token: token, id: moverCtx.id, paciente_id: novaPastaId })
+      body: JSON.stringify({ access_token: token, acao: 'consulta_mover', id: moverCtx.id, paciente_id: novaPastaId })
     });
     if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao mover consulta.'); btn.disabled=false; return; }
     moverClose();
