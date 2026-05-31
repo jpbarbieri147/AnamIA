@@ -1095,7 +1095,7 @@ body.nav-open{padding-left:276px;}
       <input type="email" class="profile-input" id="pEmailContato" placeholder="medico@exemplo.com"/>
     </div>
 
-    <button type="button" class="profile-save-btn" id="profileSaveBtn" onclick="profileSave()">Salvar perfil</button>
+    <button type="button" class="profile-save-btn" id="profileSaveBtn" onclick="profileSave('profileSaveBtn')">Salvar perfil</button>
     <div class="profile-msg" id="profileMsg"></div>
 
     <!-- ENDEREÇO -->
@@ -1145,7 +1145,7 @@ body.nav-open{padding-left:276px;}
         <span id="cepStatus"></span>
       </div>
 
-      <button type="button" class="profile-save-btn" id="enderecoSaveBtn" onclick="event.stopPropagation();profileSave()">Salvar endereço</button>
+      <button type="button" class="profile-save-btn" id="enderecoSaveBtn" onclick="event.stopPropagation();profileSave('enderecoSaveBtn')">Salvar endereço</button>
     </div>
 
   </div>
@@ -3342,15 +3342,14 @@ async function cepBuscar(val) {
   }
 }
 
-async function profileSave() {
-  var btn = document.getElementById('profileSaveBtn');
-  var btn2 = document.getElementById('enderecoSaveBtn');
+async function profileSave(btnId) {
+  var btn = document.getElementById(btnId || 'profileSaveBtn');
   var msg = document.getElementById('profileMsg');
   var get = function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
   var nome = get('pNome');
   if(!nome){ if(msg) { msg.textContent = 'Nome obrigatório.'; msg.style.color='var(--red)'; } return; }
+  var originalText = btn ? btn.textContent : '';
   if(btn) { btn.disabled=true; btn.textContent='Salvando...'; }
-  if(btn2) { btn2.disabled=true; btn2.textContent='Salvando...'; }
   if(msg) msg.textContent = '';
   try {
     var token = await getToken();
@@ -3379,14 +3378,13 @@ async function profileSave() {
     if(!res.ok){ if(msg){ msg.textContent='Erro: '+(data.error||res.status); msg.style.color='var(--red)'; } return; }
     currentProfile = data.perfil || {};
     profileRender(currentProfile);
-    if(msg){ msg.textContent='✓ Perfil salvo com sucesso.'; msg.style.color='var(--verde)'; }
+    if(msg){ msg.textContent='✓ Salvo com sucesso.'; msg.style.color='var(--verde)'; }
     setTimeout(function(){ if(msg) msg.textContent=''; }, 3000);
   } catch(e) {
     if(msg){ msg.textContent='Erro inesperado.'; msg.style.color='var(--red)'; }
     console.error('profileSave error:', e);
   } finally {
-    if(btn){ btn.disabled=false; btn.textContent='Salvar perfil'; }
-    if(btn2){ btn2.disabled=false; btn2.textContent='Salvar endereço'; }
+    if(btn){ btn.disabled=false; btn.textContent=originalText; }
   }
 }
 
