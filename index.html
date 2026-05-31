@@ -593,7 +593,26 @@ body.nav-open{padding-left:276px;}
 .hcard-open{font-size:12px;color:var(--verde);font-weight:500;white-space:nowrap;}
 .hempty{text-align:center;padding:3rem 1rem;color:var(--cinza);font-size:13px;}
 .hloading{text-align:center;padding:2rem 1rem;color:var(--cinza);font-size:13px;}
-/* === HISTORICO: pastas, busca, ordenacao, menus === */
+/* === DIAGNÓSTICO E CONDUTA DEFINITIVOS (s16) === */
+.sdef{background:var(--branco);border:1.5px solid var(--verde-b);border-radius:var(--r);margin-bottom:.6rem;overflow:visible;}
+.sdefh{padding:10px 14px;background:var(--verde-l);display:flex;align-items:center;justify-content:space-between;}
+.sdeft{font-size:12px;font-weight:600;color:var(--verde);letter-spacing:.3px;}
+.sdefs2{font-size:10px;color:var(--cinza);}
+.sdefb{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.sdef-field{display:flex;flex-direction:column;gap:4px;position:relative;}
+.sdef-label{font-size:10px;font-weight:600;color:var(--cinza);letter-spacing:.7px;text-transform:uppercase;}
+.sdef-input{width:100%;padding:9px 11px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:'Inter',sans-serif;color:var(--preto);background:var(--branco);outline:none;transition:border-color .15s;resize:vertical;}
+.sdef-input:focus{border-color:var(--verde);}
+/* CID autocomplete dropdown */
+.cid-wrap{position:relative;}
+.cid-results{position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--branco);border:1px solid var(--verde-b);border-radius:var(--rs);box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:200;max-height:220px;overflow-y:auto;display:none;}
+.cid-results.open{display:block;}
+.cid-item{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--cinza-l);transition:background .1s;}
+.cid-item:last-child{border-bottom:none;}
+.cid-item:hover{background:var(--verde-l);}
+.cid-code{font-weight:600;color:var(--verde);margin-right:6px;}
+.cid-desc{color:var(--preto);}
+.cid-hint{font-size:10px;color:var(--cinza);padding:8px 12px;text-align:center;}
 .htools{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem;}
 .hsearch{width:100%;padding:9px 12px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:'Inter',sans-serif;color:var(--preto);outline:none;transition:border-color .15s;}
 .hsearch:focus{border-color:var(--verde);}
@@ -1279,6 +1298,10 @@ var SECTIONS=[
   {id:"s12",num:"12",title:"Exames de Imagem",fields:[{k:"img_achados",l:"Achados"}],isTA:true},
   {id:"s13",num:"13",title:"Hipóteses Diagnósticas",fields:[{k:"hipoteses",l:"Hipóteses"}],isSyn:true},
   {id:"s14",num:"14",title:"Conduta Sugerida",fields:[{k:"conduta",l:"Conduta"}],isSyn:true},
+  {id:"s16",num:"16",title:"Diagnóstico e Conduta Definitivos",fields:[
+    {k:"hipotese_def",l:"Hipótese Diagnóstica Definitiva (com CID-10)"},
+    {k:"conduta_def",l:"Conduta Definitiva"}
+  ]},
   {id:"s15",num:"15",title:"Osler — Consultoria Clínica",fields:[{k:"osler_chat",l:"Habilitar chat com Osler após a anamnese"}]}
 ];
 
@@ -2135,6 +2158,28 @@ function renderResult(d){
     c.appendChild(sy2);
   }
 
+  // S16 — Diagnóstico e Conduta Definitivos (preenchidos pelo médico)
+  if(isActive("hipotese_def") || isActive("conduta_def")){
+    var s16 = document.createElement("div"); s16.className="sdef";
+    var s16body = '<div class="sdefh"><div><div class="sdeft">✍ Diagnóstico e Conduta Definitivos</div><div class="sdefs2">Preenchido pelo médico</div></div></div><div class="sdefb">';
+    if(isActive("hipotese_def")){
+      var cidVal = escapeHTML(d["hipotese_def"] || "");
+      s16body += '<div class="sdef-field"><div class="sdef-label">Hipótese Diagnóstica Definitiva (com CID-10)</div>'
+        + '<div class="cid-wrap">'
+        + '<input type="text" class="sdef-input" id="hipotese_def_input" data-key="hipotese_def" placeholder="Digite o diagnóstico ou código CID-10..." value="' + cidVal + '" oninput="cidSearch(this)" onblur="cidHide()" autocomplete="off"/>'
+        + '<div class="cid-results" id="cidDropdown"></div>'
+        + '</div></div>';
+    }
+    if(isActive("conduta_def")){
+      s16body += '<div class="sdef-field"><div class="sdef-label">Conduta Definitiva</div>'
+        + '<textarea class="sdef-input" data-key="conduta_def" placeholder="Descreva a conduta definitiva do médico..." style="min-height:80px;">' + escapeHTML(d["conduta_def"] || "") + '</textarea></div>';
+    }
+    s16body += '</div>';
+    s16.innerHTML = s16body;
+    // Sync input value to data-key on change
+    c.appendChild(s16);
+  }
+
   // Osler Chat — controlado pela personalização
   if(!isActive("osler_chat")) return;
   var oslerWrap=document.createElement("div");
@@ -2233,8 +2278,8 @@ function selExp(fmt){
 
 function collectSections(){
   var secs=[];
-  document.querySelectorAll(".sc,.syn").forEach(function(card){
-    var title=card.querySelector(".sct,.synt"); if(!title)return;
+  document.querySelectorAll(".sc,.syn,.sdef").forEach(function(card){
+    var title=card.querySelector(".sct,.synt,.sdeft"); if(!title)return;
     var sec={title:title.textContent.trim(), rows:[], texts:[]};
     card.querySelectorAll(".fr").forEach(function(fr){
       var lb=fr.querySelector(".fl"), val=fr.querySelector(".fv");
@@ -2242,6 +2287,14 @@ function collectSections(){
     });
     card.querySelectorAll("textarea").forEach(function(ta){
       if(ta.value.trim()) sec.texts.push(ta.value.trim());
+    });
+    // Lê inputs com data-key (campos definitivos com CID-10)
+    card.querySelectorAll("input[data-key]").forEach(function(inp){
+      if(inp.value.trim()){
+        var lbl = card.querySelector('[for="'+inp.id+'"]') || card.querySelector('.sdef-label');
+        var label = lbl ? lbl.textContent.trim() : inp.getAttribute('data-key');
+        sec.rows.push({l:label, v:inp.value.trim()});
+      }
     });
     secs.push(sec);
   });
@@ -3065,6 +3118,108 @@ async function docDelete(id, nome) {
     docLoadList();
   } catch(e){ console.error('docDelete exception:', e); alert('Erro inesperado.'); }
 }
+
+// ── CID-10 AUTOCOMPLETE ──
+var cidData = null;
+var cidLoading = false;
+
+async function cidLoad() {
+  if(cidData || cidLoading) return;
+  cidLoading = true;
+  try {
+    // CID-10 completo — tabela DATASUS em português
+    var r = await fetch('https://cdn.jsdelivr.net/gh/erickythierry/cid10@main/cid10.json');
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    var raw = await r.json();
+    // Normaliza para [{code, desc}]
+    if(Array.isArray(raw)){
+      cidData = raw.map(function(item){
+        var code = item.codigo || item.code || item.cid || '';
+        var desc = item.descricao || item.description || item.nome || item.desc || '';
+        return { code: String(code).toUpperCase().trim(), desc: String(desc).trim() };
+      }).filter(function(i){ return i.code && i.desc; });
+    }
+    cidLoading = false;
+  } catch(e) {
+    cidLoading = false;
+    console.error('CID-10 load error:', e);
+    cidData = [];
+  }
+}
+
+function cidSearch(input) {
+  var q = input.value.trim();
+  var drop = document.getElementById('cidDropdown');
+  if(!drop) return;
+  if(q.length < 2){ drop.classList.remove('open'); return; }
+
+  // Carrega dados se ainda não carregou
+  if(!cidData){
+    cidLoad().then(function(){ if(q === input.value.trim()) cidSearch(input); });
+    drop.innerHTML = '<div class="cid-hint">⟳ Carregando base CID-10...</div>';
+    drop.classList.add('open');
+    return;
+  }
+  if(cidData.length === 0){
+    drop.innerHTML = '<div class="cid-hint">Base CID-10 não disponível no momento.</div>';
+    drop.classList.add('open');
+    return;
+  }
+
+  var qUp = q.toUpperCase();
+  var qLow = q.toLowerCase();
+  var results = [];
+
+  // Prioridade 1: começa pelo código (ex: "E11")
+  for(var i=0; i<cidData.length && results.length<5; i++){
+    if(cidData[i].code.startsWith(qUp)) results.push(cidData[i]);
+  }
+  // Prioridade 2: descrição contém a busca
+  for(var j=0; j<cidData.length && results.length<8; j++){
+    if(results.indexOf(cidData[j])===-1 && cidData[j].desc.toLowerCase().indexOf(qLow)!==-1){
+      results.push(cidData[j]);
+    }
+  }
+
+  if(results.length === 0){
+    drop.innerHTML = '<div class="cid-hint">Nenhum resultado para "' + escapeHTML(q) + '"</div>';
+    drop.classList.add('open');
+    return;
+  }
+
+  var html = '';
+  results.forEach(function(item){
+    html += '<div class="cid-item" onmousedown="cidSelect(\'' + escapeAttr(item.code) + '\',\'' + escapeAttr(item.desc) + '\')">'
+      + '<span class="cid-code">' + escapeHTML(item.code) + '</span>'
+      + '<span class="cid-desc">' + escapeHTML(item.desc) + '</span>'
+      + '</div>';
+  });
+  drop.innerHTML = html;
+  drop.classList.add('open');
+}
+
+function cidSelect(code, desc) {
+  var inp = document.getElementById('hipotese_def_input');
+  var drop = document.getElementById('cidDropdown');
+  if(inp){
+    inp.value = desc + ' (' + code + ')';
+    // Remove classe empty se existir
+    inp.classList.remove('empty');
+  }
+  if(drop) drop.classList.remove('open');
+}
+
+function cidHide() {
+  // Pequeno delay para permitir o mousedown do item ser processado antes
+  setTimeout(function(){
+    var drop = document.getElementById('cidDropdown');
+    if(drop) drop.classList.remove('open');
+  }, 200);
+}
+
+// Pré-carrega a base CID-10 quando o usuário abre a aba de resultado
+// para que já esteja disponível quando ele começar a digitar
+function cidPreload(){ if(!cidData && !cidLoading) cidLoad(); }
 
 // ── INIT ──
 buildCustomize();
