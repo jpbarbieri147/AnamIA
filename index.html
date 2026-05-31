@@ -2433,17 +2433,82 @@ function collectSections(){
 }
 
 function buildHTML(secs,forPrint){
-  var now=new Date().toLocaleString("pt-BR");
-  var h="<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Anamnese AnamIA</title><style>body{font-family:Georgia,serif;font-size:11px;line-height:1.7;margin:2cm;color:#1A1814}h1{font-size:18px;margin-bottom:4px}h2{font-size:12px;font-weight:bold;margin:14px 0 5px;border-bottom:1px solid #ccc;padding-bottom:2px;color:#0F6E56}.r{display:flex;gap:10px;margin:2px 0}.lb{min-width:150px;color:#555;font-size:10px}.vl{font-size:11px}.tx{font-size:11px;white-space:pre-wrap;background:#f9f7f2;border:1px solid #e2ddd6;border-radius:6px;padding:8px;margin:4px 0}.warn{background:#FFF3CD;border:1px solid #FAC775;padding:8px;font-size:10px;margin-top:20px;border-radius:6px}@media print{body{margin:1.5cm}}</style></head><body>";
-  h+="<h1>Anamnese — AnamIA</h1><p style=\"color:#888;font-size:10px\">"+now+" · Porto, Semiologia Médica 8ª ed.</p>";
+  var now = new Date().toLocaleString("pt-BR");
+  var p = currentProfile || {};
+  var nomeMedico = p.nome || '';
+  var crm = p.crm || '';
+  var ufCrm = p.uf_crm || '';
+  var esp = p.especialidade || '';
+  var tel = p.telefone || '';
+  var emailC = p.email_contato || '';
+  var endereco = '';
+  if(p.rua){
+    endereco = p.rua + (p.numero ? ', ' + p.numero : '') + (p.complemento ? ' — ' + p.complemento : '');
+    if(p.bairro) endereco += ' · ' + p.bairro;
+    if(p.cidade) endereco += ' · ' + p.cidade + (p.uf_endereco ? '/' + p.uf_endereco : '');
+  }
+  var crmStr = crm ? ('CRM ' + crm + (ufCrm ? '/' + ufCrm : '')) : '';
+
+  var h = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Anamnese — " + (nomeMedico||'AnamIA') + "</title><style>";
+  h += "body{font-family:Georgia,serif;font-size:11px;line-height:1.7;margin:2cm;color:#1A1814}";
+  h += ".cabecalho{border-bottom:2px solid #0A5A43;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;}";
+  h += ".cab-left{}";
+  h += ".cab-nome{font-size:16px;font-weight:bold;color:#0A5A43;margin:0 0 2px;}";
+  h += ".cab-esp{font-size:11px;color:#0A5A43;margin:0 0 2px;}";
+  h += ".cab-crm{font-size:10px;color:#555;margin:0;}";
+  h += ".cab-right{text-align:right;font-size:10px;color:#555;line-height:1.6;}";
+  h += ".cab-logo{font-size:11px;font-weight:bold;color:#0A5A43;letter-spacing:.5px;margin-bottom:4px;}";
+  h += ".doc-title{font-size:15px;font-weight:bold;color:#1A1814;margin:16px 0 2px;}";
+  h += ".doc-meta{font-size:10px;color:#888;margin-bottom:12px;}";
+  h += "h2{font-size:12px;font-weight:bold;margin:14px 0 5px;border-bottom:1px solid #ccc;padding-bottom:2px;color:#0A5A43}";
+  h += ".r{display:flex;gap:10px;margin:2px 0}.lb{min-width:150px;color:#555;font-size:10px}.vl{font-size:11px}";
+  h += ".tx{font-size:11px;white-space:pre-wrap;background:#f9f7f2;border:1px solid #e2ddd6;border-radius:6px;padding:8px;margin:4px 0}";
+  h += ".warn{background:#FFF3CD;border:1px solid #FAC775;padding:8px;font-size:10px;margin-top:20px;border-radius:6px}";
+  h += ".rodape{border-top:1px solid #ddd;margin-top:24px;padding-top:8px;font-size:9px;color:#999;text-align:center;}";
+  h += "@media print{body{margin:1.5cm}}";
+  h += "</style></head><body>";
+
+  // Cabeçalho profissional
+  h += "<div class=\"cabecalho\">";
+  h += "<div class=\"cab-left\">";
+  if(nomeMedico){
+    h += "<div class=\"cab-nome\">" + escapeHTMLStr(nomeMedico) + "</div>";
+    if(esp) h += "<div class=\"cab-esp\">" + escapeHTMLStr(esp) + "</div>";
+    if(crmStr) h += "<div class=\"cab-crm\">" + crmStr + "</div>";
+    if(endereco) h += "<div class=\"cab-crm\">" + escapeHTMLStr(endereco) + "</div>";
+  } else {
+    h += "<div class=\"cab-nome\" style=\"color:#888;\">Médico não identificado</div>";
+    h += "<div class=\"cab-crm\" style=\"color:#bbb;font-size:9px;\">Complete seu perfil para exibir suas informações</div>";
+  }
+  h += "</div>";
+  h += "<div class=\"cab-right\">";
+  h += "<div class=\"cab-logo\">Anam<em style=\"font-style:normal;color:#4ECFA3;\">IA</em></div>";
+  if(tel) h += "<div>" + escapeHTMLStr(tel) + "</div>";
+  if(emailC) h += "<div>" + escapeHTMLStr(emailC) + "</div>";
+  h += "<div>" + now + "</div>";
+  h += "</div>";
+  h += "</div>";
+
+  // Título do documento
+  h += "<div class=\"doc-title\">Anamnese</div>";
+  h += "<div class=\"doc-meta\">Gerado por AnamIA · Porto, Semiologia Médica 8ª ed.</div>";
+
+  // Seções
   secs.forEach(function(s){
-    h+="<h2>"+s.title+"</h2>";
-    s.rows.forEach(function(r){h+="<div class=\"r\"><div class=\"lb\">"+r.l+"</div><div class=\"vl\">"+r.v.replace(/\n/g,"<br>")+"</div></div>";});
-    s.texts.forEach(function(t){h+="<div class=\"tx\">"+t.replace(/\n/g,"<br>")+"</div>";});
+    h += "<h2>" + escapeHTMLStr(s.title) + "</h2>";
+    s.rows.forEach(function(r){ h += "<div class=\"r\"><div class=\"lb\">" + escapeHTMLStr(r.l) + "</div><div class=\"vl\">" + escapeHTMLStr(r.v).replace(/\n/g,"<br>") + "</div></div>"; });
+    s.texts.forEach(function(t){ h += "<div class=\"tx\">" + escapeHTMLStr(t).replace(/\n/g,"<br>") + "</div>"; });
   });
-  h+="<div class=\"warn\">⚠️ Hipóteses diagnósticas e conduta sugerida são geradas por IA e NÃO substituem o julgamento clínico do médico. Revisão obrigatória.</div>";
-  h+="</body></html>";
+
+  h += "<div class=\"warn\">⚠️ Hipóteses diagnósticas e conduta sugerida são geradas por IA e NÃO substituem o julgamento clínico do médico. Revisão obrigatória antes de qualquer decisão clínica.</div>";
+  h += "<div class=\"rodape\">Documento gerado pelo AnamIA em " + now + (crmStr ? " · " + crmStr : "") + "</div>";
+  h += "</body></html>";
   return h;
+}
+
+// Helper para escapar HTML em strings (usado no buildHTML)
+function escapeHTMLStr(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function doExport(){
