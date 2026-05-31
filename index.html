@@ -1095,7 +1095,7 @@ body.nav-open{padding-left:276px;}
       <input type="email" class="profile-input" id="pEmailContato" placeholder="medico@exemplo.com"/>
     </div>
 
-    <button class="profile-save-btn" id="profileSaveBtn" onclick="profileSave()">Salvar perfil</button>
+    <button type="button" class="profile-save-btn" id="profileSaveBtn" onclick="profileSave()">Salvar perfil</button>
     <div class="profile-msg" id="profileMsg"></div>
 
     <!-- ENDEREÇO -->
@@ -1145,7 +1145,7 @@ body.nav-open{padding-left:276px;}
         <span id="cepStatus"></span>
       </div>
 
-      <button class="profile-save-btn" id="enderecoSaveBtn" onclick="profileSave()" style="background:var(--cinza);">Salvar endereço</button>
+      <button type="button" class="profile-save-btn" id="enderecoSaveBtn" onclick="event.stopPropagation();profileSave()">Salvar endereço</button>
     </div>
 
   </div>
