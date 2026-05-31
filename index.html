@@ -147,7 +147,10 @@ body{
   display:flex;align-items:center;gap:13px;
   padding:0 14px;height:48px;
   white-space:nowrap;overflow:hidden;
+  cursor:pointer;border-radius:var(--rs);
+  transition:background .15s;margin:0 6px;
 }
+.nav-user:hover{background:rgba(255,255,255,.1);}
 .nav-avatar{
   width:36px;height:36px;flex-shrink:0;
   background:rgba(255,255,255,.15);
@@ -159,6 +162,20 @@ body{
 .nav.open .nav-user-info{opacity:1;}
 .nav-user-name{font-size:12px;font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
 .nav-user-role{font-size:10px;color:rgba(255,255,255,.55);}
+/* === PAINEL DE PERFIL === */
+.profile-avatar-wrap{display:flex;align-items:center;gap:16px;margin-bottom:1.5rem;padding:16px;background:var(--verde-l);border-radius:var(--r);border:1px solid var(--verde-b);}
+.profile-avatar-big{width:52px;height:52px;border-radius:50%;background:var(--verde);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0;}
+.profile-name-big{font-size:15px;font-weight:600;color:var(--preto);line-height:1.3;}
+.profile-crm-tag{font-size:11px;color:var(--verde);font-weight:500;margin-top:2px;}
+.profile-field{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+.profile-label{font-size:10px;font-weight:600;color:var(--cinza);letter-spacing:.7px;text-transform:uppercase;}
+.profile-input{padding:9px 11px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:'Inter',sans-serif;color:var(--preto);background:var(--branco);outline:none;transition:border-color .15s;width:100%;box-sizing:border-box;}
+.profile-input:focus{border-color:var(--verde);}
+.profile-row{display:grid;grid-template-columns:1fr 80px;gap:10px;}
+.profile-save-btn{width:100%;padding:11px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:opacity .15s;margin-top:4px;}
+.profile-save-btn:hover{opacity:.88;}
+.profile-save-btn:disabled{opacity:.5;cursor:not-allowed;}
+.profile-msg{font-size:11px;text-align:center;padding:6px 0;min-height:20px;color:var(--verde);}
 .nav-logout-btn{
   display:flex;align-items:center;gap:13px;
   padding:0 14px;height:40px;
@@ -847,11 +864,11 @@ body.nav-open{padding-left:276px;}
 
   <!-- Rodapé: usuário + logout -->
   <div class="nav-bottom">
-    <div class="nav-user" id="hdrUser" style="display:none">
+    <div class="nav-user" id="hdrUser" style="display:none" onclick="showView('profile')" title="Editar perfil" role="button" tabindex="0">
       <div class="nav-avatar" id="navAvatar">?</div>
       <div class="nav-user-info">
         <div class="nav-user-name" id="hdrUserName"></div>
-        <div class="nav-user-role">Médico</div>
+        <div class="nav-user-role">Médico · Ver perfil</div>
       </div>
     </div>
     <button class="nav-logout-btn" onclick="authLogout()">
@@ -1026,6 +1043,61 @@ body.nav-open{padding-left:276px;}
       <strong style="display:block;margin-bottom:2px;">Sobre o Osler</strong>
       Homenagem a William Osler, pai da medicina moderna. O Osler analisa a consulta e a anamnese gerada para fornecer raciocínio clínico de apoio — não substitui o julgamento médico.
     </div>
+  </div>
+</aside>
+
+<!-- PAINEL: PERFIL -->
+<aside class="panel hidden" id="panel-profile">
+  <div class="panel-hdr">
+    <h2>Perfil</h2>
+    <p>Suas informações profissionais</p>
+  </div>
+  <div class="panel-body">
+
+    <!-- Avatar + nome atual -->
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar-big" id="profileAvatarBig">?</div>
+      <div>
+        <div class="profile-name-big" id="profileNameBig">Carregando...</div>
+        <div class="profile-crm-tag" id="profileCrmTag"></div>
+      </div>
+    </div>
+
+    <!-- Campos editáveis -->
+    <div class="profile-field">
+      <div class="profile-label">Nome completo</div>
+      <input type="text" class="profile-input" id="pNome" placeholder="Dr. Nome Completo"/>
+    </div>
+
+    <div class="profile-field">
+      <div class="profile-label">Especialidade</div>
+      <input type="text" class="profile-input" id="pEspecialidade" placeholder="Ex: Clínica Médica, Cardiologia..."/>
+    </div>
+
+    <div class="profile-row">
+      <div class="profile-field">
+        <div class="profile-label">CRM</div>
+        <input type="text" class="profile-input" id="pCrm" placeholder="123456"/>
+      </div>
+      <div class="profile-field">
+        <div class="profile-label">UF</div>
+        <input type="text" class="profile-input" id="pUfCrm" placeholder="SP" maxlength="2" style="text-transform:uppercase;"/>
+      </div>
+    </div>
+
+    <div class="profile-field">
+      <div class="profile-label">Telefone / WhatsApp</div>
+      <input type="tel" class="profile-input" id="pTelefone" placeholder="(11) 99999-9999"/>
+    </div>
+
+    <div class="profile-field">
+      <div class="profile-label">E-mail de contato</div>
+      <input type="email" class="profile-input" id="pEmailContato" placeholder="medico@exemplo.com"/>
+    </div>
+
+    <button class="profile-save-btn" id="profileSaveBtn" onclick="profileSave()">Salvar perfil</button>
+    <div class="profile-msg" id="profileMsg"></div>
+
   </div>
 </aside>
 
@@ -1210,6 +1282,8 @@ function onAuthSuccess(user) {
   // Avatar: primeira letra do nome
   var av = document.getElementById('navAvatar');
   if(av) av.textContent = name.charAt(0).toUpperCase();
+  // Carrega perfil completo em background
+  profileInit();
 }
 
 async function authLogout() {
@@ -1323,13 +1397,13 @@ function isActive(k){ return activeKeys[k]===true; }
 // ── VIEWS ──
 function showView(v){
   // Atualiza nav items
-  ['record','history','customize','osler'].forEach(function(id){
+  ['record','history','customize','osler','profile'].forEach(function(id){
     var el = document.getElementById('nav-'+id);
     if(el) el.classList.toggle('active', id===v);
   });
 
   // Mostra/oculta painéis laterais
-  ['record','history','customize','osler'].forEach(function(id){
+  ['record','history','customize','osler','profile'].forEach(function(id){
     var p = document.getElementById('panel-'+id);
     if(p) p.classList.toggle('hidden', id!==v);
   });
@@ -1342,6 +1416,13 @@ function showView(v){
   if(v==="history"){
     loadHistory();
     // Mantém a view principal visível se já tiver resultado
+    if(Object.keys(resultData).length>0){
+      document.getElementById("vResult").style.display="block";
+    } else {
+      document.getElementById("vWelcome").style.display="flex";
+    }
+  } else if(v==="profile"){
+    profileLoad();
     if(Object.keys(resultData).length>0){
       document.getElementById("vResult").style.display="block";
     } else {
@@ -3117,6 +3198,110 @@ async function docDelete(id, nome) {
     if(!res.ok){ var e=await res.json(); alert('Erro: '+(e.error||res.status)); return; }
     docLoadList();
   } catch(e){ console.error('docDelete exception:', e); alert('Erro inesperado.'); }
+}
+
+// ── PERFIL DO MÉDICO ──
+var currentProfile = {};
+
+async function profileLoad() {
+  var msg = document.getElementById('profileMsg');
+  if(msg) msg.textContent = '';
+  try {
+    var token = await getToken();
+    if(!token) return;
+    var res = await fetch('/api/gerenciar', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'perfil_get' })
+    });
+    if(!res.ok) return;
+    var data = await res.json();
+    var p = data.perfil || {};
+    currentProfile = p;
+    profileRender(p);
+  } catch(e){ console.error('profileLoad error:', e); }
+}
+
+function profileRender(p) {
+  var nome = p.nome || '';
+  var crm = p.crm || '';
+  var uf = p.uf_crm || '';
+  var esp = p.especialidade || '';
+  // Avatar big
+  var avatarBig = document.getElementById('profileAvatarBig');
+  if(avatarBig) avatarBig.textContent = nome ? nome.trim()[0].toUpperCase() : '?';
+  var nameBig = document.getElementById('profileNameBig');
+  if(nameBig) nameBig.textContent = nome || 'Sem nome cadastrado';
+  var crmTag = document.getElementById('profileCrmTag');
+  if(crmTag) crmTag.textContent = (crm && uf) ? 'CRM ' + crm + '/' + uf : (crm ? 'CRM ' + crm : (esp || ''));
+  // Campos
+  var set = function(id, val){ var el=document.getElementById(id); if(el) el.value=val||''; };
+  set('pNome', nome);
+  set('pEspecialidade', esp);
+  set('pCrm', crm);
+  set('pUfCrm', uf);
+  set('pTelefone', p.telefone || '');
+  set('pEmailContato', p.email_contato || '');
+  // Atualiza nav
+  var navName = document.getElementById('hdrUserName');
+  if(navName && nome) navName.textContent = nome;
+  var navAvatar = document.getElementById('navAvatar');
+  if(navAvatar && nome) navAvatar.textContent = nome.trim()[0].toUpperCase();
+}
+
+async function profileSave() {
+  var btn = document.getElementById('profileSaveBtn');
+  var msg = document.getElementById('profileMsg');
+  var get = function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
+  var nome = get('pNome');
+  if(!nome){ if(msg) { msg.textContent = 'Nome obrigatório.'; msg.style.color='var(--red)'; } return; }
+  if(btn) { btn.disabled=true; btn.textContent='Salvando...'; }
+  if(msg) msg.textContent = '';
+  try {
+    var token = await getToken();
+    if(!token) return;
+    var res = await fetch('/api/gerenciar', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        access_token: token,
+        acao: 'perfil_update',
+        nome: nome,
+        crm: get('pCrm'),
+        uf_crm: get('pUfCrm').toUpperCase(),
+        especialidade: get('pEspecialidade'),
+        telefone: get('pTelefone'),
+        email_contato: get('pEmailContato')
+      })
+    });
+    var data = await res.json();
+    if(!res.ok){ if(msg){ msg.textContent='Erro: '+(data.error||res.status); msg.style.color='var(--red)'; } return; }
+    currentProfile = data.perfil || {};
+    profileRender(currentProfile);
+    if(msg){ msg.textContent='✓ Perfil salvo com sucesso.'; msg.style.color='var(--verde)'; }
+    setTimeout(function(){ if(msg) msg.textContent=''; }, 3000);
+  } catch(e) {
+    if(msg){ msg.textContent='Erro inesperado.'; msg.style.color='var(--red)'; }
+    console.error('profileSave error:', e);
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent='Salvar perfil'; }
+  }
+}
+
+// Carrega perfil ao inicializar (após login)
+async function profileInit() {
+  try {
+    var token = await getToken();
+    if(!token) return;
+    var res = await fetch('/api/gerenciar', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'perfil_get' })
+    });
+    if(!res.ok) return;
+    var data = await res.json();
+    if(data.perfil) {
+      currentProfile = data.perfil;
+      profileRender(data.perfil);
+    }
+  } catch(e){ console.error('profileInit error:', e); }
 }
 
 // ── CID-10 AUTOCOMPLETE ──

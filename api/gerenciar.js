@@ -32,6 +32,44 @@ export default async function handler(req, res) {
     if (!user || !user.id) return res.status(401).json({ error: 'Could not resolve user from token' });
     const uid = user.id;
 
+    // ===================== PERFIL DO MÉDICO =====================
+
+    if (acao === 'perfil_get') {
+      const perfUrl = SUPA_URL + '/rest/v1/medicos'
+        + '?select=id,nome,crm,uf_crm,especialidade,telefone,email_contato'
+        + '&id=eq.' + encodeURIComponent(uid)
+        + '&limit=1';
+      const perfResp = await fetch(perfUrl, { method: 'GET', headers: H });
+      if (!perfResp.ok) return res.status(500).json({ error: 'Perfil get failed: ' + await perfResp.text() });
+      const perfData = await perfResp.json();
+      if (!perfData || perfData.length === 0) return res.status(404).json({ error: 'Perfil nao encontrado' });
+      return res.status(200).json({ perfil: perfData[0] });
+    }
+
+    if (acao === 'perfil_update') {
+      const { nome, crm, uf_crm, especialidade, telefone, email_contato } = body;
+      const nomeLimpo = nome ? String(nome).trim() : '';
+      if (!nomeLimpo) return res.status(400).json({ error: 'Nome obrigatorio' });
+      const updUrl = SUPA_URL + '/rest/v1/medicos'
+        + '?id=eq.' + encodeURIComponent(uid);
+      const updResp = await fetch(updUrl, {
+        method: 'PATCH',
+        headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
+        body: JSON.stringify({
+          nome: nomeLimpo,
+          crm: crm ? String(crm).trim() : null,
+          uf_crm: uf_crm ? String(uf_crm).trim().toUpperCase() : null,
+          especialidade: especialidade ? String(especialidade).trim() : null,
+          telefone: telefone ? String(telefone).trim() : null,
+          email_contato: email_contato ? String(email_contato).trim() : null
+        })
+      });
+      if (!updResp.ok) return res.status(500).json({ error: 'Perfil update failed: ' + await updResp.text() });
+      const updated = await updResp.json();
+      if (!updated || updated.length === 0) return res.status(404).json({ error: 'Perfil nao encontrado' });
+      return res.status(200).json({ perfil: updated[0] });
+    }
+
     // ===================== PACIENTES (PASTAS) =====================
 
     if (acao === 'pacientes_list') {
