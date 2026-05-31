@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
     if (acao === 'perfil_get') {
       const perfUrl = SUPA_URL + '/rest/v1/medicos'
-        + '?select=id,nome,crm,uf_crm,especialidade,telefone,email_contato'
+        + '?select=id,nome,crm,uf_crm,especialidade,telefone,email_contato,cep,rua,numero,complemento,bairro,cidade,uf_endereco'
         + '&id=eq.' + encodeURIComponent(uid)
         + '&limit=1';
       const perfResp = await fetch(perfUrl, { method: 'GET', headers: H });
@@ -47,7 +47,8 @@ export default async function handler(req, res) {
     }
 
     if (acao === 'perfil_update') {
-      const { nome, crm, uf_crm, especialidade, telefone, email_contato } = body;
+      const { nome, crm, uf_crm, especialidade, telefone, email_contato,
+              cep, rua, numero, complemento, bairro, cidade, uf_endereco } = body;
       const nomeLimpo = nome ? String(nome).trim() : '';
       if (!nomeLimpo) return res.status(400).json({ error: 'Nome obrigatorio' });
       const updUrl = SUPA_URL + '/rest/v1/medicos'
@@ -61,7 +62,14 @@ export default async function handler(req, res) {
           uf_crm: uf_crm ? String(uf_crm).trim().toUpperCase() : null,
           especialidade: especialidade ? String(especialidade).trim() : null,
           telefone: telefone ? String(telefone).trim() : null,
-          email_contato: email_contato ? String(email_contato).trim() : null
+          email_contato: email_contato ? String(email_contato).trim() : null,
+          cep: cep ? String(cep).trim() : null,
+          rua: rua ? String(rua).trim() : null,
+          numero: numero ? String(numero).trim() : null,
+          complemento: complemento ? String(complemento).trim() : null,
+          bairro: bairro ? String(bairro).trim() : null,
+          cidade: cidade ? String(cidade).trim() : null,
+          uf_endereco: uf_endereco ? String(uf_endereco).trim().toUpperCase() : null
         })
       });
       if (!updResp.ok) return res.status(500).json({ error: 'Perfil update failed: ' + await updResp.text() });

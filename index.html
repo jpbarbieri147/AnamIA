@@ -1098,6 +1098,56 @@ body.nav-open{padding-left:276px;}
     <button class="profile-save-btn" id="profileSaveBtn" onclick="profileSave()">Salvar perfil</button>
     <div class="profile-msg" id="profileMsg"></div>
 
+    <!-- ENDEREÇO -->
+    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--cinza-l);">
+      <div style="font-size:13px;font-weight:600;color:var(--preto);margin-bottom:4px;">Endereço</div>
+      <div style="font-size:11px;color:var(--cinza);margin-bottom:1rem;">Confira ou altere o seu endereço físico</div>
+
+      <div class="profile-row" style="grid-template-columns:140px 1fr;">
+        <div class="profile-field">
+          <div class="profile-label">CEP</div>
+          <input type="text" class="profile-input" id="pCep" placeholder="00000-000" maxlength="9" oninput="cepMask(this)" onblur="cepBuscar(this.value)"/>
+        </div>
+        <div class="profile-field">
+          <div class="profile-label">Rua</div>
+          <input type="text" class="profile-input" id="pRua" placeholder="Rua, Avenida..."/>
+        </div>
+      </div>
+
+      <div class="profile-row" style="grid-template-columns:100px 1fr;">
+        <div class="profile-field">
+          <div class="profile-label">Número</div>
+          <input type="text" class="profile-input" id="pNumero" placeholder="123"/>
+        </div>
+        <div class="profile-field">
+          <div class="profile-label">Complemento</div>
+          <input type="text" class="profile-input" id="pComplemento" placeholder="Sala, Andar..."/>
+        </div>
+      </div>
+
+      <div class="profile-field">
+        <div class="profile-label">Bairro</div>
+        <input type="text" class="profile-input" id="pBairro" placeholder="Bairro"/>
+      </div>
+
+      <div class="profile-row" style="grid-template-columns:1fr 80px;">
+        <div class="profile-field">
+          <div class="profile-label">Cidade</div>
+          <input type="text" class="profile-input" id="pCidade" placeholder="Cidade"/>
+        </div>
+        <div class="profile-field">
+          <div class="profile-label">UF</div>
+          <input type="text" class="profile-input" id="pUfEndereco" placeholder="SP" maxlength="2" style="text-transform:uppercase;"/>
+        </div>
+      </div>
+
+      <div style="font-size:10px;color:var(--cinza);margin-bottom:12px;margin-top:-6px;">
+        <span id="cepStatus"></span>
+      </div>
+
+      <button class="profile-save-btn" id="enderecoSaveBtn" onclick="profileSave()" style="background:var(--cinza);">Salvar endereço</button>
+    </div>
+
   </div>
 </aside>
 
@@ -3232,8 +3282,8 @@ function profileRender(p) {
   var nameBig = document.getElementById('profileNameBig');
   if(nameBig) nameBig.textContent = nome || 'Sem nome cadastrado';
   var crmTag = document.getElementById('profileCrmTag');
-  if(crmTag) crmTag.textContent = (crm && uf) ? 'CRM ' + crm + '/' + uf : (crm ? 'CRM ' + crm : (esp || ''));
-  // Campos
+  if(crmTag) crmTag.textContent = (crm && uf) ? 'CRM ' + crm + '/' + uf + (esp ? ' · ' + esp : '') : (crm ? 'CRM ' + crm : (esp || ''));
+  // Campos profissionais
   var set = function(id, val){ var el=document.getElementById(id); if(el) el.value=val||''; };
   set('pNome', nome);
   set('pEspecialidade', esp);
@@ -3241,6 +3291,14 @@ function profileRender(p) {
   set('pUfCrm', uf);
   set('pTelefone', p.telefone || '');
   set('pEmailContato', p.email_contato || '');
+  // Campos de endereço
+  set('pCep', p.cep ? cepFormat(p.cep) : '');
+  set('pRua', p.rua || '');
+  set('pNumero', p.numero || '');
+  set('pComplemento', p.complemento || '');
+  set('pBairro', p.bairro || '');
+  set('pCidade', p.cidade || '');
+  set('pUfEndereco', p.uf_endereco || '');
   // Atualiza nav
   var navName = document.getElementById('hdrUserName');
   if(navName && nome) navName.textContent = nome;
@@ -3248,13 +3306,51 @@ function profileRender(p) {
   if(navAvatar && nome) navAvatar.textContent = nome.trim()[0].toUpperCase();
 }
 
+function cepFormat(v){
+  var n = String(v).replace(/\D/g,'');
+  if(n.length > 5) return n.substring(0,5) + '-' + n.substring(5,8);
+  return n;
+}
+
+function cepMask(input){
+  var v = input.value.replace(/\D/g,'');
+  if(v.length > 5) v = v.substring(0,5) + '-' + v.substring(5,8);
+  input.value = v;
+}
+
+async function cepBuscar(val) {
+  var cep = val.replace(/\D/g,'');
+  var status = document.getElementById('cepStatus');
+  if(cep.length !== 8){ if(status) status.textContent=''; return; }
+  if(status){ status.textContent = '⟳ Buscando endereço...'; status.style.color='var(--cinza)'; }
+  try {
+    var r = await fetch('https://viacep.com.br/ws/' + cep + '/json/');
+    var d = await r.json();
+    if(d.erro){ if(status){ status.textContent='CEP não encontrado.'; status.style.color='var(--red)'; } return; }
+    var set = function(id, val){ var el=document.getElementById(id); if(el && val) el.value=val; };
+    set('pRua', d.logradouro);
+    set('pBairro', d.bairro);
+    set('pCidade', d.localidade);
+    set('pUfEndereco', d.uf);
+    // Foca no campo número após preencher
+    var numEl = document.getElementById('pNumero');
+    if(numEl) numEl.focus();
+    if(status){ status.textContent='✓ Endereço preenchido automaticamente.'; status.style.color='var(--verde)'; }
+    setTimeout(function(){ if(status) status.textContent=''; }, 3000);
+  } catch(e) {
+    if(status){ status.textContent='Erro ao buscar CEP.'; status.style.color='var(--red)'; }
+  }
+}
+
 async function profileSave() {
   var btn = document.getElementById('profileSaveBtn');
+  var btn2 = document.getElementById('enderecoSaveBtn');
   var msg = document.getElementById('profileMsg');
   var get = function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
   var nome = get('pNome');
   if(!nome){ if(msg) { msg.textContent = 'Nome obrigatório.'; msg.style.color='var(--red)'; } return; }
   if(btn) { btn.disabled=true; btn.textContent='Salvando...'; }
+  if(btn2) { btn2.disabled=true; btn2.textContent='Salvando...'; }
   if(msg) msg.textContent = '';
   try {
     var token = await getToken();
@@ -3269,7 +3365,14 @@ async function profileSave() {
         uf_crm: get('pUfCrm').toUpperCase(),
         especialidade: get('pEspecialidade'),
         telefone: get('pTelefone'),
-        email_contato: get('pEmailContato')
+        email_contato: get('pEmailContato'),
+        cep: get('pCep').replace(/\D/g,''),
+        rua: get('pRua'),
+        numero: get('pNumero'),
+        complemento: get('pComplemento'),
+        bairro: get('pBairro'),
+        cidade: get('pCidade'),
+        uf_endereco: get('pUfEndereco').toUpperCase()
       })
     });
     var data = await res.json();
@@ -3283,6 +3386,7 @@ async function profileSave() {
     console.error('profileSave error:', e);
   } finally {
     if(btn){ btn.disabled=false; btn.textContent='Salvar perfil'; }
+    if(btn2){ btn2.disabled=false; btn2.textContent='Salvar endereço'; }
   }
 }
 
