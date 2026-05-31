@@ -3120,106 +3120,58 @@ async function docDelete(id, nome) {
 }
 
 // ── CID-10 AUTOCOMPLETE ──
-var cidData = null;
 var cidLoading = false;
-
-async function cidLoad() {
-  if(cidData || cidLoading) return;
-  cidLoading = true;
-  try {
-    // CID-10 completo — tabela DATASUS em português
-    var r = await fetch('https://cdn.jsdelivr.net/gh/erickythierry/cid10@main/cid10.json');
-    if(!r.ok) throw new Error('HTTP ' + r.status);
-    var raw = await r.json();
-    // Normaliza para [{code, desc}]
-    if(Array.isArray(raw)){
-      cidData = raw.map(function(item){
-        var code = item.codigo || item.code || item.cid || '';
-        var desc = item.descricao || item.description || item.nome || item.desc || '';
-        return { code: String(code).toUpperCase().trim(), desc: String(desc).trim() };
-      }).filter(function(i){ return i.code && i.desc; });
-    }
-    cidLoading = false;
-  } catch(e) {
-    cidLoading = false;
-    console.error('CID-10 load error:', e);
-    cidData = [];
-  }
-}
 
 function cidSearch(input) {
   var q = input.value.trim();
   var drop = document.getElementById('cidDropdown');
   if(!drop) return;
   if(q.length < 2){ drop.classList.remove('open'); return; }
-
-  // Carrega dados se ainda não carregou
-  if(!cidData){
-    cidLoad().then(function(){ if(q === input.value.trim()) cidSearch(input); });
-    drop.innerHTML = '<div class="cid-hint">⟳ Carregando base CID-10...</div>';
-    drop.classList.add('open');
-    return;
-  }
-  if(cidData.length === 0){
-    drop.innerHTML = '<div class="cid-hint">Base CID-10 não disponível no momento.</div>';
-    drop.classList.add('open');
-    return;
-  }
-
-  var qUp = q.toUpperCase();
-  var qLow = q.toLowerCase();
-  var results = [];
-
-  // Prioridade 1: começa pelo código (ex: "E11")
-  for(var i=0; i<cidData.length && results.length<5; i++){
-    if(cidData[i].code.startsWith(qUp)) results.push(cidData[i]);
-  }
-  // Prioridade 2: descrição contém a busca
-  for(var j=0; j<cidData.length && results.length<8; j++){
-    if(results.indexOf(cidData[j])===-1 && cidData[j].desc.toLowerCase().indexOf(qLow)!==-1){
-      results.push(cidData[j]);
-    }
-  }
-
-  if(results.length === 0){
-    drop.innerHTML = '<div class="cid-hint">Nenhum resultado para "' + escapeHTML(q) + '"</div>';
-    drop.classList.add('open');
-    return;
-  }
-
-  var html = '';
-  results.forEach(function(item){
-    html += '<div class="cid-item" onmousedown="cidSelect(\'' + escapeAttr(item.code) + '\',\'' + escapeAttr(item.desc) + '\')">'
-      + '<span class="cid-code">' + escapeHTML(item.code) + '</span>'
-      + '<span class="cid-desc">' + escapeHTML(item.desc) + '</span>'
-      + '</div>';
-  });
-  drop.innerHTML = html;
-  drop.classList.add('open');
+  if(cidLoading) return;
+  cidLoading = true;
+  fetch('/api/cid?q=' + encodeURIComponent(q))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      cidLoading = false;
+      var results = data.results || [];
+      if(!document.getElementById('cidDropdown')) return;
+      var drop2 = document.getElementById('cidDropdown');
+      if(results.length === 0){
+        drop2.innerHTML = '<div class="cid-hint">Nenhum resultado para "' + escapeHTML(q) + '"</div>';
+        drop2.classList.add('open');
+        return;
+      }
+      var html = '';
+      results.forEach(function(item){
+        html += '<div class="cid-item" onmousedown="cidSelect(\'' + escapeAttr(item.code) + '\',\'' + escapeAttr(item.desc) + '\')">'
+          + '<span class="cid-code">' + escapeHTML(item.code) + '</span>'
+          + '<span class="cid-desc">' + escapeHTML(item.desc) + '</span>'
+          + '</div>';
+      });
+      drop2.innerHTML = html;
+      drop2.classList.add('open');
+    })
+    .catch(function(e){
+      cidLoading = false;
+      console.error('CID search error:', e);
+    });
 }
 
 function cidSelect(code, desc) {
   var inp = document.getElementById('hipotese_def_input');
   var drop = document.getElementById('cidDropdown');
-  if(inp){
-    inp.value = desc + ' (' + code + ')';
-    // Remove classe empty se existir
-    inp.classList.remove('empty');
-  }
+  if(inp) inp.value = desc + ' (' + code + ')';
   if(drop) drop.classList.remove('open');
 }
 
 function cidHide() {
-  // Pequeno delay para permitir o mousedown do item ser processado antes
   setTimeout(function(){
     var drop = document.getElementById('cidDropdown');
     if(drop) drop.classList.remove('open');
   }, 200);
 }
 
-// Pré-carrega a base CID-10 quando o usuário abre a aba de resultado
-// para que já esteja disponível quando ele começar a digitar
-function cidPreload(){ if(!cidData && !cidLoading) cidLoad(); }
+function cidPreload(){} // noop — dados ficam no backend
 
 // ── INIT ──
 buildCustomize();
