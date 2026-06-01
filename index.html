@@ -162,7 +162,19 @@ body{
 .nav.open .nav-user-info{opacity:1;}
 .nav-user-name{font-size:12px;font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
 .nav-user-role{font-size:10px;color:rgba(255,255,255,.55);}
-/* === ONBOARDING CAROUSEL === */
+/* === ANEXOS DE EXAMES === */
+.anexo-zone{margin:8px 0 4px;border:1.5px dashed var(--cinza-l);border-radius:var(--rs);padding:10px 12px;background:var(--bg);}
+.anexo-zone-title{font-size:10px;font-weight:600;color:var(--cinza);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.anexo-upload-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid var(--verde-b);border-radius:var(--rs);font-size:11px;font-weight:500;color:var(--verde);background:var(--verde-l);cursor:pointer;transition:all .15s;}
+.anexo-upload-btn:hover{background:var(--verde-b);}
+.anexo-list{display:flex;flex-direction:column;gap:4px;margin-top:6px;}
+.anexo-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--cinza-l);border-radius:var(--rs);background:var(--branco);}
+.anexo-item-ico{flex-shrink:0;color:var(--verde);}
+.anexo-item-name{flex:1;font-size:11px;font-weight:500;color:var(--preto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.anexo-item-size{font-size:10px;color:var(--cinza);flex-shrink:0;}
+.anexo-item-btn{background:none;border:none;cursor:pointer;color:var(--cinza);padding:2px;line-height:1;}
+.anexo-item-btn:hover{color:var(--preto);}
+.anexo-uploading{font-size:11px;color:var(--cinza);text-align:center;padding:4px;}
 .ob-ovl{position:fixed;inset:0;background:rgba(10,10,10,.55);z-index:10000;display:none;align-items:center;justify-content:center;}
 .ob-ovl.open{display:flex;}
 .ob-card{background:var(--branco);border-radius:16px;width:440px;max-width:calc(100vw - 32px);box-shadow:0 24px 64px rgba(0,0,0,.18);overflow:hidden;display:flex;flex-direction:column;}
@@ -1282,6 +1294,7 @@ var SUPA_URL = 'https://lgrfbtcztziuakokaqtb.supabase.co';
 var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxncmZidGN6dHppdWFrb2thcXRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5OTQwMzEsImV4cCI6MjA5NTU3MDAzMX0.HyU0eoKm74m7Fj3X2xVyTezcQoGAe8CHwvOZjofkigU';
 var supa = null;
 var currentUser = null;
+var currentConsultaId = null;
 var authCurrentMode = 'login';
 
 function initSupa() {
@@ -2322,12 +2335,18 @@ function renderResult(d){
     var s16 = document.createElement("div"); s16.className="sdef";
     var s16body = '<div class="sdefh"><div><div class="sdeft">✍ Diagnóstico e Conduta Definitivos</div><div class="sdefs2">Preenchido pelo médico</div></div></div><div class="sdefb">';
     if(isActive("hipotese_def")){
-      var cidVal = escapeHTML(d["hipotese_def"] || "");
-      s16body += '<div class="sdef-field"><div class="sdef-label">Hipótese Diagnóstica Definitiva (com CID-10)</div>'
-        + '<div class="cid-wrap">'
-        + '<input type="text" class="sdef-input" id="hipotese_def_input" data-key="hipotese_def" placeholder="Digite o diagnóstico ou código CID-10..." value="' + cidVal + '" oninput="cidSearch(this)" onblur="cidHide()" autocomplete="off"/>'
-        + '<div class="cid-results" id="cidDropdown"></div>'
-        + '</div></div>';
+      // Suporte a múltiplos CIDs: armazenado como JSON array ou string legada
+      var cidRaw = d["hipotese_def"] || "";
+      var cidList = [];
+      try { cidList = JSON.parse(cidRaw); if(!Array.isArray(cidList)) cidList = [cidRaw]; }
+      catch(e){ cidList = cidRaw ? [cidRaw] : []; }
+      if(cidList.length === 0) cidList = [""];
+      s16body += '<div class="sdef-field"><div class="sdef-label" style="display:flex;align-items:center;justify-content:space-between;">Hipóteses Diagnósticas Definitivas (CID-10)<button type="button" onclick="cidAddItem()" style="background:none;border:none;color:var(--verde);font-size:11px;font-weight:600;cursor:pointer;padding:0;font-family:\'Inter\',sans-serif;">+ Adicionar CID</button></div>'
+        + '<div id="cidItemsWrap">';
+      for(var ci=0; ci<cidList.length; ci++){
+        s16body += cidBuildItem(ci, cidList[ci]);
+      }
+      s16body += '</div></div>';
     }
     if(isActive("conduta_def")){
       s16body += '<div class="sdef-field"><div class="sdef-label">Conduta Definitiva</div>'
@@ -2335,7 +2354,6 @@ function renderResult(d){
     }
     s16body += '</div>';
     s16.innerHTML = s16body;
-    // Sync input value to data-key on change
     c.appendChild(s16);
   }
 
@@ -2449,12 +2467,25 @@ function collectSections(){
     });
     // Lê inputs com data-key (campos definitivos com CID-10)
     card.querySelectorAll("input[data-key]").forEach(function(inp){
+      // Ignorar campos CID individuais — lidos via cidGetAllValues()
+      if(inp.classList.contains('cid-item-input')) return;
       if(inp.value.trim()){
-        var lbl = card.querySelector('[for="'+inp.id+'"]') || card.querySelector('.sdef-label');
+        var lbl = card.querySelector('.sdef-label');
         var label = lbl ? lbl.textContent.trim() : inp.getAttribute('data-key');
         sec.rows.push({l:label, v:inp.value.trim()});
       }
     });
+    // Múltiplos CIDs: serializa como JSON
+    var cidWrap = card.querySelector('#cidItemsWrap');
+    if(cidWrap){
+      var vals = [];
+      cidWrap.querySelectorAll('.cid-item-input').forEach(function(inp){
+        if(inp.value.trim()) vals.push(inp.value.trim());
+      });
+      if(vals.length > 0){
+        sec.rows.push({l:'Hipóteses Diagnósticas Definitivas (CID-10)', v:vals.join(' | ')});
+      }
+    }
     secs.push(sec);
   });
   return secs;
@@ -2651,6 +2682,11 @@ async function executarSave() {
     if(!token){ btn.disabled=false; btn.textContent='Salvar'; return; }
 
     var data = pendingSave.data;
+    // Mescla campos editados manualmente no DOM (CIDs múltiplos, conduta_def)
+    var cidVals = cidGetAllValues();
+    if(cidVals.length > 0) data = Object.assign({}, data, { hipotese_def: JSON.stringify(cidVals) });
+    var condutaEl = document.querySelector('.sdef-input[data-key="conduta_def"]');
+    if(condutaEl && condutaEl.value.trim()) data = Object.assign({}, data, { conduta_def: condutaEl.value.trim() });
     var payload = {
       medico_id: currentUser.id,
       paciente_id: pacienteId,
@@ -2677,7 +2713,10 @@ async function executarSave() {
     }
 
     var saved = await res.json();
+    currentConsultaId = saved.id;
     console.log('Consulta salva, id:', saved.id);
+    // Atualiza upload zones com o ID da consulta
+    anexosInit();
 
     var nomePasta = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'Sem pasta';
     var bar = document.getElementById('saveBar');
@@ -3082,10 +3121,12 @@ async function abrirConsulta(id){
     if(!c || !c.anamnese){ alert('Consulta sem dados de anamnese.'); return; }
 
     resultData = c.anamnese;
+    currentConsultaId = c.id;
     showView('record');
     document.getElementById('vWelcome').style.display='none';
     document.getElementById('vResult').style.display='block';
     renderResult(resultData);
+    setTimeout(function(){ anexosInit(); }, 100);
     // Consulta ja salva — esconde barra de save
     var saveBar = document.getElementById('saveBar');
     if(saveBar) saveBar.style.display = 'none';
@@ -3499,23 +3540,216 @@ async function profileInit() {
   } catch(e){ console.error('profileInit error:', e); }
 }
 
-// ── CID-10 AUTOCOMPLETE ──
-var cidLoading = false;
+// ── ANEXOS DE EXAMES ──
+function anexosInit() {
+  // Injeta ou atualiza as zonas de upload nas seções 11 e 12
+  ['lab','img'].forEach(function(tipo) {
+    var zoneId = 'anexoZone_' + tipo;
+    var existing = document.getElementById(zoneId);
+    if(existing) {
+      anexosLoadList(tipo);
+      return;
+    }
+    // Encontra o card da seção correta
+    var sectionClass = tipo === 'lab' ? 'Exames Laboratoriais' : 'Exames de Imagem';
+    var cards = document.querySelectorAll('.sc');
+    var targetCard = null;
+    cards.forEach(function(card) {
+      var title = card.querySelector('.sct');
+      if(title && title.textContent.indexOf(sectionClass) !== -1) targetCard = card;
+    });
+    if(!targetCard) return;
+    var zone = document.createElement('div');
+    zone.className = 'anexo-zone';
+    zone.id = zoneId;
+    zone.innerHTML = anexosBuildZone(tipo);
+    targetCard.appendChild(zone);
+    anexosLoadList(tipo);
+  });
+}
 
-function cidSearch(input) {
+function anexosBuildZone(tipo) {
+  var label = tipo === 'lab' ? 'Resultados Laboratoriais' : 'Imagens e Laudos';
+  var inputId = 'anexoInput_' + tipo;
+  return '<div class="anexo-zone-title">' + label
+    + '<label class="anexo-upload-btn" for="' + inputId + '">'
+    + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'
+    + 'Anexar arquivo</label></div>'
+    + '<input type="file" id="' + inputId + '" accept=".pdf,.jpg,.jpeg,.png,.heic,image/*,application/pdf" style="display:none" onchange="anexosUpload(this,\'' + tipo + '\')">'
+    + '<div class="anexo-list" id="anexoList_' + tipo + '"></div>'
+    + '<div class="anexo-uploading" id="anexoStatus_' + tipo + '" style="display:none;"></div>';
+}
+
+async function anexosLoadList(tipo) {
+  if(!currentConsultaId) return;
+  var listEl = document.getElementById('anexoList_' + tipo);
+  if(!listEl) return;
+  try {
+    var token = await getToken();
+    if(!token) return;
+    var res = await fetch('/api/anexos', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'list', consulta_id: currentConsultaId })
+    });
+    if(!res.ok) return;
+    var data = await res.json();
+    var anexos = (data.anexos || []).filter(function(a){ return a.tipo === tipo; });
+    if(anexos.length === 0){ listEl.innerHTML = ''; return; }
+    listEl.innerHTML = anexos.map(function(a){
+      var ext = a.nome.split('.').pop().toUpperCase();
+      var isPdf = a.mime_type && a.mime_type.indexOf('pdf') !== -1;
+      var kb = a.tamanho_bytes ? (a.tamanho_bytes/1024).toFixed(0)+'KB' : '';
+      var nomeCurto = a.nome.length > 28 ? a.nome.substring(0,25)+'...' : a.nome;
+      return '<div class="anexo-item">'
+        + '<span class="anexo-item-ico">'
+        + (isPdf
+          ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'
+          : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>')
+        + '</span>'
+        + '<span class="anexo-item-name" title="'+escapeHTML(a.nome)+'">'+escapeHTML(nomeCurto)+'</span>'
+        + '<span class="anexo-item-size">'+kb+'</span>'
+        + '<button class="anexo-item-btn" onclick="anexosView(\''+escapeAttr(a.storage_path)+'\')" title="Visualizar">'
+        + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>'
+        + '<button class="anexo-item-btn" onclick="anexosDelete(\''+a.id+'\',\''+escapeAttr(a.storage_path)+'\',\''+tipo+'\')" title="Excluir">'
+        + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
+        + '</div>';
+    }).join('');
+  } catch(e){ console.error('anexosLoadList error:', e); }
+}
+
+async function anexosUpload(input, tipo) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  input.value = '';
+  if(!currentConsultaId){
+    alert('Salve a consulta antes de anexar arquivos.');
+    return;
+  }
+  var maxSize = 20 * 1024 * 1024;
+  if(file.size > maxSize){ alert('Arquivo muito grande. Limite: 20MB.'); return; }
+  var status = document.getElementById('anexoStatus_' + tipo);
+  if(status){ status.style.display='block'; status.textContent='⟳ Enviando '+file.name+'...'; }
+  try {
+    var b64 = await new Promise(function(resolve, reject){
+      var r = new FileReader();
+      r.onload = function(){ resolve(r.result.split(',')[1]); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    var token = await getToken();
+    if(!token) return;
+    var res = await fetch('/api/anexos', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        access_token: token, acao: 'upload',
+        consulta_id: currentConsultaId, tipo: tipo,
+        nome: file.name, mime_type: file.type,
+        tamanho_bytes: file.size, data: b64
+      })
+    });
+    if(!res.ok){ var e=await res.json(); alert('Erro: '+(e.error||res.status)); return; }
+    if(status){ status.textContent='✓ Enviado.'; setTimeout(function(){ status.style.display='none'; }, 2000); }
+    anexosLoadList(tipo);
+  } catch(e){
+    console.error('anexosUpload error:', e);
+    if(status){ status.textContent='✕ Erro ao enviar.'; setTimeout(function(){ status.style.display='none'; }, 3000); }
+  }
+}
+
+async function anexosView(storagePath) {
+  try {
+    var token = await getToken();
+    if(!token) return;
+    var res = await fetch('/api/anexos', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'get_url', storage_path: storagePath })
+    });
+    if(!res.ok){ alert('Erro ao abrir arquivo.'); return; }
+    var data = await res.json();
+    if(data.url) window.open(data.url, '_blank');
+  } catch(e){ alert('Erro ao abrir arquivo.'); }
+}
+
+async function anexosDelete(id, storagePath, tipo) {
+  if(!confirm('Excluir este arquivo?')) return;
+  try {
+    var token = await getToken();
+    if(!token) return;
+    await fetch('/api/anexos', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'delete', id: id, storage_path: storagePath })
+    });
+    anexosLoadList(tipo);
+  } catch(e){ alert('Erro ao excluir.'); }
+}
+
+// ── CID-10 AUTOCOMPLETE (múltiplos) ──
+var cidLoading = false;
+var cidActiveIdx = 0; // índice do campo CID ativo
+
+function cidBuildItem(idx, val) {
+  return '<div class="cid-wrap" id="cidWrap_'+idx+'" style="margin-bottom:6px;">'
+    + '<div style="display:flex;gap:6px;align-items:center;">'
+    + '<input type="text" class="sdef-input cid-item-input" id="cidInput_'+idx+'" data-cidx="'+idx+'" data-key="hipotese_def" placeholder="Digite o diagnóstico ou código CID-10..." value="'+escapeHTML(val)+'" oninput="cidSearch(this,'+idx+')" onblur="cidHide('+idx+')" autocomplete="off" style="flex:1;"/>'
+    + (idx > 0 ? '<button type="button" onclick="cidRemoveItem('+idx+')" style="background:none;border:none;color:var(--cinza);cursor:pointer;padding:4px;line-height:1;flex-shrink:0;" title="Remover"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' : '')
+    + '</div>'
+    + '<div class="cid-results" id="cidDropdown_'+idx+'"></div>'
+    + '</div>';
+}
+
+function cidAddItem() {
+  var wrap = document.getElementById('cidItemsWrap');
+  if(!wrap) return;
+  var items = wrap.querySelectorAll('.cid-wrap');
+  var idx = items.length;
+  var div = document.createElement('div');
+  div.innerHTML = cidBuildItem(idx, '');
+  while(div.firstChild) wrap.appendChild(div.firstChild);
+  var inp = document.getElementById('cidInput_'+idx);
+  if(inp) inp.focus();
+}
+
+function cidRemoveItem(idx) {
+  var wrap = document.getElementById('cidWrap_'+idx);
+  if(wrap) wrap.remove();
+  // Re-numera os itens restantes
+  var allWraps = document.querySelectorAll('#cidItemsWrap .cid-wrap');
+  allWraps.forEach(function(w, i){
+    w.id = 'cidWrap_'+i;
+    var inp = w.querySelector('.cid-item-input');
+    if(inp){ inp.id='cidInput_'+i; inp.setAttribute('data-cidx',i); inp.setAttribute('oninput','cidSearch(this,'+i+')'); inp.setAttribute('onblur','cidHide('+i+')'); }
+    var drop = w.querySelector('.cid-results');
+    if(drop) drop.id='cidDropdown_'+i;
+    var removeBtn = w.querySelector('button');
+    if(removeBtn && i > 0) removeBtn.setAttribute('onclick','cidRemoveItem('+i+')');
+    else if(removeBtn && i === 0) removeBtn.remove();
+  });
+}
+
+function cidGetAllValues() {
+  var inputs = document.querySelectorAll('#cidItemsWrap .cid-item-input');
+  var vals = [];
+  inputs.forEach(function(inp){ if(inp.value.trim()) vals.push(inp.value.trim()); });
+  return vals;
+}
+
+function cidSearch(input, idx) {
+  cidActiveIdx = idx !== undefined ? idx : 0;
   var q = input.value.trim();
-  var drop = document.getElementById('cidDropdown');
+  var dropId = 'cidDropdown_' + cidActiveIdx;
+  var drop = document.getElementById(dropId);
   if(!drop) return;
   if(q.length < 2){ drop.classList.remove('open'); return; }
   if(cidLoading) return;
   cidLoading = true;
+  var capturedIdx = cidActiveIdx;
   fetch('/api/cid?q=' + encodeURIComponent(q))
     .then(function(r){ return r.json(); })
     .then(function(data){
       cidLoading = false;
       var results = data.results || [];
-      if(!document.getElementById('cidDropdown')) return;
-      var drop2 = document.getElementById('cidDropdown');
+      var drop2 = document.getElementById('cidDropdown_'+capturedIdx);
+      if(!drop2) return;
       if(results.length === 0){
         drop2.innerHTML = '<div class="cid-hint">Nenhum resultado para "' + escapeHTML(q) + '"</div>';
         drop2.classList.add('open');
@@ -3523,7 +3757,7 @@ function cidSearch(input) {
       }
       var html = '';
       results.forEach(function(item){
-        html += '<div class="cid-item" onmousedown="cidSelect(\'' + escapeAttr(item.code) + '\',\'' + escapeAttr(item.desc) + '\')">'
+        html += '<div class="cid-item" onmousedown="cidSelect(\'' + escapeAttr(item.code) + '\',\'' + escapeAttr(item.desc) + '\',' + capturedIdx + ')">'
           + '<span class="cid-code">' + escapeHTML(item.code) + '</span>'
           + '<span class="cid-desc">' + escapeHTML(item.desc) + '</span>'
           + '</div>';
@@ -3531,27 +3765,25 @@ function cidSearch(input) {
       drop2.innerHTML = html;
       drop2.classList.add('open');
     })
-    .catch(function(e){
-      cidLoading = false;
-      console.error('CID search error:', e);
-    });
+    .catch(function(e){ cidLoading = false; });
 }
 
-function cidSelect(code, desc) {
-  var inp = document.getElementById('hipotese_def_input');
-  var drop = document.getElementById('cidDropdown');
+function cidSelect(code, desc, idx) {
+  var inp = document.getElementById('cidInput_'+(idx !== undefined ? idx : cidActiveIdx));
+  var drop = document.getElementById('cidDropdown_'+(idx !== undefined ? idx : cidActiveIdx));
   if(inp) inp.value = desc + ' (' + code + ')';
   if(drop) drop.classList.remove('open');
 }
 
-function cidHide() {
+function cidHide(idx) {
   setTimeout(function(){
-    var drop = document.getElementById('cidDropdown');
+    var dropId = 'cidDropdown_'+(idx !== undefined ? idx : cidActiveIdx);
+    var drop = document.getElementById(dropId);
     if(drop) drop.classList.remove('open');
   }, 200);
 }
 
-function cidPreload(){} // noop — dados ficam no backend
+function cidPreload(){}
 
 // ── ONBOARDING CAROUSEL ──
 var OB_KEY = 'anamia_onboarding_v1';
