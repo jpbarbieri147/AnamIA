@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AnamIA — Teleconsulta</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#0D1117;color:#C9D1D9;font-family:'Inter',system-ui,sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .logo{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.3px;margin-bottom:6px;}
+    .logo em{font-style:normal;color:#4ECFA3;}
+    .sub{font-size:13px;color:#8B949E;margin-bottom:32px;}
+    .card{background:#161B22;border:1px solid #30363D;border-radius:12px;padding:32px;width:360px;max-width:calc(100vw - 32px);text-align:center;}
+    .card-title{font-size:16px;font-weight:600;margin-bottom:8px;}
+    .card-sub{font-size:13px;color:#8B949E;margin-bottom:24px;line-height:1.6;}
+    .join-btn{width:100%;padding:13px;background:#4ECFA3;color:#0D1117;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s;}
+    .join-btn:hover{opacity:.88;}
+    .join-btn:disabled{opacity:.5;cursor:not-allowed;}
+    .status{font-size:12px;color:#8B949E;margin-top:16px;min-height:20px;}
+    .error{color:#F85149;}
+    #callFrame{display:none;position:fixed;inset:0;width:100%;height:100%;border:none;}
+    .waiting{display:flex;flex-direction:column;align-items:center;gap:12px;}
+    .spinner{width:36px;height:36px;border:3px solid #30363D;border-top-color:#4ECFA3;border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+
+  <div id="joinScreen">
+    <div class="logo">Anam<em>IA</em></div>
+    <div class="sub">Teleconsulta Médica</div>
+    <div class="card">
+      <div class="card-title">Sua consulta está pronta</div>
+      <div class="card-sub">Ao entrar, você precisará permitir o acesso à câmera e ao microfone do seu dispositivo.</div>
+      <button class="join-btn" id="joinBtn" onclick="entrar()">
+        📹 Entrar na consulta
+      </button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+
+  <iframe id="callFrame" allow="camera; microphone; fullscreen; display-capture; autoplay"></iframe>
+
+  <script>
+    function getParams() {
+      var p = new URLSearchParams(window.location.search);
+      return { token: p.get('t'), room: p.get('r') };
+    }
+
+    function entrar() {
+      var params = getParams();
+      if(!params.token || !params.room) {
+        document.getElementById('status').innerHTML = '<span class="error">Link inválido ou expirado. Solicite um novo link ao médico.</span>';
+        return;
+      }
+      var btn = document.getElementById('joinBtn');
+      btn.disabled = true;
+      btn.textContent = 'Conectando...';
+      document.getElementById('status').textContent = 'Abrindo sala de teleconsulta...';
+
+      var dailyUrl = 'https://anamia.daily.co/' + params.room + '?t=' + params.token;
+      var frame = document.getElementById('callFrame');
+      frame.src = dailyUrl;
+      frame.style.display = 'block';
+      document.getElementById('joinScreen').style.display = 'none';
+    }
+
+    // Verifica se o link tem os parâmetros necessários
+    window.onload = function() {
+      var params = getParams();
+      if(!params.token || !params.room) {
+        document.getElementById('status').innerHTML = '<span class="error">Link inválido. Solicite um novo link ao médico.</span>';
+        document.getElementById('joinBtn').disabled = true;
+      }
+    };
+  </script>
+</body>
+</html>
