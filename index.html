@@ -3685,9 +3685,17 @@ async function tcIniciar(pacienteNome, agendamentoId) {
       document.getElementById('tcLinkBox').style.display = 'block';
     }
 
-    // 5. Carrega iframe Daily
+    // 5. Abre Daily em nova aba (permite captura de áudio via getDisplayMedia)
     var dailyUrl = 'https://anamia.daily.co/' + tcSalaName + '?t=' + tokData.token;
-    document.getElementById('tcIframe').src = dailyUrl;
+    var dailyTab = window.open(dailyUrl, 'daily_tc_' + tcSalaName);
+    // Mantém iframe como fallback se popup bloqueado
+    if(!dailyTab){
+      document.getElementById('tcIframe').src = dailyUrl;
+      document.getElementById('tcTranscript').innerHTML += '<br><small style="color:#F85149;">Popup bloqueado. Use o iframe abaixo e selecione "Tela inteira" no seletor de áudio.</small>';
+    } else {
+      document.getElementById('tcIframe').style.display = 'none';
+      document.getElementById('tcTranscript').innerHTML += '<br><small style="color:#4ECFA3;">✓ Consulta aberta em nova aba. Selecione essa aba no seletor do Chrome.</small>';
+    }
 
     // 6. Timer
     tcSeconds = 0;
@@ -3755,28 +3763,41 @@ async function tcEncerrar() {
 }
 
 async function tcTranscrever(audioBlob, duracaoSegundos) {
-  var transcript = document.getElementById('txArea');
-  if(transcript){ transcript.value = 'Transcrevendo...'; transcript.style.display = 'block'; }
+  var txArea = document.getElementById('manTx');
+  if(txArea){ txArea.value = '⟳ Transcrevendo consulta...'; }
   try {
-    var formData = new FormData();
-    formData.append('audio', audioBlob, 'teleconsulta.webm');
-    var res = await fetch('/api/transcribe', { method: 'POST', body: formData });
-    if(!res.ok) throw new Error('Transcrição falhou: ' + res.status);
+    // Converte blob para base64 — mesmo formato que o transcribe.js espera
+    var base64 = await new Promise(function(resolve, reject){
+      var r = new FileReader();
+      r.onload = function(){ resolve(r.result.split(',')[1]); };
+      r.onerror = reject;
+      r.readAsDataURL(audioBlob);
+    });
+    var mimeType = audioBlob.type || 'audio/webm';
+    var res = await fetch('/api/transcribe', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ audio: base64, mimeType: mimeType, phase: 'an' })
+    });
+    if(!res.ok){
+      var errData = await res.json();
+      throw new Error(errData.error || 'HTTP ' + res.status);
+    }
     var data = await res.json();
-    var tx = data.text || data.transcription || '';
+    var tx = data.transcript || data.text || '';
     if(tx){
       fullTx = tx;
-      if(transcript){ transcript.value = tx; }
-      if(confirm('Transcrição concluída! Deseja gerar a anamnese agora?')){
+      if(txArea){ txArea.value = tx; }
+      if(confirm('✓ Transcrição concluída! Deseja gerar a anamnese agora?')){
         doGenerate(tx, duracaoSegundos);
       }
     } else {
-      if(transcript){ transcript.value = ''; }
+      if(txArea){ txArea.value = ''; }
       alert('Transcrição vazia. Você pode colar o texto manualmente.');
     }
   } catch(e) {
     console.error('tcTranscrever error:', e);
-    if(transcript){ transcript.value = ''; }
+    if(txArea){ txArea.value = ''; }
     alert('Erro na transcrição: ' + e.message + '\n\nVocê pode colar a transcrição manualmente.');
   }
 }
