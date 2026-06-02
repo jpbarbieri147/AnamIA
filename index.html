@@ -3584,6 +3584,9 @@ var tcSalaName = null;
 var tcTimerInterval = null;
 var tcSeconds = 0;
 var tcPatientNome = '';
+var tcMediaRecorder = null;
+var tcAudioChunks = [];
+var tcStream = null;
 
 async function tcIniciar(pacienteNome, agendamentoId) {
   tcPatientNome = pacienteNome || 'Paciente';
@@ -3591,13 +3594,27 @@ async function tcIniciar(pacienteNome, agendamentoId) {
   document.getElementById('tcIframe').src = '';
   document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">Iniciando sala...</div>';
   document.getElementById('tcLinkBox').style.display = 'none';
-  document.getElementById('tcRecDot').style.display = 'none';
   document.getElementById('tcWrap').classList.add('open');
 
   try {
     var token = await getToken(); if(!token) return;
 
-    // 1. Cria a sala no Daily
+    // 1. Solicita acesso ao microfone ANTES de abrir o iframe
+    try {
+      tcStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      tcAudioChunks = [];
+      var mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+      tcMediaRecorder = new MediaRecorder(tcStream, { mimeType: mimeType });
+      tcMediaRecorder.ondataavailable = function(e){ if(e.data.size > 0) tcAudioChunks.push(e.data); };
+      tcMediaRecorder.start(1000);
+      document.getElementById('tcRecDot').style.display = 'inline-block';
+      document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">🔴 Gravando áudio...<br><small style="color:#484F58;">A transcrição será gerada ao encerrar.</small></div>';
+    } catch(micErr) {
+      console.warn('Microfone não disponível:', micErr);
+      document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">⚠️ Permissão de microfone negada.<br>A transcrição não estará disponível.</div>';
+    }
+
+    // 2. Cria a sala no Daily
     var res = await fetch('/api/teleconsulta', {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ access_token: token, acao: 'criar_sala', paciente_nome: tcPatientNome })
@@ -3606,7 +3623,7 @@ async function tcIniciar(pacienteNome, agendamentoId) {
     var salaData = await res.json();
     tcSalaName = salaData.sala_name;
 
-    // 2. Obtém token do médico
+    // 3. Token do médico
     var tokRes = await fetch('/api/teleconsulta', {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ access_token: token, acao: 'obter_token', sala_name: tcSalaName, role: 'medico' })
@@ -3614,25 +3631,23 @@ async function tcIniciar(pacienteNome, agendamentoId) {
     if(!tokRes.ok){ alert('Erro ao obter token.'); tcFechar(); return; }
     var tokData = await tokRes.json();
 
-    // 3. Gera token do paciente e monta link
+    // 4. Token do paciente e link
     var pacTokRes = await fetch('/api/teleconsulta', {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ access_token: token, acao: 'obter_token', sala_name: tcSalaName, role: 'paciente', paciente_nome: tcPatientNome })
     });
     if(pacTokRes.ok){
       var pacTokData = await pacTokRes.json();
-      var pacLink = 'https://' + window.location.hostname + '/sala?t=' + pacTokData.token + '&r=' + tcSalaName;
+      var pacLink = window.location.origin + '/sala?t=' + pacTokData.token + '&r=' + tcSalaName;
       document.getElementById('tcLinkVal').textContent = pacLink;
       document.getElementById('tcLinkBox').style.display = 'block';
     }
 
-    // 4. Carrega o Daily iframe com token do médico
+    // 5. Carrega iframe Daily
     var dailyUrl = 'https://anamia.daily.co/' + tcSalaName + '?t=' + tokData.token;
     document.getElementById('tcIframe').src = dailyUrl;
-    // recording disabled on free plan
-    document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">Transcrição disponível ao encerrar a consulta.</div>';
 
-    // 5. Inicia timer
+    // 6. Timer
     tcSeconds = 0;
     clearInterval(tcTimerInterval);
     tcTimerInterval = setInterval(function(){
@@ -3650,10 +3665,23 @@ async function tcIniciar(pacienteNome, agendamentoId) {
 }
 
 async function tcEncerrar() {
-  if(!confirm('Encerrar a teleconsulta? A gravação será finalizada.')) return;
+  if(!confirm('Encerrar a teleconsulta? O áudio será enviado para transcrição.')) return;
   clearInterval(tcTimerInterval);
   var duracaoSegundos = tcSeconds;
 
+  // Para a gravação
+  var audioBlob = null;
+  if(tcMediaRecorder && tcMediaRecorder.state !== 'inactive') {
+    audioBlob = await new Promise(function(resolve){
+      tcMediaRecorder.onstop = function(){
+        resolve(new Blob(tcAudioChunks, { type: tcMediaRecorder.mimeType || 'audio/webm' }));
+      };
+      tcMediaRecorder.stop();
+    });
+  }
+  if(tcStream){ tcStream.getTracks().forEach(function(t){ t.stop(); }); tcStream = null; }
+
+  // Encerra sala
   if(tcSalaName){
     try {
       var token = await getToken();
@@ -3663,25 +3691,55 @@ async function tcEncerrar() {
           body: JSON.stringify({ access_token: token, acao: 'encerrar_sala', sala_name: tcSalaName })
         });
       }
-    } catch(e){ console.error('tcEncerrar error:', e); }
+    } catch(e){ console.error('tcEncerrar sala error:', e); }
   }
 
   tcFechar();
 
-  // Pergunta se quer gerar anamnese
-  setTimeout(function(){
-    if(confirm('Teleconsulta encerrada (' + Math.floor(duracaoSegundos/60) + 'min). Deseja ir para Nova Consulta para gerar a anamnese?')){
+  if(audioBlob && audioBlob.size > 1000){
+    if(confirm('Teleconsulta encerrada (' + Math.floor(duracaoSegundos/60) + 'min). Deseja transcrever e gerar a anamnese agora?')){
       showView('record');
+      document.getElementById('vWelcome').style.display = 'none';
+      await tcTranscrever(audioBlob, duracaoSegundos);
     }
-  }, 300);
+  } else {
+    if(confirm('Teleconsulta encerrada. Ir para Nova Consulta?')){ showView('record'); }
+  }
+}
+
+async function tcTranscrever(audioBlob, duracaoSegundos) {
+  var transcript = document.getElementById('txArea');
+  if(transcript){ transcript.value = 'Transcrevendo...'; transcript.style.display = 'block'; }
+  try {
+    var formData = new FormData();
+    formData.append('audio', audioBlob, 'teleconsulta.webm');
+    var res = await fetch('/api/transcribe', { method: 'POST', body: formData });
+    if(!res.ok) throw new Error('Transcrição falhou: ' + res.status);
+    var data = await res.json();
+    var tx = data.text || data.transcription || '';
+    if(tx){
+      fullTx = tx;
+      if(transcript){ transcript.value = tx; }
+      if(confirm('Transcrição concluída! Deseja gerar a anamnese agora?')){
+        doGenerate(tx, duracaoSegundos);
+      }
+    } else {
+      if(transcript){ transcript.value = ''; }
+      alert('Transcrição vazia. Você pode colar o texto manualmente.');
+    }
+  } catch(e) {
+    console.error('tcTranscrever error:', e);
+    if(transcript){ transcript.value = ''; }
+    alert('Erro na transcrição: ' + e.message + '\n\nVocê pode colar a transcrição manualmente.');
+  }
 }
 
 function tcFechar() {
   document.getElementById('tcWrap').classList.remove('open');
   document.getElementById('tcIframe').src = '';
+  document.getElementById('tcRecDot').style.display = 'none';
   clearInterval(tcTimerInterval);
-  tcSalaName = null;
-  tcSeconds = 0;
+  tcSalaName = null; tcSeconds = 0; tcAudioChunks = []; tcMediaRecorder = null;
   document.getElementById('tcTimer').textContent = '00:00';
 }
 
