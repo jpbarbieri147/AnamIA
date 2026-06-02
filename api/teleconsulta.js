@@ -54,14 +54,12 @@ export default async function handler(req, res) {
         name: roomName,
         properties: {
           max_participants: 2,
-          enable_recording: 'cloud',      // grava audio/video na Daily
-          recording_type: 'cloud',
           exp: Math.floor(Date.now()/1000) + 7200, // expira em 2h
           enable_chat: false,
           enable_screenshare: false,
           start_video_off: false,
           start_audio_off: false,
-          eject_at_room_exp: true         // remove participantes ao expirar
+          eject_at_room_exp: true
         }
       }, DAILY_KEY);
 
@@ -83,7 +81,6 @@ export default async function handler(req, res) {
           room_name: sala_name,
           is_owner: isMedico,
           user_name: isMedico ? 'Médico' : (paciente_nome || 'Paciente'),
-          enable_recording: isMedico,     // só médico pode gravar
           exp: Math.floor(Date.now()/1000) + 7200,
           eject_at_token_exp: true
         }

@@ -3629,7 +3629,7 @@ async function tcIniciar(pacienteNome, agendamentoId) {
     // 4. Carrega o Daily iframe com token do médico
     var dailyUrl = 'https://anamia.daily.co/' + tcSalaName + '?t=' + tokData.token;
     document.getElementById('tcIframe').src = dailyUrl;
-    document.getElementById('tcRecDot').style.display = 'inline-block';
+    // recording disabled on free plan
     document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">Transcrição disponível ao encerrar a consulta.</div>';
 
     // 5. Inicia timer
