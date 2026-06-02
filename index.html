@@ -3599,18 +3599,60 @@ async function tcIniciar(pacienteNome, agendamentoId) {
   try {
     var token = await getToken(); if(!token) return;
 
-    // 1. Solicita acesso ao microfone ANTES de abrir o iframe
+    // 1. Captura dupla: microfone + áudio da aba (paciente via fone)
     try {
-      tcStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var dest = audioCtx.createMediaStreamDestination();
+
+      // Microfone do médico
+      var micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      var micSource = audioCtx.createMediaStreamSource(micStream);
+      micSource.connect(dest);
+      tcStream = micStream; // para parar depois
+
+      // Áudio da aba (paciente) via getDisplayMedia
+      // Nota: o médico precisará selecionar a aba do Daily no seletor do Chrome
+      try {
+        var displayStream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,   // obrigatório pelo spec, mas não usamos
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            sampleRate: 44100
+          }
+        });
+        var tabAudioTracks = displayStream.getAudioTracks();
+        if(tabAudioTracks.length > 0){
+          var tabSource = audioCtx.createMediaStreamSource(new MediaStream(tabAudioTracks));
+          tabSource.connect(dest);
+          // Para a captura de vídeo (não precisamos dele)
+          displayStream.getVideoTracks().forEach(function(t){ t.stop(); });
+          // Guarda referência para parar depois
+          tcStream._tabTracks = tabAudioTracks;
+          document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">🔴 Gravando ambos os lados...<br><small style="color:#4ECFA3;">Microfone + áudio do paciente capturados.</small></div>';
+        } else {
+          // Sem áudio da aba — só microfone
+          displayStream.getTracks().forEach(function(t){ t.stop(); });
+          document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">🔴 Gravando microfone...<br><small style="color:#484F58;">Áudio da aba não disponível — só sua voz será transcrita.</small></div>';
+        }
+      } catch(displayErr) {
+        // Usuário cancelou ou não suportado — continua só com microfone
+        console.warn('getDisplayMedia cancelado ou não suportado:', displayErr.message);
+        document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">🔴 Gravando microfone...<br><small style="color:#484F58;">Para capturar os dois lados, selecione a aba ao iniciar.</small></div>';
+      }
+
+      // Inicia MediaRecorder no stream mixado
       tcAudioChunks = [];
       var mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
-      tcMediaRecorder = new MediaRecorder(tcStream, { mimeType: mimeType });
+      tcMediaRecorder = new MediaRecorder(dest.stream, { mimeType: mimeType });
       tcMediaRecorder.ondataavailable = function(e){ if(e.data.size > 0) tcAudioChunks.push(e.data); };
       tcMediaRecorder.start(1000);
       document.getElementById('tcRecDot').style.display = 'inline-block';
-      document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">🔴 Gravando áudio...<br><small style="color:#484F58;">A transcrição será gerada ao encerrar.</small></div>';
+      // Guarda audioCtx para fechar depois
+      tcStream._audioCtx = audioCtx;
+
     } catch(micErr) {
-      console.warn('Microfone não disponível:', micErr);
+      console.warn('Captura de áudio não disponível:', micErr);
       document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">⚠️ Permissão de microfone negada.<br>A transcrição não estará disponível.</div>';
     }
 
@@ -3679,7 +3721,12 @@ async function tcEncerrar() {
       tcMediaRecorder.stop();
     });
   }
-  if(tcStream){ tcStream.getTracks().forEach(function(t){ t.stop(); }); tcStream = null; }
+  if(tcStream){
+    tcStream.getTracks().forEach(function(t){ t.stop(); });
+    if(tcStream._tabTracks) tcStream._tabTracks.forEach(function(t){ t.stop(); });
+    if(tcStream._audioCtx) tcStream._audioCtx.close();
+    tcStream = null;
+  }
 
   // Encerra sala
   if(tcSalaName){
@@ -3739,6 +3786,12 @@ function tcFechar() {
   document.getElementById('tcIframe').src = '';
   document.getElementById('tcRecDot').style.display = 'none';
   clearInterval(tcTimerInterval);
+  if(tcStream){
+    tcStream.getTracks().forEach(function(t){ t.stop(); });
+    if(tcStream._tabTracks) tcStream._tabTracks.forEach(function(t){ t.stop(); });
+    if(tcStream._audioCtx) tcStream._audioCtx.close();
+    tcStream = null;
+  }
   tcSalaName = null; tcSeconds = 0; tcAudioChunks = []; tcMediaRecorder = null;
   document.getElementById('tcTimer').textContent = '00:00';
 }
