@@ -78,6 +78,84 @@ export default async function handler(req, res) {
       return res.status(200).json({ perfil: updated[0] });
     }
 
+    // ===================== AGENDA =====================
+
+    if (acao === 'agenda_list') {
+      const { ano, mes } = body;
+      if (!ano || !mes) return res.status(400).json({ error: 'Missing ano or mes' });
+      const mm = String(parseInt(mes)).padStart(2,'0');
+      const yyyy = parseInt(ano);
+      const dataInicio = `${yyyy}-${mm}-01`;
+      const mesNext = parseInt(mes) === 12 ? 1 : parseInt(mes) + 1;
+      const yearNext = parseInt(mes) === 12 ? yyyy + 1 : yyyy;
+      const mmNext = String(mesNext).padStart(2,'0');
+      const dataFim = `${yearNext}-${mmNext}-01`;
+      const url = SUPA_URL + '/rest/v1/agendamentos'
+        + '?select=id,paciente_id,paciente_nome,data,hora,tipo,status,observacoes,email_paciente'
+        + '&medico_id=eq.' + encodeURIComponent(uid)
+        + '&data=gte.' + dataInicio
+        + '&data=lt.' + dataFim
+        + '&order=data.asc,hora.asc';
+      const r = await fetch(url, { method: 'GET', headers: H });
+      if (!r.ok) return res.status(500).json({ error: 'List failed: ' + await r.text() });
+      return res.status(200).json({ agendamentos: await r.json() });
+    }
+
+    if (acao === 'agenda_create') {
+      const { paciente_id, paciente_nome, data, hora, tipo, status, observacoes, email_paciente } = body;
+      if (!paciente_nome || !data || !hora) return res.status(400).json({ error: 'Missing required fields' });
+      const r = await fetch(SUPA_URL + '/rest/v1/agendamentos', {
+        method: 'POST',
+        headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
+        body: JSON.stringify({
+          medico_id: uid,
+          paciente_id: paciente_id || null,
+          paciente_nome: String(paciente_nome).trim(),
+          data, hora,
+          tipo: tipo || 'retorno',
+          status: status || 'agendado',
+          observacoes: observacoes || null,
+          email_paciente: email_paciente || null
+        })
+      });
+      if (!r.ok) return res.status(500).json({ error: 'Create failed: ' + await r.text() });
+      const created = await r.json();
+      return res.status(200).json({ agendamento: created[0] });
+    }
+
+    if (acao === 'agenda_update') {
+      if (!body.id) return res.status(400).json({ error: 'Missing id' });
+      const updUrl = SUPA_URL + '/rest/v1/agendamentos'
+        + '?id=eq.' + encodeURIComponent(body.id)
+        + '&medico_id=eq.' + encodeURIComponent(uid);
+      const patch = {};
+      ['paciente_id','paciente_nome','data','hora','tipo','status','observacoes','email_paciente'].forEach(function(f){ if (body[f] !== undefined) patch[f] = body[f]; });
+      const r = await fetch(updUrl, {
+        method: 'PATCH',
+        headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
+        body: JSON.stringify(patch)
+      });
+      if (!r.ok) return res.status(500).json({ error: 'Update failed: ' + await r.text() });
+      const updated = await r.json();
+      if (!updated || updated.length === 0) return res.status(404).json({ error: 'Agendamento nao encontrado' });
+      return res.status(200).json({ agendamento: updated[0] });
+    }
+
+    if (acao === 'agenda_delete') {
+      if (!body.id) return res.status(400).json({ error: 'Missing id' });
+      const delUrl = SUPA_URL + '/rest/v1/agendamentos'
+        + '?id=eq.' + encodeURIComponent(body.id)
+        + '&medico_id=eq.' + encodeURIComponent(uid);
+      const r = await fetch(delUrl, {
+        method: 'DELETE',
+        headers: Object.assign({}, H, { 'Prefer': 'return=representation' })
+      });
+      if (!r.ok) return res.status(500).json({ error: 'Delete failed: ' + await r.text() });
+      const deleted = await r.json();
+      if (!deleted || deleted.length === 0) return res.status(404).json({ error: 'Agendamento nao encontrado' });
+      return res.status(200).json({ ok: true, id: body.id });
+    }
+
     // ===================== PACIENTES (PASTAS) =====================
 
     if (acao === 'pacientes_list') {
