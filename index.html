@@ -3789,7 +3789,7 @@ async function tcTranscrever(audioBlob, duracaoSegundos) {
       fullTx = tx;
       if(txArea){ txArea.value = tx; }
       if(confirm('✓ Transcrição concluída! Deseja gerar a anamnese agora?')){
-        doGenerate(tx, duracaoSegundos);
+        processTranscript();
       }
     } else {
       if(txArea){ txArea.value = ''; }
