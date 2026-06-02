@@ -3587,6 +3587,10 @@ var tcPatientNome = '';
 var tcMediaRecorder = null;
 var tcAudioChunks = [];
 var tcStream = null;
+var tcAudioCtx = null;
+var tcDest = null;
+var tcTabTracks = null;
+var tcDailyTab = null;
 
 async function tcIniciar(pacienteNome, agendamentoId) {
   tcPatientNome = pacienteNome || 'Paciente';
@@ -3599,60 +3603,24 @@ async function tcIniciar(pacienteNome, agendamentoId) {
   try {
     var token = await getToken(); if(!token) return;
 
-    // 1. Captura dupla: microfone + áudio da aba (paciente via fone)
+    // 1. Microfone do médico + AudioContext (a aba do paciente entra depois, via botão)
     try {
-      var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      var dest = audioCtx.createMediaStreamDestination();
-
-      // Microfone do médico
+      tcAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      tcDest = tcAudioCtx.createMediaStreamDestination();
       var micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      var micSource = audioCtx.createMediaStreamSource(micStream);
-      micSource.connect(dest);
-      tcStream = micStream; // para parar depois
+      var micSource = tcAudioCtx.createMediaStreamSource(micStream);
+      micSource.connect(tcDest);
+      tcStream = micStream;
 
-      // Áudio da aba (paciente) via getDisplayMedia
-      // Nota: o médico precisará selecionar a aba do Daily no seletor do Chrome
-      try {
-        var displayStream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,   // obrigatório pelo spec, mas não usamos
-          audio: {
-            echoCancellation: false,
-            noiseSuppression: false,
-            sampleRate: 44100
-          }
-        });
-        var tabAudioTracks = displayStream.getAudioTracks();
-        if(tabAudioTracks.length > 0){
-          var tabSource = audioCtx.createMediaStreamSource(new MediaStream(tabAudioTracks));
-          tabSource.connect(dest);
-          // Para a captura de vídeo (não precisamos dele)
-          displayStream.getVideoTracks().forEach(function(t){ t.stop(); });
-          // Guarda referência para parar depois
-          tcStream._tabTracks = tabAudioTracks;
-          document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">🔴 Gravando ambos os lados...<br><small style="color:#4ECFA3;">Microfone + áudio do paciente capturados.</small></div>';
-        } else {
-          // Sem áudio da aba — só microfone
-          displayStream.getTracks().forEach(function(t){ t.stop(); });
-          document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">🔴 Gravando microfone...<br><small style="color:#484F58;">Áudio da aba não disponível — só sua voz será transcrita.</small></div>';
-        }
-      } catch(displayErr) {
-        // Usuário cancelou ou não suportado — continua só com microfone
-        console.warn('getDisplayMedia cancelado ou não suportado:', displayErr.message);
-        document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">🔴 Gravando microfone...<br><small style="color:#484F58;">Para capturar os dois lados, selecione a aba ao iniciar.</small></div>';
-      }
-
-      // Inicia MediaRecorder no stream mixado
+      // MediaRecorder grava o stream mixado (mic agora; aba quando conectada)
       tcAudioChunks = [];
       var mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
-      tcMediaRecorder = new MediaRecorder(dest.stream, { mimeType: mimeType });
+      tcMediaRecorder = new MediaRecorder(tcDest.stream, { mimeType: mimeType });
       tcMediaRecorder.ondataavailable = function(e){ if(e.data.size > 0) tcAudioChunks.push(e.data); };
       tcMediaRecorder.start(1000);
       document.getElementById('tcRecDot').style.display = 'inline-block';
-      // Guarda audioCtx para fechar depois
-      tcStream._audioCtx = audioCtx;
-
     } catch(micErr) {
-      console.warn('Captura de áudio não disponível:', micErr);
+      console.warn('Microfone não disponível:', micErr);
       document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">⚠️ Permissão de microfone negada.<br>A transcrição não estará disponível.</div>';
     }
 
@@ -3685,19 +3653,24 @@ async function tcIniciar(pacienteNome, agendamentoId) {
       document.getElementById('tcLinkBox').style.display = 'block';
     }
 
-    // 5. Abre Daily em nova aba (permite captura de áudio via getDisplayMedia)
+    // 5. Abre Daily em nova aba IMEDIATAMENTE (antes de qualquer captura de aba)
     var dailyUrl = 'https://anamia.daily.co/' + tcSalaName + '?t=' + tokData.token;
-    var dailyTab = window.open(dailyUrl, 'daily_tc_' + tcSalaName);
-    // Mantém iframe como fallback se popup bloqueado
-    if(!dailyTab){
+    tcDailyTab = window.open(dailyUrl, '_blank');
+    if(!tcDailyTab){
+      // Popup bloqueado: usa iframe como fallback
       document.getElementById('tcIframe').src = dailyUrl;
-      document.getElementById('tcTranscript').innerHTML += '<br><small style="color:#F85149;">Popup bloqueado. Use o iframe abaixo e selecione "Tela inteira" no seletor de áudio.</small>';
+      document.getElementById('tcIframe').style.display = 'block';
     } else {
       document.getElementById('tcIframe').style.display = 'none';
-      document.getElementById('tcTranscript').innerHTML += '<br><small style="color:#4ECFA3;">✓ Consulta aberta em nova aba. Selecione essa aba no seletor do Chrome.</small>';
     }
 
-    // 6. Timer
+    // 6. Mostra botão para capturar áudio do paciente (a aba do Daily já está aberta)
+    document.getElementById('tcTranscript').innerHTML =
+      '<div class="tc-transcript-empty">🔴 Gravando seu microfone.<br><br>'
+      + '<button type="button" onclick="tcCapturarAudioAba()" style="background:#4ECFA3;color:#0D1117;border:none;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🔊 Capturar áudio do paciente</button>'
+      + '<br><br><small style="color:#8B949E;line-height:1.6;">Clique acima e selecione a aba <b>"AnamIA Teleconsulta"</b> (do Daily) que abriu, com <b>"Compartilhar áudio da guia"</b> ativado.</small></div>';
+
+    // 7. Timer
     tcSeconds = 0;
     clearInterval(tcTimerInterval);
     tcTimerInterval = setInterval(function(){
@@ -3711,6 +3684,30 @@ async function tcIniciar(pacienteNome, agendamentoId) {
     console.error('tcIniciar error:', e);
     alert('Erro ao iniciar teleconsulta: ' + e.message);
     tcFechar();
+  }
+}
+
+async function tcCapturarAudioAba() {
+  if(!tcAudioCtx || !tcDest){ alert('Gravação não iniciada.'); return; }
+  try {
+    var displayStream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+      audio: { echoCancellation: false, noiseSuppression: false, sampleRate: 44100 }
+    });
+    var tabAudioTracks = displayStream.getAudioTracks();
+    if(tabAudioTracks.length > 0){
+      var tabSource = tcAudioCtx.createMediaStreamSource(new MediaStream(tabAudioTracks));
+      tabSource.connect(tcDest);
+      displayStream.getVideoTracks().forEach(function(t){ t.stop(); });
+      tcTabTracks = tabAudioTracks;
+      document.getElementById('tcTranscript').innerHTML =
+        '<div class="tc-transcript-empty">🔴 Gravando ambos os lados!<br><small style="color:#4ECFA3;">Microfone + áudio do paciente sendo capturados.</small></div>';
+    } else {
+      displayStream.getTracks().forEach(function(t){ t.stop(); });
+      alert('A aba selecionada não tem áudio. Tente novamente e ative "Compartilhar áudio da guia".');
+    }
+  } catch(e) {
+    console.warn('tcCapturarAudioAba cancelado:', e.message);
   }
 }
 
@@ -3731,10 +3728,10 @@ async function tcEncerrar() {
   }
   if(tcStream){
     tcStream.getTracks().forEach(function(t){ t.stop(); });
-    if(tcStream._tabTracks) tcStream._tabTracks.forEach(function(t){ t.stop(); });
-    if(tcStream._audioCtx) tcStream._audioCtx.close();
     tcStream = null;
   }
+  if(tcTabTracks){ tcTabTracks.forEach(function(t){ t.stop(); }); tcTabTracks = null; }
+  if(tcAudioCtx){ try{ tcAudioCtx.close(); }catch(e){} tcAudioCtx = null; tcDest = null; }
 
   // Encerra sala
   if(tcSalaName){
@@ -3809,10 +3806,12 @@ function tcFechar() {
   clearInterval(tcTimerInterval);
   if(tcStream){
     tcStream.getTracks().forEach(function(t){ t.stop(); });
-    if(tcStream._tabTracks) tcStream._tabTracks.forEach(function(t){ t.stop(); });
-    if(tcStream._audioCtx) tcStream._audioCtx.close();
     tcStream = null;
   }
+  if(tcTabTracks){ tcTabTracks.forEach(function(t){ t.stop(); }); tcTabTracks = null; }
+  if(tcAudioCtx){ try{ tcAudioCtx.close(); }catch(e){} tcAudioCtx = null; tcDest = null; }
+  if(tcDailyTab){ try{ tcDailyTab.close(); }catch(e){} tcDailyTab = null; }
+  document.getElementById('tcIframe').style.display = 'none';
   tcSalaName = null; tcSeconds = 0; tcAudioChunks = []; tcMediaRecorder = null;
   document.getElementById('tcTimer').textContent = '00:00';
 }
