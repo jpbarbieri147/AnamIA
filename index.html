@@ -162,6 +162,39 @@ body{
 .nav.open .nav-user-info{opacity:1;}
 .nav-user-name{font-size:12px;font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
 .nav-user-role{font-size:10px;color:rgba(255,255,255,.55);}
+/* === TELECONSULTA === */
+.tc-wrap{display:none;position:fixed;inset:0;z-index:8000;background:#0D1117;flex-direction:column;}
+.tc-wrap.open{display:flex;}
+.tc-header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#161B22;border-bottom:1px solid #30363D;flex-shrink:0;}
+.tc-title{display:flex;align-items:center;gap:10px;}
+.tc-logo{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.3px;}
+.tc-logo em{font-style:normal;color:#4ECFA3;}
+.tc-patient{font-size:13px;color:#8B949E;margin-left:8px;}
+.tc-timer{font-size:13px;font-weight:600;color:#4ECFA3;font-variant-numeric:tabular-nums;}
+.tc-rec-dot{width:8px;height:8px;border-radius:50%;background:#F85149;display:inline-block;margin-right:4px;animation:tcblink 1s infinite;}
+@keyframes tcblink{0%,100%{opacity:1}50%{opacity:.3}}
+.tc-body{flex:1;display:grid;grid-template-columns:1fr 340px;overflow:hidden;}
+.tc-video-area{position:relative;background:#0D1117;display:flex;align-items:center;justify-content:center;}
+.tc-iframe{width:100%;height:100%;border:none;}
+.tc-sidebar{border-left:1px solid #30363D;background:#161B22;display:flex;flex-direction:column;overflow:hidden;}
+.tc-sidebar-title{padding:14px 16px;font-size:11px;font-weight:600;color:#8B949E;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid #30363D;flex-shrink:0;}
+.tc-transcript{flex:1;overflow-y:auto;padding:12px 16px;font-size:12px;line-height:1.7;color:#C9D1D9;}
+.tc-transcript-empty{color:#484F58;text-align:center;padding:32px 16px;font-size:12px;}
+.tc-controls{display:flex;align-items:center;justify-content:center;gap:12px;padding:16px 20px;background:#161B22;border-top:1px solid #30363D;flex-shrink:0;}
+.tc-ctrl-btn{width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.tc-ctrl-btn.normal{background:#21262D;}
+.tc-ctrl-btn.normal:hover{background:#30363D;}
+.tc-ctrl-btn.danger{background:#F85149;}
+.tc-ctrl-btn.danger:hover{background:#DA3633;}
+.tc-ctrl-btn svg{width:20px;height:20px;}
+.tc-end-btn{padding:10px 24px;border-radius:24px;background:#F85149;border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s;}
+.tc-end-btn:hover{opacity:.88;}
+.tc-link-box{background:#21262D;border:1px solid #30363D;border-radius:8px;padding:10px 12px;margin:12px 16px 0;font-size:11px;color:#8B949E;}
+.tc-link-val{font-size:11px;color:#4ECFA3;word-break:break-all;margin:4px 0;}
+.tc-copy-btn{background:#30363D;border:none;color:#C9D1D9;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer;margin-top:4px;}
+/* Botão iniciar teleconsulta no painel da agenda */
+.ag-tele-btn{width:100%;padding:7px;background:#161B22;border:1px solid #30363D;color:#4ECFA3;border-radius:var(--rs);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.ag-tele-btn:hover{background:#21262D;}
 /* === AGENDA === */
 .vagenda{display:none;flex-direction:column;width:100%;height:100%;overflow:hidden;}
 .vagenda.show{display:flex;}
@@ -3066,8 +3099,8 @@ async function abrirPasta(id, nome){
   try {
     var token = await getToken();
     if(!token) return;
-    var body = id ? { access_token: token, paciente_id: id } : { access_token: token, sem_pasta: true };
-    var res = await fetch('/api/list', {
+    var body = id ? { access_token: token, acao: 'list', paciente_id: id } : { access_token: token, acao: 'list', sem_pasta: true };
+    var res = await fetch('/api/consultas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -3267,10 +3300,10 @@ async function abrirConsulta(id){
   try {
     var token = await getToken();
     if(!token) return;
-    var res = await fetch('/api/get', {
+    var res = await fetch('/api/consultas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: token, id: id })
+      body: JSON.stringify({ access_token: token, acao: 'get', id: id })
     });
     if(!res.ok){
       var errText = await res.text();
@@ -3546,6 +3579,120 @@ async function docDelete(id, nome) {
   } catch(e){ console.error('docDelete exception:', e); alert('Erro inesperado.'); }
 }
 
+// ── TELECONSULTA ──
+var tcSalaName = null;
+var tcTimerInterval = null;
+var tcSeconds = 0;
+var tcPatientNome = '';
+
+async function tcIniciar(pacienteNome, agendamentoId) {
+  tcPatientNome = pacienteNome || 'Paciente';
+  document.getElementById('tcPatient').textContent = tcPatientNome;
+  document.getElementById('tcIframe').src = '';
+  document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">Iniciando sala...</div>';
+  document.getElementById('tcLinkBox').style.display = 'none';
+  document.getElementById('tcRecDot').style.display = 'none';
+  document.getElementById('tcWrap').classList.add('open');
+
+  try {
+    var token = await getToken(); if(!token) return;
+
+    // 1. Cria a sala no Daily
+    var res = await fetch('/api/teleconsulta', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'criar_sala', paciente_nome: tcPatientNome })
+    });
+    if(!res.ok){ var e=await res.json(); alert('Erro ao criar sala: '+(e.error||res.status)); tcFechar(); return; }
+    var salaData = await res.json();
+    tcSalaName = salaData.sala_name;
+
+    // 2. Obtém token do médico
+    var tokRes = await fetch('/api/teleconsulta', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'obter_token', sala_name: tcSalaName, role: 'medico' })
+    });
+    if(!tokRes.ok){ alert('Erro ao obter token.'); tcFechar(); return; }
+    var tokData = await tokRes.json();
+
+    // 3. Gera token do paciente e monta link
+    var pacTokRes = await fetch('/api/teleconsulta', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'obter_token', sala_name: tcSalaName, role: 'paciente', paciente_nome: tcPatientNome })
+    });
+    if(pacTokRes.ok){
+      var pacTokData = await pacTokRes.json();
+      var pacLink = 'https://' + window.location.hostname + '/sala?t=' + pacTokData.token + '&r=' + tcSalaName;
+      document.getElementById('tcLinkVal').textContent = pacLink;
+      document.getElementById('tcLinkBox').style.display = 'block';
+    }
+
+    // 4. Carrega o Daily iframe com token do médico
+    var dailyUrl = 'https://anamia.daily.co/' + tcSalaName + '?t=' + tokData.token;
+    document.getElementById('tcIframe').src = dailyUrl;
+    document.getElementById('tcRecDot').style.display = 'inline-block';
+    document.getElementById('tcTranscript').innerHTML = '<div class="tc-transcript-empty">Transcrição disponível ao encerrar a consulta.</div>';
+
+    // 5. Inicia timer
+    tcSeconds = 0;
+    clearInterval(tcTimerInterval);
+    tcTimerInterval = setInterval(function(){
+      tcSeconds++;
+      var m = String(Math.floor(tcSeconds/60)).padStart(2,'0');
+      var s = String(tcSeconds%60).padStart(2,'0');
+      document.getElementById('tcTimer').textContent = m + ':' + s;
+    }, 1000);
+
+  } catch(e) {
+    console.error('tcIniciar error:', e);
+    alert('Erro ao iniciar teleconsulta: ' + e.message);
+    tcFechar();
+  }
+}
+
+async function tcEncerrar() {
+  if(!confirm('Encerrar a teleconsulta? A gravação será finalizada.')) return;
+  clearInterval(tcTimerInterval);
+  var duracaoSegundos = tcSeconds;
+
+  if(tcSalaName){
+    try {
+      var token = await getToken();
+      if(token){
+        await fetch('/api/teleconsulta', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ access_token: token, acao: 'encerrar_sala', sala_name: tcSalaName })
+        });
+      }
+    } catch(e){ console.error('tcEncerrar error:', e); }
+  }
+
+  tcFechar();
+
+  // Pergunta se quer gerar anamnese
+  setTimeout(function(){
+    if(confirm('Teleconsulta encerrada (' + Math.floor(duracaoSegundos/60) + 'min). Deseja ir para Nova Consulta para gerar a anamnese?')){
+      showView('record');
+    }
+  }, 300);
+}
+
+function tcFechar() {
+  document.getElementById('tcWrap').classList.remove('open');
+  document.getElementById('tcIframe').src = '';
+  clearInterval(tcTimerInterval);
+  tcSalaName = null;
+  tcSeconds = 0;
+  document.getElementById('tcTimer').textContent = '00:00';
+}
+
+function tcCopyLink() {
+  var link = document.getElementById('tcLinkVal').textContent;
+  navigator.clipboard.writeText(link).then(function(){
+    var btn = document.querySelector('.tc-copy-btn');
+    if(btn){ btn.textContent = '✓ Copiado!'; setTimeout(function(){ btn.textContent = 'Copiar link'; }, 2000); }
+  });
+}
+
 // ── AGENDA ──
 var calYear = new Date().getFullYear();
 var calMonth = new Date().getMonth(); // 0-based
@@ -3667,6 +3814,9 @@ function adpBuildItem(a) {
   var modalBadge = a.modalidade === 'convenio'
     ? '<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:#FAEEDA;color:#BA7517;margin-left:6px;">' + escapeHTML(a.convenio_nome || 'Convênio') + '</span>'
     : '<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:#E6F1FB;color:#185FA5;margin-left:6px;">Particular</span>';
+  var teleBtn = '<button type="button" class="ag-tele-btn" onclick="tcIniciar(\'' + escapeAttr(a.paciente_nome) + '\',\'' + a.id + '\')">'
+    + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'
+    + ' Iniciar teleconsulta</button>';
   return '<div class="ag-item ' + escapeHTML(a.tipo) + '" id="agItem_' + a.id + '">'
     + '<div class="ag-actions">'
     + '<button type="button" class="ag-act-btn" onclick="agendaModalOpen(\'' + a.data + '\',\'' + a.id + '\')" title="Editar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>'
@@ -3676,6 +3826,7 @@ function adpBuildItem(a) {
     + '<div class="ag-nome">' + escapeHTML(a.paciente_nome) + modalBadge + '</div>'
     + '<span class="ag-badge ' + escapeHTML(a.tipo) + '">' + (TIPOS[a.tipo] || a.tipo) + '</span>'
     + '<div class="ag-status-row">' + statusBtns + '</div>'
+    + teleBtn
     + iniciarBtn
     + '</div>';
 }
@@ -4568,6 +4719,35 @@ buildCustomize();
     <div id="rmConvenios"></div>
     <div id="rmTipos"></div>
     <button type="button" class="rm-close-btn" onclick="agendaResumoClose()">Fechar</button>
+  </div>
+</div>
+
+<!-- TELECONSULTA -->
+<div class="tc-wrap" id="tcWrap">
+  <div class="tc-header">
+    <div class="tc-title">
+      <div class="tc-logo">Anam<em>IA</em></div>
+      <div class="tc-patient" id="tcPatient"></div>
+      <span class="tc-rec-dot" id="tcRecDot" style="display:none;"></span>
+    </div>
+    <div class="tc-timer" id="tcTimer">00:00</div>
+    <button type="button" class="tc-end-btn" onclick="tcEncerrar()">Encerrar consulta</button>
+  </div>
+  <div class="tc-body">
+    <div class="tc-video-area">
+      <iframe class="tc-iframe" id="tcIframe" allow="camera; microphone; fullscreen; display-capture"></iframe>
+    </div>
+    <div class="tc-sidebar">
+      <div class="tc-sidebar-title">🎙 Transcrição ao vivo</div>
+      <div class="tc-transcript" id="tcTranscript">
+        <div class="tc-transcript-empty">A transcrição aparecerá aqui durante a consulta...</div>
+      </div>
+      <div class="tc-link-box" id="tcLinkBox" style="display:none;">
+        <div>Link do paciente:</div>
+        <div class="tc-link-val" id="tcLinkVal"></div>
+        <button type="button" class="tc-copy-btn" onclick="tcCopyLink()">Copiar link</button>
+      </div>
+    </div>
   </div>
 </div>
 
