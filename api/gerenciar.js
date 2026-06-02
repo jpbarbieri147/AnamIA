@@ -91,7 +91,7 @@ export default async function handler(req, res) {
       const mmNext = String(mesNext).padStart(2,'0');
       const dataFim = `${yearNext}-${mmNext}-01`;
       const url = SUPA_URL + '/rest/v1/agendamentos'
-        + '?select=id,paciente_id,paciente_nome,data,hora,tipo,status,observacoes,email_paciente'
+        + '?select=id,paciente_id,paciente_nome,data,hora,tipo,status,observacoes,email_paciente,modalidade,convenio_nome'
         + '&medico_id=eq.' + encodeURIComponent(uid)
         + '&data=gte.' + dataInicio
         + '&data=lt.' + dataFim
@@ -102,7 +102,7 @@ export default async function handler(req, res) {
     }
 
     if (acao === 'agenda_create') {
-      const { paciente_id, paciente_nome, data, hora, tipo, status, observacoes, email_paciente } = body;
+      const { paciente_id, paciente_nome, data, hora, tipo, status, observacoes, email_paciente, modalidade, convenio_nome } = body;
       if (!paciente_nome || !data || !hora) return res.status(400).json({ error: 'Missing required fields' });
       const r = await fetch(SUPA_URL + '/rest/v1/agendamentos', {
         method: 'POST',
@@ -115,7 +115,9 @@ export default async function handler(req, res) {
           tipo: tipo || 'retorno',
           status: status || 'agendado',
           observacoes: observacoes || null,
-          email_paciente: email_paciente || null
+          email_paciente: email_paciente || null,
+          modalidade: modalidade || 'particular',
+          convenio_nome: convenio_nome || null
         })
       });
       if (!r.ok) return res.status(500).json({ error: 'Create failed: ' + await r.text() });
@@ -129,7 +131,7 @@ export default async function handler(req, res) {
         + '?id=eq.' + encodeURIComponent(body.id)
         + '&medico_id=eq.' + encodeURIComponent(uid);
       const patch = {};
-      ['paciente_id','paciente_nome','data','hora','tipo','status','observacoes','email_paciente'].forEach(function(f){ if (body[f] !== undefined) patch[f] = body[f]; });
+      ['paciente_id','paciente_nome','data','hora','tipo','status','observacoes','email_paciente','modalidade','convenio_nome'].forEach(function(f){ if (body[f] !== undefined) patch[f] = body[f]; });
       const r = await fetch(updUrl, {
         method: 'PATCH',
         headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
