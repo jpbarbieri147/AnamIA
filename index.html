@@ -6,7 +6,6 @@
 <title>AnamIA — Prontuário Inteligente</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.30.0/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <style>
@@ -978,7 +977,7 @@ body.nav-open{padding-left:276px;}
 .mdl:hover{background:#0D6E50;}
 
 /* === AUTH OVERLAY === */
-.auth-ovl{position:fixed;inset:0;background:rgba(247,245,240,.97);z-index:999;display:flex;align-items:center;justify-content:center;}
+.auth-ovl{position:fixed;inset:0;background:rgba(247,245,240,.97);z-index:99999;display:flex;align-items:center;justify-content:center;}
 .auth-card{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);padding:2rem;width:360px;box-shadow:0 8px 40px rgba(0,0,0,.1);}
 /* Logo mark (container verde arredondado) — brandbook */
 .logo-mark{
@@ -1007,11 +1006,13 @@ body.nav-open{padding-left:276px;}
 .auth-field input:focus{border-color:var(--verde);}
 .auth-err{font-size:11px;color:var(--red);background:var(--red-l);border:1px solid #F7C1C1;border-radius:var(--rs);padding:7px 10px;margin-bottom:.9rem;display:none;}
 .auth-err.show{display:block;}
+.auth-ovl *{pointer-events:auto;}
 .auth-btn{width:100%;padding:11px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:all .15s;margin-top:.2rem;}
 .auth-btn:hover{background:#0D6E50;}
 .auth-btn:disabled{opacity:.6;cursor:not-allowed;}
 /* hdr-user legacy — substituído pelo nav-user */
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.30.0/dist/tabler-icons.min.css">
 </head>
 <body>
 
