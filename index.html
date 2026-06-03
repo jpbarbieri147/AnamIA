@@ -776,11 +776,13 @@ body.nav-open{padding-left:276px;}
 .lta:focus{border-color:var(--verde);background:var(--branco);}
 
 /* ── SYNTHESIS CARDS ── */
-.syn{background:var(--branco);border:1.5px solid #FAC775;border-radius:var(--r);margin-bottom:.6rem;overflow:hidden;}
-.synh{padding:10px 14px;background:var(--amber-l);}
-.syt{font-weight:700;font-size:12px;color:var(--amber);}
-.sys2{font-size:10px;color:#BA7517;}
-.synb{padding:12px 14px;}
+.syn{background:var(--branco);border:1.5px solid #FAC775;border-radius:var(--r);margin-bottom:.85rem;overflow:hidden;box-shadow:var(--sh-sm);}
+.synh{padding:15px 18px;background:var(--amber-l);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.syt{font-family:var(--font-serif);font-weight:500;font-size:16px;color:var(--amber);letter-spacing:-.2px;}
+.sys2{font-size:10px;color:#BA7517;margin-top:1px;}
+.synb{padding:16px 18px;}
+.synb.scb{display:none;border-top:none;}
+.synb.scb.open{display:block;}
 .synta{
   width:100%;min-height:80px;
   border:1px solid var(--cinza-l);border-radius:var(--rs);
@@ -808,10 +810,12 @@ body.nav-open{padding-left:276px;}
 .hloading{text-align:center;padding:2rem 1rem;color:var(--cinza);font-size:13px;}
 /* === DIAGNÓSTICO E CONDUTA DEFINITIVOS (s16) === */
 .sdef{background:var(--branco);border:1.5px solid var(--verde-b);border-radius:var(--r);margin-bottom:.85rem;overflow:visible;box-shadow:var(--sh-sm);}
-.sdefh{padding:15px 18px;background:var(--verde-l);display:flex;align-items:center;justify-content:space-between;}
+.sdefh{padding:15px 18px;background:var(--verde-l);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
 .sdeft{font-family:var(--font-serif);font-size:16px;font-weight:500;color:var(--verde-txt);letter-spacing:-.2px;}
-.sdefs2{font-size:10px;color:var(--cinza);}
+.sdefs2{font-size:10px;color:var(--cinza);margin-top:1px;}
 .sdefb{padding:16px 18px;display:flex;flex-direction:column;gap:12px;}
+.sdefb.scb{display:none;}
+.sdefb.scb.open{display:flex;}
 .sdef-field{display:flex;flex-direction:column;gap:4px;position:relative;}
 .sdef-label{font-size:10px;font-weight:600;color:var(--cinza);letter-spacing:.7px;text-transform:uppercase;}
 .sdef-input{width:100%;padding:9px 11px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:var(--font-sans);color:var(--preto);background:var(--branco);outline:none;transition:border-color .15s;resize:vertical;}
@@ -2532,21 +2536,21 @@ function renderResult(d){
   // S13 Hipóteses
   if(isActive("hipoteses")){
     var sy1=document.createElement("div"); sy1.className="syn";
-    sy1.innerHTML="<div class=\"synh\"><div><div class=\"syt\">⚠ Hipóteses Diagnósticas</div><div class=\"sys2\">IA · Revisão médica obrigatória</div></div></div><div class=\"synb\"><textarea class=\"synta\" data-key=\"hipoteses\">"+escapeHTML(val2str(d.hipoteses)||"Não gerado")+"</textarea></div>";
+    sy1.innerHTML="<div class=\"synh\" onclick=\"toggleSec(this)\"><div><div class=\"syt\">Hipóteses Diagnósticas Sugeridas</div><div class=\"sys2\">IA · Revisão médica obrigatória</div></div><span class=\"scc open\">▾</span></div><div class=\"synb scb open\"><textarea class=\"synta\" data-key=\"hipoteses\">"+escapeHTML(val2str(d.hipoteses)||"Não gerado")+"</textarea></div>";
     c.appendChild(sy1);
   }
 
   // S14 Conduta
   if(isActive("conduta")){
     var sy2=document.createElement("div"); sy2.className="syn";
-    sy2.innerHTML="<div class=\"synh\"><div><div class=\"syt\">📋 Conduta Sugerida</div><div class=\"sys2\">IA · Revisão médica obrigatória</div></div></div><div class=\"synb\"><textarea class=\"synta\" data-key=\"conduta\">"+escapeHTML(val2str(d.conduta)||"Não gerado")+"</textarea></div>";
+    sy2.innerHTML="<div class=\"synh\" onclick=\"toggleSec(this)\"><div><div class=\"syt\">Conduta Sugerida</div><div class=\"sys2\">IA · Revisão médica obrigatória</div></div><span class=\"scc open\">▾</span></div><div class=\"synb scb open\"><textarea class=\"synta\" data-key=\"conduta\">"+escapeHTML(val2str(d.conduta)||"Não gerado")+"</textarea></div>";
     c.appendChild(sy2);
   }
 
   // S16 — Diagnóstico e Conduta Definitivos (preenchidos pelo médico)
   if(isActive("hipotese_def") || isActive("conduta_def")){
     var s16 = document.createElement("div"); s16.className="sdef";
-    var s16body = '<div class="sdefh"><div><div class="sdeft">✍ Diagnóstico e Conduta Definitivos</div><div class="sdefs2">Preenchido pelo médico</div></div></div><div class="sdefb">';
+    var s16body = '<div class="sdefh" onclick="toggleSec(this)"><div><div class="sdeft">Hipóteses Diagnósticas e Conduta Definitivas</div><div class="sdefs2">Preenchido pelo médico</div></div><span class="scc open">▾</span></div><div class="sdefb scb open">';
     if(isActive("hipotese_def")){
       // Suporte a múltiplos CIDs: armazenado como JSON array ou string legada
       var cidRaw = d["hipotese_def"] || "";
