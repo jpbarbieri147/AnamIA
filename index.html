@@ -702,12 +702,6 @@ body.nav-open{padding-left:276px;}
 }
 .sch:hover{background:var(--pergaminho);}
 .schl{display:flex;align-items:center;gap:8px;}
-.scn{
-  width:22px;height:22px;border-radius:5px;
-  background:var(--verde-l);color:var(--verde);
-  font-size:10px;font-weight:600;
-  display:flex;align-items:center;justify-content:center;
-}
 .sct{font-weight:600;font-size:12px;color:var(--preto);}
 .scc{color:var(--cinza);transition:transform .2s;font-size:14px;}
 .scc.open{transform:rotate(180deg);}
@@ -1994,7 +1988,7 @@ function buildCustomize(){
     var allOn=allF.every(function(f){return isActive(f.k);});
     var wrap=document.createElement("div"); wrap.className="csec";
     var hdr=document.createElement("div"); hdr.className="csh";
-    hdr.innerHTML="<input type=\"checkbox\" class=\"mchk\" id=\"mck_"+s.id+"\" "+(allOn?"checked":"")+"><span class=\"cstitle\">"+s.num+". "+s.title+"</span><span class=\"cchev\">▾</span>";
+    hdr.innerHTML="<input type=\"checkbox\" class=\"mchk\" id=\"mck_"+s.id+"\" "+(allOn?"checked":"")+"><span class=\"cstitle\">"+s.title+"</span><span class=\"cchev\">▾</span>";
     hdr.querySelector("input").addEventListener("change",function(e){
       e.stopPropagation();
       var on=this.checked;
@@ -2187,7 +2181,7 @@ function mkSub(title,rows){ return "<div class=\"sub\"><div class=\"subt\">"+tit
 
 function mkSec(num,title,body){
   var d=document.createElement("div"); d.className="sc";
-  d.innerHTML="<div class=\"sch\" onclick=\"toggleSec(this)\"><div class=\"schl\"><div class=\"scn\">"+num+"</div><div class=\"sct\">"+title+"</div></div><span class=\"scc open\">▾</span></div><div class=\"scb open\">"+body+"</div>";
+  d.innerHTML="<div class=\"sch\" onclick=\"toggleSec(this)\"><div class=\"schl\"><div class=\"sct\">"+title+"</div></div><span class=\"scc open\">▾</span></div><div class=\"scb open\">"+body+"</div>";
   return d;
 }
 
@@ -2597,7 +2591,7 @@ function renderRaw(txt){
   document.getElementById("vLoading").style.display="none";
   document.getElementById("vResult").style.display="block";
   document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR");
-  document.getElementById("resCont").innerHTML="<div class=\"sc\"><div class=\"sch\" onclick=\"toggleSec(this)\"><div class=\"schl\"><div class=\"scn\">✓</div><div class=\"sct\">Anamnese</div></div><span class=\"scc open\">▾</span></div><div class=\"scb open\" style=\"white-space:pre-wrap;font-size:12px\">"+esc(txt)+"</div></div>";
+  document.getElementById("resCont").innerHTML="<div class=\"sc\"><div class=\"sch\" onclick=\"toggleSec(this)\"><div class=\"schl\"><div class=\"sct\">Anamnese</div></div><span class=\"scc open\">▾</span></div><div class=\"scb open\" style=\"white-space:pre-wrap;font-size:12px\">"+esc(txt)+"</div></div>";
 }
 
 function toggleSec(hdr){
