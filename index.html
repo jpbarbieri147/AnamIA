@@ -6,10 +6,12 @@
 <title>AnamIA — Prontuário Inteligente</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.30.0/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+.ti{font-size:14px;line-height:1;vertical-align:-2px;}
 :root{
   /* Brandbook AnamIA v2.0 — escala refinada */
   --verde:     #0F6E56;
@@ -669,14 +671,7 @@ body.nav-open{padding-left:276px;}
 .btp:active{transform:scale(.97);}
 
 /* ── WARNING ── */
-.wbn{
-  background:var(--red-l);border:1px solid #F7C1C1;
-  border-radius:var(--rs);padding:7px 12px;
-  font-size:10px;color:var(--red);
-  margin:0 1.5rem .75rem;
-  display:flex;align-items:flex-start;gap:5px;line-height:1.5;
-}
-.wbn svg{width:13px;height:13px;fill:var(--red);flex-shrink:0;margin-top:1px;}
+
 
 /* ── SAVE BAR ── */
 .save-bar{
@@ -1188,9 +1183,9 @@ body.nav-open{padding-left:276px;}
   </div>
   <div class="panel-body">
     <div class="cacts">
-      <button class="cbtn" onclick="selAll(true)">✅ Marcar todos</button>
-      <button class="cbtn" onclick="selAll(false)">☐ Desmarcar todos</button>
-      <button class="cbtn sv" onclick="savePrefs()">💾 Salvar</button>
+      <button class="cbtn" onclick="selAll(true)"><i class="ti ti-checks" aria-hidden="true"></i> Marcar todos</button>
+      <button class="cbtn" onclick="selAll(false)"><i class="ti ti-square" aria-hidden="true"></i> Desmarcar todos</button>
+      <button class="cbtn sv" onclick="savePrefs()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar</button>
       <span class="csaved" id="cSaved">✓ Salvo!</span>
     </div>
     <div id="custSecs"></div>
@@ -1402,7 +1397,7 @@ body.nav-open{padding-left:276px;}
         <button type="button" class="cal-nav-btn" onclick="calNav(1)">&#8250;</button>
       </div>
       <div class="cal-header-right" style="display:flex;gap:8px;">
-        <button type="button" class="cal-add-btn" style="background:none;border:1px solid var(--verde-b);color:var(--verde);" onclick="agendaResumoOpen()">📊 Resumo do mês</button>
+        <button type="button" class="cal-add-btn" style="background:none;border:1px solid var(--verde-b);color:var(--verde);" onclick="agendaResumoOpen()"><i class="ti ti-chart-bar" aria-hidden="true"></i> Resumo do mês</button>
         <button type="button" class="cal-add-btn" onclick="agendaModalOpen(null, null)">+ Novo agendamento</button>
       </div>
     </div>
@@ -1460,18 +1455,15 @@ body.nav-open{padding-left:276px;}
         <p id="resMeta">—</p>
       </div>
       <div class="hacts">
-        <button class="bts" id="editBtn" onclick="toggleEdit()">✏️ Editar</button>
-        <button class="bts" onclick="openExport()">⬇️ Baixar</button>
-        <button class="btp" onclick="doPrint()">🖨️ Imprimir</button>
+        <button class="bts" id="editBtn" onclick="toggleEdit()"><i class="ti ti-pencil" aria-hidden="true"></i> Editar</button>
+        <button class="bts" onclick="openExport()"><i class="ti ti-download" aria-hidden="true"></i> Baixar</button>
+        <button class="btp" onclick="doPrint()"><i class="ti ti-printer" aria-hidden="true"></i> Imprimir</button>
       </div>
     </div>
-    <div class="wbn">
-      <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/></svg>
-      <span>Hipóteses e conduta são sugestões de IA. <strong>Revisão médica obrigatória antes de qualquer decisão clínica.</strong></span>
-    </div>
+
     <!-- BARRA DE SALVAMENTO -->
     <div class="save-bar" id="saveBar" style="display:none">
-      <label>📁 Salvar em:</label>
+      <label><i class="ti ti-folder" aria-hidden="true"></i> Salvar em:</label>
       <select id="savePastaSelect">
         <option value="">Carregando...</option>
       </select>
@@ -1491,19 +1483,19 @@ body.nav-open{padding-left:276px;}
     <p>Escolha o formato de exportação:</p>
     <div class="eopts">
       <div class="eopt sel" id="optPdf" onclick="selExp('pdf')">
-        <span class="ei">📄</span>
+        <span class="ei"><i class="ti ti-file-type-pdf" aria-hidden="true"></i></span>
         <div class="el">PDF</div>
         <div class="ed">Visualizar e imprimir</div>
       </div>
       <div class="eopt" id="optDoc" onclick="selExp('doc')">
-        <span class="ei">📝</span>
+        <span class="ei"><i class="ti ti-file-type-docx" aria-hidden="true"></i></span>
         <div class="el">Word (.doc)</div>
         <div class="ed">Editar no Word</div>
       </div>
     </div>
     <div class="macts">
       <button class="mcan" onclick="closeExport()">Cancelar</button>
-      <button class="mdl" onclick="doExport()">⬇️ Baixar</button>
+      <button class="mdl" onclick="doExport()"><i class="ti ti-download" aria-hidden="true"></i> Baixar</button>
     </div>
   </div>
 </div>
@@ -1638,7 +1630,7 @@ var mediaRec=null, audioChunks=[];
 var SECTIONS=[
   {id:"s1",num:"1",title:"Identificação",fields:[{k:"id_nome",l:"Nome"},{k:"id_idade",l:"Idade"},{k:"id_sexo",l:"Sexo/Gênero"},{k:"id_cor",l:"Cor/Etnia"},{k:"id_estado_civil",l:"Estado civil"},{k:"id_profissao",l:"Profissão"},{k:"id_local_trabalho",l:"Local de trabalho"},{k:"id_naturalidade",l:"Naturalidade"},{k:"id_procedencia",l:"Procedência"},{k:"id_residencia",l:"Residência"},{k:"id_religiao",l:"Religião"},{k:"id_plano_saude",l:"Plano de saúde"},{k:"id_nome_mae",l:"Nome da mãe"},{k:"id_responsavel",l:"Responsável"},{k:"id_fonte_info",l:"Fonte/Confiabilidade"},{k:"id_data_hora",l:"Data e hora"}]},
   {id:"s2",num:"2",title:"Queixa Principal",fields:[{k:"qp",l:"Queixa principal"}]},
-  {id:"s3",num:"3",title:"História da Doença Atual (HDA)",fields:[{k:"hda_sintoma_guia",l:"Sintoma-guia"},{k:"hda_inicio",l:"Início"},{k:"hda_localizacao",l:"Localização"},{k:"hda_caracteristicas",l:"Características"},{k:"hda_intensidade",l:"Intensidade"},{k:"hda_duracao",l:"Duração"},{k:"hda_frequencia",l:"Frequência"},{k:"hda_melhora",l:"Fatores de melhora"},{k:"hda_piora",l:"Fatores de piora"},{k:"hda_associados",l:"Sintomas associados"},{k:"hda_evolucao",l:"Evolução"},{k:"hda_situacao_atual",l:"Situação atual"},{k:"hda_narrativa",l:"📝 Narrativa (parágrafo)"}],narr:"hda_narrativa"},
+  {id:"s3",num:"3",title:"História da Doença Atual (HDA)",fields:[{k:"hda_sintoma_guia",l:"Sintoma-guia"},{k:"hda_inicio",l:"Início"},{k:"hda_localizacao",l:"Localização"},{k:"hda_caracteristicas",l:"Características"},{k:"hda_intensidade",l:"Intensidade"},{k:"hda_duracao",l:"Duração"},{k:"hda_frequencia",l:"Frequência"},{k:"hda_melhora",l:"Fatores de melhora"},{k:"hda_piora",l:"Fatores de piora"},{k:"hda_associados",l:"Sintomas associados"},{k:"hda_evolucao",l:"Evolução"},{k:"hda_situacao_atual",l:"Situação atual"},{k:"hda_narrativa",l:"<i class=\"ti ti-notes\" aria-hidden=\"true\"></i> Narrativa (parágrafo)"}],narr:"hda_narrativa"},
   {id:"s4",num:"4",title:"Interrogatório Sintomatológico (IS)",subs:[
     {title:"4.1 Sintomas Gerais",fields:[{k:"is_febre",l:"Febre"},{k:"is_astenia",l:"Astenia"},{k:"is_peso",l:"Peso"},{k:"is_sudorese",l:"Sudorese"},{k:"is_calafrios",l:"Calafrios"},{k:"is_cambras",l:"Cãibras"}]},
     {title:"4.2 Pele e Fâneros",fields:[{k:"is_pele",l:"Pele"},{k:"is_faneros",l:"Fâneros"}]},
@@ -1651,8 +1643,8 @@ var SECTIONS=[
   {id:"s5",num:"5",title:"Antecedentes Pessoais",subs:[
     {title:"5.1 Fisiológicos",fields:[{k:"ap_gestacao",l:"Gestação/Nascimento"},{k:"ap_desenvolvimento",l:"Desenvolvimento psicomotor"},{k:"ap_sexual",l:"Desenvolvimento sexual"}]},
     {title:"5.2 Patológicos",fields:[{k:"ap_doencas_infancia",l:"Doenças infância"},{k:"ap_doencas_adulto",l:"Doenças adulto"},{k:"ap_alergias",l:"Alergias"},{k:"ap_cirurgias",l:"Cirurgias"},{k:"ap_traumatismos",l:"Traumatismos"},{k:"ap_transfusoes",l:"Transfusões"},{k:"ap_obstetrica",l:"Obstétrica G P A C"},{k:"ap_vacinas",l:"Vacinas"},{k:"ap_medicamentos",l:"Medicamentos"}]}
-  ],narr:"ap_narrativa",narrLabel:"📝 Narrativa dos Antecedentes Pessoais"},
-  {id:"s6",num:"6",title:"Antecedentes Familiares",fields:[{k:"af_pais",l:"Pais"},{k:"af_irmaos",l:"Irmãos"},{k:"af_filhos",l:"Filhos"},{k:"af_conjuge",l:"Cônjuge"},{k:"af_outros",l:"Avós/Tios/Primos"},{k:"af_doencas_familiais",l:"Doenças familiares"}],narr:"af_narrativa",narrLabel:"📝 Narrativa dos Antecedentes Familiares"},
+  ],narr:"ap_narrativa",narrLabel:"<i class=\"ti ti-notes\" aria-hidden=\"true\"></i> Narrativa dos Antecedentes Pessoais"},
+  {id:"s6",num:"6",title:"Antecedentes Familiares",fields:[{k:"af_pais",l:"Pais"},{k:"af_irmaos",l:"Irmãos"},{k:"af_filhos",l:"Filhos"},{k:"af_conjuge",l:"Cônjuge"},{k:"af_outros",l:"Avós/Tios/Primos"},{k:"af_doencas_familiais",l:"Doenças familiares"}],narr:"af_narrativa",narrLabel:"<i class=\"ti ti-notes\" aria-hidden=\"true\"></i> Narrativa dos Antecedentes Familiares"},
   {id:"s7",num:"7",title:"Hábitos e Estilo de Vida",subs:[
     {title:"7.1 Alimentação",fields:[{k:"hab_alimentacao",l:"Descrição"},{k:"hab_alimentacao_class",l:"Classificação"}]},
     {title:"7.2 Ocupação",fields:[{k:"hab_ocupacao",l:"Natureza/Exposições"}]},
@@ -1728,8 +1720,10 @@ function showView(v){
     if(vAgenda){ vAgenda.style.display='flex'; vAgenda.classList.add('show'); }
     if(vWelcome) vWelcome.style.display='none';
     if(vResult) vResult.style.display='none';
+    document.getElementById("vLoading").style.display="none";
     agendaLoad();
     agendaLoadPacientes();
+    return; // agenda ocupa a main inteira — não executa o bloco abaixo
   } else {
     if(vAgenda){ vAgenda.style.display='none'; vAgenda.classList.remove('show'); }
   }
@@ -2453,7 +2447,7 @@ function oslerAddMsg(type, text){
 function renderResult(d){
   document.getElementById("vLoading").style.display="none";
   document.getElementById("vResult").style.display="block";
-  document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR")+" · Porto, Semiologia Médica 8ª ed.";
+  document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR")+";
   var c=document.getElementById("resCont"); c.innerHTML="";
 
   function ri(k,l){ return isActive(k)?mkField(k,l,d[k]):""; }
@@ -2472,7 +2466,7 @@ function renderResult(d){
   var hdaLs=["Sintoma-guia","Início","Localização","Características","Intensidade","Duração","Frequência","Melhora","Piora","Sintomas associados","Evolução","Situação atual"];
   if(hasSome(hdaKs.concat(["hda_narrativa"]))){
     var b=hdaKs.map(function(k,i){return ri(k,hdaLs[i]);}).join("");
-    if(isActive("hda_narrativa")) b+="<div class=\"nbox\"><div class=\"nbhdr\">📝 Narrativa da HDA</div><div class=\"nbody\"><textarea class=\"nta\" data-key=\"hda_narrativa\">"+esc(d["hda_narrativa"]||"")+"</textarea></div></div>";
+    if(isActive("hda_narrativa")) b+="<div class=\"nbox\"><div class=\"nbhdr\"><i class="ti ti-notes" aria-hidden="true"></i> Narrativa da HDA</div><div class=\"nbody\"><textarea class=\"nta\" data-key=\"hda_narrativa\">"+esc(d["hda_narrativa"]||"")+"</textarea></div></div>";
     if(b.trim())c.appendChild(mkSec("3","História da Doença Atual (HDA)",b));
   }
 
@@ -2499,12 +2493,12 @@ function renderResult(d){
   var s5="";
   if(a5a.trim()) s5+=mkSub("5.1 Fisiológicos",a5a);
   if(a5b.trim()) s5+=mkSub("5.2 Patológicos",a5b);
-  if(isActive("ap_narrativa")) s5+="<div class=\"nbox\"><div class=\"nbhdr\">📝 Narrativa dos Antecedentes Pessoais</div><div class=\"nbody\"><textarea class=\"nta\" data-key=\"ap_narrativa\">"+esc(d["ap_narrativa"]||"")+"</textarea></div></div>";
+  if(isActive("ap_narrativa")) s5+="<div class=\"nbox\"><div class=\"nbhdr\"><i class="ti ti-notes" aria-hidden="true"></i> Narrativa dos Antecedentes Pessoais</div><div class=\"nbody\"><textarea class=\"nta\" data-key=\"ap_narrativa\">"+esc(d["ap_narrativa"]||"")+"</textarea></div></div>";
   if(s5)c.appendChild(mkSec("5","Antecedentes Pessoais",s5));
 
   // S6 AF
   var s6=ri("af_pais","Pais")+ri("af_irmaos","Irmãos")+ri("af_filhos","Filhos")+ri("af_conjuge","Cônjuge")+ri("af_outros","Avós/Tios/Primos")+ri("af_doencas_familiais","Doenças familiares");
-  if(isActive("af_narrativa")) s6+="<div class=\"nbox\"><div class=\"nbhdr\">📝 Narrativa dos Antecedentes Familiares</div><div class=\"nbody\"><textarea class=\"nta\" data-key=\"af_narrativa\">"+esc(d["af_narrativa"]||"")+"</textarea></div></div>";
+  if(isActive("af_narrativa")) s6+="<div class=\"nbox\"><div class=\"nbhdr\"><i class="ti ti-notes" aria-hidden="true"></i> Narrativa dos Antecedentes Familiares</div><div class=\"nbody\"><textarea class=\"nta\" data-key=\"af_narrativa\">"+esc(d["af_narrativa"]||"")+"</textarea></div></div>";
   if(s6)c.appendChild(mkSec("6","Antecedentes Familiares",s6));
 
   // S7 Hábitos
@@ -2674,7 +2668,7 @@ function toggleEdit(){
   editActive=!editActive;
   var btn=document.getElementById("editBtn");
   if(editActive){
-    btn.textContent="✅ Concluir edição";
+    btn.innerHTML='<i class="ti ti-check" aria-hidden="true"></i> Concluir edição';
     document.querySelectorAll(".fv").forEach(function(el){
       el.contentEditable="true";
       el.style.outline="1.5px dashed var(--verde-m)";
@@ -2685,7 +2679,7 @@ function toggleEdit(){
       };
     });
   }else{
-    btn.textContent="✏️ Editar";
+    btn.innerHTML='<i class="ti ti-pencil" aria-hidden="true"></i> Editar';
     document.querySelectorAll(".fv").forEach(function(el){
       el.contentEditable="false";
       el.style.outline="";
@@ -2809,7 +2803,7 @@ function buildHTML(secs,forPrint){
 
   // Título do documento
   h += "<div class=\"doc-title\">Anamnese</div>";
-  h += "<div class=\"doc-meta\">Gerado por AnamIA · Porto, Semiologia Médica 8ª ed.</div>";
+  h += "<div class=\"doc-meta\">Gerado por AnamIA</div>";
 
   // Seções
   secs.forEach(function(s){
@@ -3391,7 +3385,7 @@ async function abrirConsulta(id){
     if(saveBar) saveBar.style.display = 'none';
     pendingSave = null;
     var meta = document.getElementById('resMeta');
-    if(meta) meta.textContent = 'Consulta salva em ' + fmtData(c.created_at) + ' · Porto, Semiologia Médica 8ª ed.';
+    if(meta) meta.textContent = 'Consulta salva em ' + fmtData(c.created_at) + '';
   } catch(e) {
     console.error('abrirConsulta exception:', e);
     alert('Erro ao abrir a consulta.');
@@ -4004,7 +3998,7 @@ function adpBuildItem(a) {
     return '<button type="button" class="ag-st-btn s-' + s + (a.status === s ? ' ativo' : '') + '" onclick="agendaUpdateStatus(\'' + a.id + '\',\'' + s + '\')">' + STATUS[s] + '</button>';
   }).join('');
   var iniciarBtn = (a.status === 'compareceu')
-    ? '<button type="button" class="ag-iniciar-btn" onclick="agendaIniciarConsulta(\'' + escapeAttr(a.paciente_id || '') + '\',\'' + escapeAttr(a.paciente_nome) + '\')">🩺 Iniciar nova consulta para este paciente</button>'
+    ? '<button type="button" class="ag-iniciar-btn" onclick="agendaIniciarConsulta(\'' + escapeAttr(a.paciente_id || '') + '\',\'' + escapeAttr(a.paciente_nome) + '\')"><i class=\"ti ti-stethoscope\" aria-hidden=\"true\"></i> Iniciar nova consulta para este paciente</button>'
     : '';
   var modalBadge = a.modalidade === 'convenio'
     ? '<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:#FAEEDA;color:#BA7517;margin-left:6px;">' + escapeHTML(a.convenio_nome || 'Convênio') + '</span>'
@@ -4933,7 +4927,7 @@ buildCustomize();
       <iframe class="tc-iframe" id="tcIframe" allow="camera; microphone; fullscreen; display-capture"></iframe>
     </div>
     <div class="tc-sidebar">
-      <div class="tc-sidebar-title">🎙 Transcrição ao vivo</div>
+      <div class="tc-sidebar-title"><i class="ti ti-microphone-2" aria-hidden="true"></i> Transcrição ao vivo</div>
       <div class="tc-transcript" id="tcTranscript">
         <div class="tc-transcript-empty">A transcrição aparecerá aqui durante a consulta...</div>
       </div>
