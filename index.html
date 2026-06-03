@@ -709,6 +709,7 @@ body.nav-open{padding-left:276px;}
 
 
 /* ── SECTION CARDS ── */
+#resCont{padding:0 1.5rem 1.5rem;}
 .sc{
   background:var(--branco);
   border:1px solid var(--cinza-l);
@@ -907,7 +908,7 @@ body.nav-open{padding-left:276px;}
 .mchk{width:14px;height:14px;accent-color:var(--verde);cursor:pointer;flex-shrink:0;}
 
 /* ── OSLER CHAT ── */
-.osler-wrap{margin:0 1.5rem 1.5rem;border:1px solid var(--verde-b);border-radius:var(--r);overflow:hidden;background:var(--branco);box-shadow:var(--sh-sm);}
+.osler-wrap{margin:0 0 1rem;border:1px solid var(--verde-b);border-radius:var(--r);overflow:hidden;background:var(--branco);box-shadow:var(--sh-sm);}
 .osler-hdr{background:var(--verde-l);padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--verde-b);}
 .osler-mark{width:36px;height:36px;background:var(--verde);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--sh-sm);}
 .osler-mark svg{width:20px;height:20px;}
@@ -945,6 +946,23 @@ body.nav-open{padding-left:276px;}
 .osler-send:hover{background:#0D6E50;}
 .osler-send svg{width:16px;height:16px;fill:#fff;}
 .osler-disclaimer{font-size:10px;color:var(--cinza);font-style:italic;padding:6px 14px 10px;text-align:center;line-height:1.5;}
+/* ── OSLER MODE PILLS ── */
+.osler-mode-pills{display:flex;gap:4px;margin-left:auto;}
+.omp{
+  padding:4px 11px;
+  border-radius:20px;
+  border:1.5px solid var(--verde-b);
+  background:transparent;
+  font-size:11px;font-weight:500;
+  color:var(--verde-txt);
+  cursor:pointer;
+  font-family:var(--font-sans);
+  transition:all .15s ease;
+  line-height:1;
+}
+.omp:hover{background:var(--verde-l);border-color:var(--verde);}
+.omp.active{background:var(--verde);border-color:var(--verde);color:#fff;box-shadow:var(--sh-sm);}
+
 
 /* ── EXPORT MODAL ── */
 .ovl{position:fixed;inset:0;background:rgba(10,10,10,.5);z-index:500;display:none;align-items:center;justify-content:center;}
@@ -1768,7 +1786,26 @@ function toggleNav(){
 
 // ── OSLER MODE ──
 var oslerMode = 'claude';
-function setOslerMode(m){ oslerMode = m; }
+function setOslerMode(m){
+  oslerMode = m;
+  // Sincroniza pílulas do Osler header se já renderizadas
+  var pills = document.querySelectorAll('.omp');
+  pills.forEach(function(p){ p.classList.remove('active'); });
+  var map = {claude:'ompClaude', pdf:'ompPdf', hybrid:'ompHybrid'};
+  var active = document.getElementById(map[m]);
+  if(active) active.classList.add('active');
+}
+// Chamada pelas pílulas no header do Osler
+function oslerSetMode(m, btn){
+  oslerMode = m;
+  // Sincroniza radio buttons do painel lateral (se visíveis)
+  var radio = document.querySelector('input[name="oslerMode"][value="'+m+'"]');
+  if(radio) radio.checked = true;
+  // Atualiza visual das pílulas
+  var pills = document.querySelectorAll('.omp');
+  pills.forEach(function(p){ p.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+}
 
 // ── OSLER ENABLED ──
 function toggleOslerEnabled(v){
@@ -2591,6 +2628,11 @@ function renderResult(d){
       '<div>',
         '<div class="osler-title">Osler</div>',
         '<div class="osler-sub">Consultoria clínica baseada na anamnese gerada</div>',
+      '</div>',
+      '<div class="osler-mode-pills">',
+        '<button class="omp active" id="ompClaude" onclick="oslerSetMode(\'claude\',this)" title="Raciocínio geral do modelo">Claude</button>',
+        '<button class="omp" id="ompPdf" onclick="oslerSetMode(\'pdf\',this)" title="Baseado nos seus PDFs clínicos">PDF</button>',
+        '<button class="omp" id="ompHybrid" onclick="oslerSetMode(\'hybrid\',this)" title="Claude + seus PDFs">Híbrido</button>',
       '</div>',
     '</div>',
     '<div class="osler-msgs" id="oslerMsgs">',
