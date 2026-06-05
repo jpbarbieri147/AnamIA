@@ -1225,29 +1225,27 @@ body.nav-open{padding-left:276px;}
       </label>
     </div>
 
-    <div class="lbl">Habilitar Osler na anamnese</div>
-    <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;margin-bottom:1rem;background:var(--branco);">
-      <input type="checkbox" id="oslerEnabledChk" style="width:16px;height:16px;accent-color:var(--verde);" onchange="toggleOslerEnabled(this.checked)">
-      <div>
-        <div style="font-size:12px;font-weight:500;color:var(--preto);">Mostrar chat Osler após gerar anamnese</div>
-        <div style="font-size:10px;color:var(--cinza);margin-top:1px;">O Osler aparece ao final do resultado gerado</div>
-      </div>
-    </label>
-
-    <div class="lbl">Seções geradas pela IA</div>
+    <div class="lbl">Osler na anamnese</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
       <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
         <input type="checkbox" id="hipoteseChk" style="width:16px;height:16px;accent-color:var(--verde);" checked onchange="activeKeys['hipoteses']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
         <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Hipóteses Diagnósticas</div>
-          <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Sugestões de diagnóstico diferencial pela IA</div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Hipóteses Diagnósticas Sugeridas</div>
+          <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Possibilidades de diagnóstico diferencial</div>
         </div>
       </label>
       <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
         <input type="checkbox" id="condutaChk" style="width:16px;height:16px;accent-color:var(--verde);" checked onchange="activeKeys['conduta']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
         <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Conduta Sugerida</div>
-          <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Proposta terapêutica e investigação complementar</div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Investigação Complementar e Proposta Terapêutica</div>
+          <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Sugestões de exames, condutas e tratamento</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
+        <input type="checkbox" id="oslerEnabledChk" style="width:16px;height:16px;accent-color:var(--verde);" onchange="toggleOslerEnabled(this.checked)">
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Chat Osler</div>
+          <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Debate livre sobre as hipóteses sugeridas, investigações e proposta terapêutica com o assistente clínico</div>
         </div>
       </label>
     </div>
@@ -1674,8 +1672,8 @@ var SECTIONS=[
   ]},
   {id:"s11",num:"11",title:"Exames Laboratoriais",fields:[{k:"lab_resultados",l:"Resultados"}],isTA:true},
   {id:"s12",num:"12",title:"Exames de Imagem",fields:[{k:"img_achados",l:"Achados"}],isTA:true},
-  {id:"s13",num:"13",title:"Hipóteses Diagnósticas",fields:[{k:"hipoteses",l:"Hipóteses"}],isSyn:true},
-  {id:"s14",num:"14",title:"Conduta Sugerida",fields:[{k:"conduta",l:"Conduta"}],isSyn:true},
+  {id:"s13",num:"13",title:"Hipóteses Diagnósticas Sugeridas",fields:[{k:"hipoteses",l:"Hipóteses"}],isSyn:true},
+  {id:"s14",num:"14",title:"Investigação Complementar e Proposta Terapêutica",fields:[{k:"conduta",l:"Conduta"}],isSyn:true},
   {id:"s16",num:"16",title:"Diagnóstico e Conduta Definitivos",fields:[
     {k:"hipotese_def",l:"Hipótese Diagnóstica Definitiva (com CID-10)"},
     {k:"conduta_def",l:"Conduta Definitiva"}
@@ -2575,7 +2573,7 @@ function renderResult(d){
   // S14 Conduta
   if(isActive("conduta")){
     var sy2=document.createElement("div"); sy2.className="syn";
-    sy2.innerHTML="<div class=\"synh\" onclick=\"toggleSec(this)\"><div><div class=\"syt\">Conduta Sugerida</div><div class=\"sys2\">IA · Revisão médica obrigatória</div></div><span class=\"scc open\">▾</span></div><div class=\"synb scb open\"><textarea class=\"synta\" data-key=\"conduta\">"+escapeHTML(val2str(d.conduta)||"Não gerado")+"</textarea></div>";
+    sy2.innerHTML="<div class=\"synh\" onclick=\"toggleSec(this)\"><div><div class=\"syt\">Investigação Complementar e Proposta Terapêutica</div><div class=\"sys2\">IA · Revisão médica obrigatória</div></div><span class=\"scc open\">▾</span></div><div class=\"synb scb open\"><textarea class=\"synta\" data-key=\"conduta\">"+escapeHTML(val2str(d.conduta)||"Não gerado")+"</textarea></div>";
     c.appendChild(sy2);
   }
 
@@ -2633,7 +2631,7 @@ function renderResult(d){
     '<div class="osler-msgs" id="oslerMsgs">',
       '<div class="osler-msg osler">',
         '<div class="osler-avatar osler-av">O</div>',
-        '<div class="osler-bubble">Olá! Analisei a anamnese. Pode me perguntar sobre as hipóteses diagnósticas, solicitar raciocínio clínico diferencial, discutir a conduta ou questionar qualquer aspecto desta consulta.</div>',
+        '<div class="osler-bubble">Olá! Analisei a anamnese. Pode me perguntar sobre as hipóteses diagnósticas sugeridas, as investigações complementares, a proposta terapêutica ou qualquer outro aspecto desta consulta.</div>',
       '</div>',
       '<div class="osler-typing" id="oslerTyping">',
         '<div class="osler-dot"></div>',
@@ -2813,7 +2811,7 @@ function buildHTML(secs,forPrint){
     s.texts.forEach(function(t){ h += "<div class=\"tx\">" + escapeHTMLStr(t).replace(/\n/g,"<br>") + "</div>"; });
   });
 
-  h += "<div class=\"warn\">⚠️ Hipóteses diagnósticas e conduta sugerida são geradas por IA e NÃO substituem o julgamento clínico do médico. Revisão obrigatória antes de qualquer decisão clínica.</div>";
+  h += "<div class=\"warn\">⚠️ Hipóteses diagnósticas sugeridas, investigações complementares e proposta terapêutica são geradas por IA e NÃO substituem o julgamento clínico do médico. Revisão obrigatória antes de qualquer decisão clínica.</div>";
   h += "<div class=\"rodape\">Documento gerado pelo AnamIA em " + now + (crmStr ? " · " + crmStr : "") + "</div>";
   h += "</body></html>";
   return h;
@@ -4661,7 +4659,7 @@ var OB_SLIDES = [
   {
     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--verde)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>',
     title: 'Anamnese estruturada em segundos',
-    desc: 'A IA analisa a transcrição e preenche: <strong>identificação, queixa, HDA, exame físico, hipóteses e conduta.</strong> Você revisa e ajusta o que precisar.'
+    desc: 'A IA analisa a transcrição e preenche: <strong>identificação, queixa, HDA, exame físico, hipóteses diagnósticas e proposta terapêutica.</strong> Você revisa e ajusta o que precisar.'
   },
   {
     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--verde)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
