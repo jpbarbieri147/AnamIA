@@ -1070,9 +1070,9 @@ body.nav-open{padding-left:276px;}
     <button class="nav-item" id="nav-osler" onclick="showView('osler')">
       <span class="nav-item-ico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="10" cy="10" r="7" stroke="currentColor" fill="none"/>
-          <path d="m21 21-4.35-4.35"/>
-          <path d="M10 7v6M7 10h6"/>
+          <path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V12h-4V9.5C8.8 8.8 8 7.5 8 6a4 4 0 0 1 4-4z"/>
+          <path d="M10 12v2a2 2 0 0 0 4 0v-2"/>
+          <circle cx="12" cy="18" r="3"/>
         </svg>
       </span>
       <span class="nav-item-label">Osler</span>
@@ -2620,7 +2620,7 @@ function renderResult(d){
       '</div>',
       '<div>',
         '<div class="osler-title">Osler</div>',
-        '<div class="osler-sub">Consultoria clínica baseada na anamnese gerada</div>',
+        '<div class="osler-sub">Assistente de raciocínio clínico</div>',
       '</div>',
       '<div class="osler-mode-pills">',
         '<button class="omp active" id="ompClaude" onclick="oslerSetMode(\'claude\',this)" title="Raciocínio geral do modelo">Claude</button>',
@@ -4667,7 +4667,7 @@ var OB_SLIDES = [
     desc: '<strong>Salve cada consulta em uma pasta com o nome do paciente.</strong> Acesse o histórico completo a qualquer momento, revise evoluções anteriores e compare consultas para acompanhar a progressão clínica.'
   },
   {
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--verde)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><path d="m21 21-4.35-4.35"/><path d="M10 7v6M7 10h6"/></svg>',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--verde)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V12h-4V9.5C8.8 8.8 8 7.5 8 6a4 4 0 0 1 4-4z"/><path d="M10 12v2a2 2 0 0 0 4 0v-2"/><circle cx="12" cy="18" r="3"/></svg>',
     title: 'Raciocínio clínico com o Osler',
     desc: 'Faça perguntas clínicas baseadas na consulta. No modo <strong>Híbrido, o Osler prioriza os seus PDFs de referência</strong> — diretrizes, artigos, protocolos — e complementa com conhecimento geral quando necessário.'
   }
