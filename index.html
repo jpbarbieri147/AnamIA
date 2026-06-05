@@ -245,61 +245,6 @@ body{
 .la-chk-row div span{display:block;font-size:11px;color:var(--cinza);margin-top:1px;}
 .la-ftr{padding:1rem 1.5rem;border-top:1px solid var(--cinza-l);display:flex;justify-content:flex-end;gap:.5rem;}
 .la-msg{font-size:12px;margin-top:.25rem;min-height:16px;}
-/* ── FORMULÁRIO DE PRESCRIÇÃO ── */
-.pf-wrap{display:flex;flex-direction:column;gap:1.25rem;max-width:720px;}
-.pf-sec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh-sm);}
-.pf-sec-hdr{padding:10px 14px;background:var(--verde-ll);border-bottom:1px solid var(--verde-b);display:flex;align-items:center;gap:8px;}
-.pf-sec-hdr i{color:var(--verde);font-size:15px;}
-.pf-sec-ttl{font-size:12px;font-weight:600;color:var(--verde-txt);text-transform:uppercase;letter-spacing:.4px;}
-.pf-sec-body{padding:14px;}
-.pf-row{display:grid;gap:.6rem;margin-bottom:.6rem;}
-.pf-row.col2{grid-template-columns:1fr 1fr;}
-.pf-row.col3{grid-template-columns:1fr 1fr 1fr;}
-.pf-row.col4{grid-template-columns:2fr 1fr 1fr 1fr;}
-.pf-lbl{font-size:11px;font-weight:500;color:var(--cinza);margin-bottom:3px;}
-.pf-inp{width:100%;padding:7px 10px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:var(--font-sans);color:var(--preto);background:var(--branco);}
-.pf-inp:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 3px var(--verde-ll);}
-.pf-inp::placeholder{color:var(--cinza);}
-.pf-sel{width:100%;padding:7px 10px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:var(--font-sans);color:var(--preto);background:var(--branco);cursor:pointer;}
-.pf-sel:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 3px var(--verde-ll);}
-/* Tipo selector */
-.pf-tipos{display:flex;gap:.5rem;flex-wrap:wrap;}
-.pf-tipo-btn{flex:1;min-width:140px;padding:10px 12px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);background:var(--branco);cursor:pointer;text-align:left;transition:all .15s;font-family:var(--font-sans);}
-.pf-tipo-btn:hover{border-color:var(--verde-b);background:var(--verde-ll);}
-.pf-tipo-btn.active{border-color:var(--verde);background:var(--verde-l);}
-.pf-tipo-btn .ptb-ico{font-size:18px;margin-bottom:4px;display:block;}
-.pf-tipo-btn .ptb-name{font-size:12px;font-weight:600;color:var(--preto);display:block;}
-.pf-tipo-btn .ptb-desc{font-size:10px;color:var(--cinza);display:block;margin-top:1px;}
-/* Busca paciente */
-.pf-search-wrap{position:relative;}
-.pf-search-drop{position:absolute;top:100%;left:0;right:0;background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:var(--sh-md);z-index:200;max-height:200px;overflow-y:auto;display:none;}
-.pf-search-drop.open{display:block;}
-.pf-search-item{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--cinza-l);}
-.pf-search-item:last-child{border-bottom:none;}
-.pf-search-item:hover{background:var(--verde-ll);}
-.pf-search-item .psi-nome{font-weight:500;color:var(--preto);}
-.pf-search-item .psi-info{font-size:11px;color:var(--cinza);}
-.pf-pac-card{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--verde-ll);border:1px solid var(--verde-b);border-radius:var(--rs);}
-.pf-pac-card .ppc-nome{font-size:13px;font-weight:500;color:var(--preto);}
-.pf-pac-card .ppc-info{font-size:11px;color:var(--cinza);}
-/* Medicamentos */
-.pf-med-item{border:1px solid var(--cinza-l);border-radius:var(--rs);padding:12px;margin-bottom:.6rem;background:var(--cinza-ll);position:relative;}
-.pf-med-item:last-child{margin-bottom:0;}
-.pf-med-num{font-size:10px;font-weight:600;color:var(--verde);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
-.pf-med-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--cinza);font-size:16px;padding:2px 6px;border-radius:4px;}
-.pf-med-del:hover{background:var(--cinza-l);color:var(--red);}
-/* Autocomplete medicamento */
-.pf-ac-wrap{position:relative;}
-.pf-ac-drop{position:absolute;top:100%;left:0;right:0;background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:var(--sh-md);z-index:200;max-height:220px;overflow-y:auto;display:none;}
-.pf-ac-drop.open{display:block;}
-.pf-ac-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--cinza-l);font-size:12px;}
-.pf-ac-item:last-child{border-bottom:none;}
-.pf-ac-item:hover{background:var(--verde-ll);}
-.pf-ac-item .pai-sub{font-weight:500;color:var(--preto);}
-.pf-ac-item .pai-com{font-size:11px;color:var(--cinza);}
-.pf-ac-loading{padding:10px 12px;font-size:12px;color:var(--cinza);text-align:center;}
-/* Barra de ações */
-.pf-actions{display:flex;gap:.5rem;justify-content:flex-end;padding-top:.5rem;}
 .cal-header{display:flex;align-items:center;padding:16px 20px 10px;border-bottom:1px solid var(--cinza-l);flex-shrink:0;position:relative;}
 .cal-header-center{display:flex;align-items:center;gap:12px;position:absolute;left:50%;transform:translateX(-50%);}
 .cal-header-right{margin-left:auto;}
@@ -4907,8 +4852,8 @@ function laClose(){
 async function laLoadDados(id){
   try {
     var token = await getToken();
-    var r = await fetch(window.SUPABASE_URL+'/rest/v1/locais_atendimento?id=eq.'+id, {
-      headers:{'apikey':window.SUPABASE_ANON_KEY,'Authorization':'Bearer '+token}
+    var r = await fetch(SUPA_URL+'/rest/v1/locais_atendimento?id=eq.'+id, {
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
     });
     var arr = await r.json();
     if(!arr||!arr[0]) return;
@@ -5022,13 +4967,13 @@ async function laSave(){
     }
 
     var method = laEditId ? 'PATCH' : 'POST';
-    var url = window.SUPABASE_URL+'/rest/v1/locais_atendimento';
+    var url = SUPA_URL+'/rest/v1/locais_atendimento';
     if(laEditId) url += '?id=eq.'+laEditId;
 
     var r = await fetch(url, {
       method: method,
       headers:{
-        'apikey': window.SUPABASE_ANON_KEY,
+        'apikey': SUPA_KEY,
         'Authorization': 'Bearer '+token,
         'Content-Type': 'application/json',
         'Prefer': laEditId ? 'return=minimal' : 'return=representation'
@@ -5040,15 +4985,10 @@ async function laSave(){
 
     msg.textContent = laEditId ? 'Local atualizado.' : 'Local cadastrado com sucesso!';
     msg.style.color = 'var(--verde)';
-    var eraPrimeiroLocal = !laEditId;
     setTimeout(function(){
       laClose();
       prescLoad();
-      // Se acabou de cadastrar o primeiro local, já abre nova prescrição
-      if(eraPrimeiroLocal){
-        setTimeout(function(){ prescNovaClick(); }, 300);
-      }
-    }, 900);
+    }, 1000);
 
   } catch(e){
     console.error('laSave',e);
@@ -5073,14 +5013,14 @@ async function laUploadLogo(token, base64){
     var ext = mime === 'image/png' ? 'png' : 'jpg';
     var path = 'logos/'+Date.now()+'.'+ext;
 
-    var r = await fetch(window.SUPABASE_URL+'/storage/v1/object/logos/'+path, {
+    var r = await fetch(SUPA_URL+'/storage/v1/object/logos/'+path, {
       method: 'POST',
-      headers:{'apikey': window.SUPABASE_ANON_KEY, 'Authorization': 'Bearer '+token,
+      headers:{'apikey': SUPA_KEY, 'Authorization': 'Bearer '+token,
                'Content-Type': mime, 'x-upsert': 'true'},
       body: blob
     });
     if(!r.ok) return null;
-    return window.SUPABASE_URL+'/storage/v1/object/public/logos/'+path;
+    return SUPA_URL+'/storage/v1/object/public/logos/'+path;
   } catch(e){ console.error('laUploadLogo',e); return null; }
 }
 
@@ -5089,8 +5029,8 @@ async function prescLoad(){
   // Verifica se médico tem local cadastrado
   try {
     var token = await getToken();
-    var r = await fetch(window.SUPABASE_URL+'/rest/v1/locais_atendimento?ativo=eq.true&limit=1', {
-      headers:{'apikey':window.SUPABASE_ANON_KEY,'Authorization':'Bearer '+token}
+    var r = await fetch(SUPA_URL+'/rest/v1/locais_atendimento?ativo=eq.true&limit=1', {
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
     });
     var arr = await r.json();
     var empty = document.getElementById('prescEmpty');
@@ -5138,692 +5078,20 @@ async function prescLoad(){
   }
 }
 
-// ── Estado do formulário de prescrição ──
-var pfLocal   = null;   // local selecionado
-var pfTipo    = null;   // 'simples' | 'antimicrobiano' | 'especial_b'
-var pfPaciente= null;   // objeto paciente selecionado
-var pfMeds    = [];     // array de medicamentos
-var pfRascId  = null;   // id do rascunho salvo
-
-function prescFormAbrir(local){
-  pfLocal    = local;
-  pfTipo     = null;
-  pfPaciente = null;
-  pfMeds     = [];
-  pfRascId   = null;
-
-  var body = document.getElementById('prescEmpty');
-  if(!body) return;
-  body.className = ''; // remove classe presc-empty
-  body.style.cssText = '';
-
-  body.innerHTML = [
-    '<div class="pf-wrap" id="pfWrap">',
-
-      // Cabeçalho
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:.25rem;">',
-        '<button class="bts" onclick="prescLoad();var __e=document.getElementById(\'prescEmpty\');if(__e)__e.className=\'presc-empty\'" style="padding:6px 10px;font-size:12px;">',
-          '<i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar',
-        '</button>',
-        '<div style="font-family:var(--font-serif);font-size:18px;color:var(--preto);">Nova prescrição</div>',
-        '<div style="font-size:11px;color:var(--cinza);margin-left:auto;">',
-          '<i class="ti ti-building-hospital" aria-hidden="true"></i> '+escapeHTML(local.nome),
-        '</div>',
-      '</div>',
-
-      // 1. Tipo
-      '<div class="pf-sec">',
-        '<div class="pf-sec-hdr"><i class="ti ti-list" aria-hidden="true"></i><span class="pf-sec-ttl">1. Tipo de receita</span></div>',
-        '<div class="pf-sec-body">',
-          '<div class="pf-tipos" id="pfTipos">',
-            '<button class="pf-tipo-btn" onclick="pfSetTipo(\'simples\',this)">',
-              '<i class="ti ti-clipboard-text ptb-ico" aria-hidden="true"></i>',
-              '<span class="ptb-name">Receita Simples</span>',
-              '<span class="ptb-desc">Medicamentos comuns</span>',
-            '</button>',
-            '<button class="pf-tipo-btn" onclick="pfSetTipo(\'antimicrobiano\',this)">',
-              '<i class="ti ti-pill ptb-ico" aria-hidden="true"></i>',
-              '<span class="ptb-name">Antimicrobiano</span>',
-              '<span class="ptb-desc">2 vias obrigatórias</span>',
-            '</button>',
-            '<button class="pf-tipo-btn" onclick="pfSetTipo(\'especial_b\',this)">',
-              '<i class="ti ti-license ptb-ico" aria-hidden="true"></i>',
-              '<span class="ptb-name">Controle Especial</span>',
-              '<span class="ptb-desc">Receituário tipo B</span>',
-            '</button>',
-          '</div>',
-        '</div>',
-      '</div>',
-
-      // 2. Paciente
-      '<div class="pf-sec">',
-        '<div class="pf-sec-hdr"><i class="ti ti-user" aria-hidden="true"></i><span class="pf-sec-ttl">2. Paciente</span></div>',
-        '<div class="pf-sec-body">',
-          '<div id="pfPacArea">',
-            '<div class="pf-search-wrap">',
-              '<div class="pf-lbl">Buscar paciente por nome</div>',
-              '<input class="pf-inp" id="pfPacSearch" placeholder="Digite o nome..." autocomplete="off"',
-                ' oninput="pfPacBuscar(this.value)" onblur="setTimeout(function(){pfPacDrop(false)},200)">',
-              '<div class="pf-search-drop" id="pfPacDrop"></div>',
-            '</div>',
-            '<div style="margin-top:.5rem;">',
-              '<button class="bts" onclick="pfNovoPacModal()" style="font-size:12px;padding:6px 10px;">',
-                '<i class="ti ti-user-plus" aria-hidden="true"></i> Novo paciente',
-              '</button>',
-            '</div>',
-          '</div>',
-        '</div>',
-      '</div>',
-
-      // 3. Medicamentos
-      '<div class="pf-sec">',
-        '<div class="pf-sec-hdr"><i class="ti ti-pill" aria-hidden="true"></i><span class="pf-sec-ttl">3. Medicamentos</span></div>',
-        '<div class="pf-sec-body">',
-          '<div id="pfMedList"></div>',
-          '<button class="bts" onclick="pfAddMed()" style="font-size:12px;padding:6px 12px;margin-top:.25rem;">',
-            '<i class="ti ti-plus" aria-hidden="true"></i> Adicionar medicamento',
-          '</button>',
-        '</div>',
-      '</div>',
-
-      // 4. Observações
-      '<div class="pf-sec">',
-        '<div class="pf-sec-hdr"><i class="ti ti-notes" aria-hidden="true"></i><span class="pf-sec-ttl">4. Observações</span></div>',
-        '<div class="pf-sec-body">',
-          '<textarea class="pf-inp" id="pfObs" rows="3" placeholder="Orientações gerais, posologia adicional..." style="resize:vertical;"></textarea>',
-        '</div>',
-      '</div>',
-
-      // Ações
-      '<div class="pf-actions">',
-        '<div id="pfMsg" style="font-size:12px;flex:1;align-self:center;"></div>',
-        '<button class="bts" onclick="pfSalvarRascunho()" id="pfBtnRasc" style="padding:9px 16px;">',
-          '<i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar rascunho',
-        '</button>',
-        '<button class="pbtn" onclick="pfGerarPdf()" id="pfBtnPdf" style="width:auto;padding:9px 18px;">',
-          '<i class="ti ti-file-download" aria-hidden="true"></i> Gerar receita',
-        '</button>',
-      '</div>',
-
-    '</div>' // pf-wrap
-  ].join('');
-
-  // Adicionar primeiro medicamento automaticamente
-  pfAddMed();
-}
-
-// ── FUNÇÕES DO FORMULÁRIO DE PRESCRIÇÃO ──
-
-function pfSetTipo(tipo, btn){
-  pfTipo = tipo;
-  document.querySelectorAll('.pf-tipo-btn').forEach(function(b){ b.classList.remove('active'); });
-  if(btn) btn.classList.add('active');
-}
-
-// ── BUSCA PACIENTE ──
-var pfPacTimer = null;
-function pfPacBuscar(q){
-  clearTimeout(pfPacTimer);
-  var drop = document.getElementById('pfPacDrop');
-  if(!q || q.length < 2){ if(drop){ drop.classList.remove('open'); drop.innerHTML=''; } return; }
-  pfPacTimer = setTimeout(async function(){
-    try {
-      var token = await getToken();
-      var enc = encodeURIComponent(q.toLowerCase());
-      var r = await fetch(
-        window.SUPABASE_URL+'/rest/v1/pacientes?nome_normalizado=ilike.*'+enc+'*&limit=8',
-        {headers:{'apikey':window.SUPABASE_ANON_KEY,'Authorization':'Bearer '+token}}
-      );
-      var arr = await r.json();
-      if(!drop) return;
-      if(!arr || arr.length === 0){
-        drop.innerHTML = '<div class="pf-ac-loading">Nenhum paciente encontrado</div>';
-        drop.classList.add('open'); return;
-      }
-      drop.innerHTML = arr.map(function(p){
-        var info = [p.cpf||'', p.sexo||''].filter(Boolean).join(' · ');
-        return '<div class="pf-search-item" onmousedown="pfSelecionarPac('+JSON.stringify(p)+')">'+
-          '<div class="psi-nome">'+escapeHTML(p.nome)+'</div>'+
-          (info?'<div class="psi-info">'+escapeHTML(info)+'</div>':'')+
-        '</div>';
-      }).join('');
-      drop.classList.add('open');
-    } catch(e){ console.error('pfPacBuscar',e); }
-  }, 280);
-}
-
-function pfPacDrop(show){
-  var drop = document.getElementById('pfPacDrop');
-  if(drop){ if(show) drop.classList.add('open'); else drop.classList.remove('open'); }
-}
-
-function pfSelecionarPac(p){
-  pfPaciente = p;
-  pfPacDrop(false);
-  // Calcular idade
-  var idadeStr = '';
-  if(p.data_nascimento){
-    var nasc = new Date(p.data_nascimento);
-    var hoje = new Date();
-    var idade = hoje.getFullYear() - nasc.getFullYear();
-    if(hoje.getMonth() < nasc.getMonth() ||
-       (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())) idade--;
-    idadeStr = idade + ' anos';
-  }
-  var info = [p.cpf||'', p.sexo||'', idadeStr].filter(Boolean).join(' · ');
-  var area = document.getElementById('pfPacArea');
-  if(!area) return;
-  area.innerHTML =
-    '<div class="pf-pac-card">'+
-      '<i class="ti ti-user-check" style="font-size:20px;color:var(--verde);" aria-hidden="true"></i>'+
-      '<div>'+
-        '<div class="ppc-nome">'+escapeHTML(p.nome)+'</div>'+
-        (info?'<div class="ppc-info">'+escapeHTML(info)+'</div>':'')+
-      '</div>'+
-      '<button class="bts" onclick="pfLimparPac()" style="margin-left:auto;font-size:11px;padding:4px 8px;">'+
-        'Trocar'+
-      '</button>'+
-    '</div>';
-}
-
-function pfLimparPac(){
-  pfPaciente = null;
-  var area = document.getElementById('pfPacArea');
-  if(!area) return;
-  area.innerHTML =
-    '<div class="pf-search-wrap">'+
-      '<div class="pf-lbl">Buscar paciente por nome</div>'+
-      '<input class="pf-inp" id="pfPacSearch" placeholder="Digite o nome..." autocomplete="off"'+
-        ' oninput="pfPacBuscar(this.value)" onblur="setTimeout(function(){pfPacDrop(false)},200)">'+
-      '<div class="pf-search-drop" id="pfPacDrop"></div>'+
-    '</div>'+
-    '<div style="margin-top:.5rem;">'+
-      '<button class="bts" onclick="pfNovoPacModal()" style="font-size:12px;padding:6px 10px;">'+
-        '<i class="ti ti-user-plus" aria-hidden="true"></i> Novo paciente'+
-      '</button>'+
-    '</div>';
-}
-
-// ── MEDICAMENTOS ──
-var pfMedCounter = 0;
-
-function pfAddMed(){
-  pfMedCounter++;
-  var id = 'pfMed_'+pfMedCounter;
-  pfMeds.push({id:id,substancia:'',nomeComercial:'',dose:'',posologia:'',duracao:'',quantidade:''});
-  var list = document.getElementById('pfMedList');
-  if(!list) return;
-  var num = pfMeds.length;
-
-  // Usar createElement para evitar problemas de aspas aninhadas
-  var div = document.createElement('div');
-  div.className = 'pf-med-item';
-  div.id = id;
-
-  var numDiv = document.createElement('div');
-  numDiv.className = 'pf-med-num';
-  numDiv.textContent = 'Medicamento '+num;
-
-  var delBtn = document.createElement('button');
-  delBtn.className = 'pf-med-del';
-  delBtn.title = 'Remover';
-  delBtn.innerHTML = '<i class="ti ti-x" aria-hidden="true"></i>';
-  delBtn.onclick = function(){ pfRemMed(id); };
-
-  // Campo substância + autocomplete
-  var acWrap = document.createElement('div');
-  acWrap.className = 'pf-ac-wrap';
-  var subLbl = document.createElement('div');
-  subLbl.className = 'pf-lbl';
-  subLbl.textContent = 'Princípio ativo / Substância *';
-  var subInp = document.createElement('input');
-  subInp.className = 'pf-inp';
-  subInp.id = id+'_sub';
-  subInp.placeholder = 'Ex: Amoxicilina...';
-  subInp.autocomplete = 'off';
-  subInp.oninput = function(){ pfAnvisaBuscar(id, this.value); };
-  subInp.onblur  = function(){ setTimeout(function(){ pfAcDrop(id, false); }, 200); };
-  var subDrop = document.createElement('div');
-  subDrop.className = 'pf-ac-drop';
-  subDrop.id = id+'_drop';
-  acWrap.appendChild(subLbl);
-  acWrap.appendChild(subInp);
-  acWrap.appendChild(subDrop);
-
-  var row1 = document.createElement('div');
-  row1.className = 'pf-row';
-  row1.style.marginBottom = '.6rem';
-  row1.appendChild(acWrap);
-
-  // Nome comercial + dose
-  function mkField(labelTxt, fid, ph){
-    var wrap = document.createElement('div');
-    var lbl = document.createElement('div');
-    lbl.className = 'pf-lbl'; lbl.textContent = labelTxt;
-    var inp = document.createElement('input');
-    inp.className = 'pf-inp'; inp.id = id+'_'+fid; inp.placeholder = ph;
-    wrap.appendChild(lbl); wrap.appendChild(inp);
-    return wrap;
-  }
-  var row2 = document.createElement('div');
-  row2.className = 'pf-row col2';
-  row2.style.marginBottom = '.6rem';
-  row2.appendChild(mkField('Nome comercial','com','Ex: Amoxil 500mg'));
-  row2.appendChild(mkField('Dose / Apresentação','dose','Ex: 500mg'));
-
-  var row3 = document.createElement('div');
-  row3.className = 'pf-row col3';
-  row3.appendChild(mkField('Posologia *','pos','Ex: 1 cp de 8/8h'));
-  row3.appendChild(mkField('Duração','dur','Ex: 7 dias'));
-  row3.appendChild(mkField('Quantidade','qtd','Ex: 21 cps'));
-
-  div.appendChild(numDiv);
-  div.appendChild(delBtn);
-  div.appendChild(row1);
-  div.appendChild(row2);
-  div.appendChild(row3);
-  list.appendChild(div);
-}
-
-function pfRemMed(id){
-  pfMeds = pfMeds.filter(function(m){ return m.id !== id; });
-  var el = document.getElementById(id);
-  if(el) el.remove();
-  // Renumerar
-  var items = document.querySelectorAll('.pf-med-item');
-  items.forEach(function(el, i){
-    var num = el.querySelector('.pf-med-num');
-    if(num) num.textContent = 'Medicamento '+(i+1);
-  });
-}
-
-function pfAcDrop(id, show){
-  var drop = document.getElementById(id+'_drop');
-  if(drop){ if(show) drop.classList.add('open'); else drop.classList.remove('open'); }
-}
-
-// ── AUTOCOMPLETE ANVISA ──
-var pfAnvisaTimers = {};
-function pfAnvisaBuscar(medId, q){
-  clearTimeout(pfAnvisaTimers[medId]);
-  var drop = document.getElementById(medId+'_drop');
-  if(!q || q.length < 3){
-    if(drop){ drop.classList.remove('open'); drop.innerHTML=''; } return;
-  }
-  if(drop){ drop.innerHTML='<div class="pf-ac-loading">Buscando...</div>'; drop.classList.add('open'); }
-  pfAnvisaTimers[medId] = setTimeout(async function(){
-    try {
-      var enc = encodeURIComponent(q);
-      var r = await fetch(
-        'https://consultas.anvisa.gov.br/api/consulta/bulario?count=10&filter%5Bsubstancia%5D='+enc,
-        {headers:{'Accept':'application/json'}}
-      );
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      var data = await r.json();
-      var rows = data.content || [];
-      if(!drop) return;
-      if(rows.length === 0){
-        drop.innerHTML='<div class="pf-ac-loading">Nenhum resultado</div>';
-        return;
-      }
-      // Deduplicar por substância
-      var seen = {};
-      var items = rows.filter(function(row){
-        var key = (row.substancia||'').toLowerCase();
-        if(seen[key]) return false;
-        seen[key] = true; return true;
-      });
-      drop.innerHTML = '';
-      items.forEach(function(row){
-        var sub = escapeHTML(row.substancia||'');
-        var com = escapeHTML(row.nomeProduto||'');
-        var emp = escapeHTML(row.empresa||'');
-        var item = document.createElement('div');
-        item.className = 'pf-ac-item';
-        item.innerHTML = '<div class="pai-sub">'+sub+'</div>'+
-          '<div class="pai-com">'+(com||'')+(emp?' &middot; '+emp:'')+'</div>';
-        item.addEventListener('mousedown', function(){
-          pfAnvisaSelect(medId, row);
-        });
-        drop.appendChild(item);
-      });
-      drop.classList.add('open');
-    } catch(e){
-      console.error('pfAnvisaBuscar',e);
-      if(drop) drop.innerHTML='<div class="pf-ac-loading" style="color:var(--red)">Erro na busca ANVISA</div>';
-    }
-  }, 400);
-}
-
-function pfAnvisaSelect(medId, row){
-  pfAcDrop(medId, false);
-  var setSafe = function(fid, val){
-    var el = document.getElementById(fid);
-    if(el && val) el.value = val;
-  };
-  setSafe(medId+'_sub', row.substancia||'');
-  setSafe(medId+'_com', row.nomeProduto||'');
-  // Atualizar no array
-  var med = pfMeds.find(function(m){ return m.id===medId; });
-  if(med){ med.substancia=row.substancia||''; med.nomeComercial=row.nomeProduto||''; }
-}
-
-// ── COLETAR DADOS DO FORMULÁRIO ──
-function pfColetarDados(){
-  var meds = [];
-  document.querySelectorAll('.pf-med-item').forEach(function(el){
-    var id = el.id;
-    var get = function(s){ var e=document.getElementById(id+s); return e?e.value.trim():''; };
-    var sub = get('_sub');
-    if(!sub) return; // ignora linhas vazias
-    meds.push({
-      substancia: sub,
-      nomeComercial: get('_com'),
-      dose: get('_dose'),
-      posologia: get('_pos'),
-      duracao: get('_dur'),
-      quantidade: get('_qtd')
-    });
-  });
-  return {
-    tipo: pfTipo,
-    paciente: pfPaciente,
-    local: pfLocal,
-    itens: meds,
-    observacoes: (document.getElementById('pfObs')||{}).value||''
-  };
-}
-
-function pfValidar(dados){
-  if(!dados.tipo)    return 'Selecione o tipo de receita.';
-  if(!dados.paciente) return 'Selecione um paciente.';
-  if(!dados.itens.length) return 'Adicione ao menos um medicamento.';
-  var semPos = dados.itens.find(function(m){ return !m.posologia; });
-  if(semPos) return 'Preencha a posologia de todos os medicamentos.';
-  return null;
-}
-
-// ── SALVAR RASCUNHO ──
-async function pfSalvarRascunho(){
-  var btn = document.getElementById('pfBtnRasc');
-  var msg = document.getElementById('pfMsg');
-  var dados = pfColetarDados();
-  var erro = pfValidar(dados);
-  if(erro){ msg.textContent=erro; msg.style.color='var(--red)'; return; }
-  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" aria-hidden="true"></i> Salvando...';
-  msg.textContent='';
-  try {
-    var token = await getToken();
-    var r = await fetch('/api/prescricao', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body: JSON.stringify({
-        acao: 'prescricao_save',
-        id: pfRascId||undefined,
-        local_id: pfLocal.id,
-        paciente_id: pfPaciente.id,
-        tipo: dados.tipo,
-        itens: dados.itens,
-        observacoes: dados.observacoes,
-        status: 'rascunho'
-      })
-    });
-    var d = await r.json();
-    if(!r.ok||!d.ok) throw new Error(d.error||'Erro');
-    if(d.data && d.data[0]) pfRascId = d.data[0].id;
-    msg.textContent='Rascunho salvo.'; msg.style.color='var(--verde)';
-  } catch(e){
-    msg.textContent='Erro ao salvar: '+e.message; msg.style.color='var(--red)';
-  } finally {
-    btn.disabled=false;
-    btn.innerHTML='<i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar rascunho';
-  }
-}
-
-// ── GERAR PDF ──
-async function pfGerarPdf(){
-  var btn = document.getElementById('pfBtnPdf');
-  var msg = document.getElementById('pfMsg');
-  var dados = pfColetarDados();
-  var erro = pfValidar(dados);
-  if(erro){ msg.textContent=erro; msg.style.color='var(--red)'; return; }
-  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" aria-hidden="true"></i> Gerando...';
-  msg.textContent='';
-  try {
-    // Salvar como assinada (sem assinatura digital por ora — Etapa 6)
-    var token = await getToken();
-    var rSave = await fetch('/api/prescricao', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body: JSON.stringify({
-        acao: 'prescricao_save',
-        id: pfRascId||undefined,
-        local_id: pfLocal.id,
-        paciente_id: pfPaciente.id,
-        tipo: dados.tipo,
-        itens: dados.itens,
-        observacoes: dados.observacoes,
-        status: 'rascunho'
-      })
-    });
-    var dSave = await rSave.json();
-    if(!rSave.ok||!dSave.ok) throw new Error(dSave.error||'Erro ao salvar');
-    if(dSave.data && dSave.data[0]) pfRascId = dSave.data[0].id;
-
-    // Buscar dados do médico para o PDF
-    var rMed = await fetch(window.SUPABASE_URL+'/rest/v1/medicos?id=eq.'+currentUser.id, {
-      headers:{'apikey':window.SUPABASE_ANON_KEY,'Authorization':'Bearer '+token}
-    });
-    var medArr = await rMed.json();
-    var med = medArr && medArr[0] ? medArr[0] : {};
-
-    // Gerar PDF
-    pfGerarPdfDoc(dados, med, pfRascId);
-    msg.textContent='Receita gerada!'; msg.style.color='var(--verde)';
-  } catch(e){
-    msg.textContent='Erro: '+e.message; msg.style.color='var(--red)';
-  } finally {
-    btn.disabled=false;
-    btn.innerHTML='<i class="ti ti-file-download" aria-hidden="true"></i> Gerar receita';
-  }
-}
-
-// ── GERAÇÃO DO PDF (HTML→PRINT) ──
-function pfGerarPdfDoc(dados, med, prescId){
-  var tipo = dados.tipo;
-  var pac  = dados.paciente || {};
-  var local = pfLocal || {};
-
-  // Calcular idade
-  var idadePac = '';
-  if(pac.data_nascimento){
-    var nasc = new Date(pac.data_nascimento);
-    var hoje = new Date();
-    var idade = hoje.getFullYear()-nasc.getFullYear();
-    if(hoje.getMonth()<nasc.getMonth()||(hoje.getMonth()===nasc.getMonth()&&hoje.getDate()<nasc.getDate())) idade--;
-    idadePac = idade+' anos';
-  }
-
-  var dataEmissao = new Date().toLocaleDateString('pt-BR');
-  var endLocal = [local.logradouro, local.numero, local.bairro, local.cidade+' - '+local.uf]
-    .filter(Boolean).join(', ');
-
-  var itensTxt = dados.itens.map(function(m, i){
-    var linhas = [];
-    var nome = m.nomeComercial ? m.substancia+' ('+m.nomeComercial+')' : m.substancia;
-    if(m.dose) nome += ' '+m.dose;
-    // Linha de medicamento com pontilhado
-    var pontos = '';
-    for(var p=0; p<60-nome.length; p++) pontos += '-';
-    linhas.push('<tr><td style="padding:6px 0;font-weight:500;">'+(i+1)+'. '+escapeHTML(nome)+' '+pontos+' '+(i+1)+'</td></tr>');
-    if(m.posologia) linhas.push('<tr><td style="padding:0 0 6px 16px;color:#333;">'+escapeHTML(m.posologia)+(m.duracao?' por '+escapeHTML(m.duracao):'')+'</td></tr>');
-    if(m.quantidade) linhas.push('<tr><td style="padding:0 0 6px 16px;color:#555;font-size:11px;">Qtd: '+escapeHTML(m.quantidade)+'</td></tr>');
-    return linhas.join('');
-  }).join('');
-
-  var isEspecial = tipo === 'especial_b';
-  var isAnti     = tipo === 'antimicrobiano';
-  var vias = (isEspecial||isAnti) ? '<div style="text-align:right;font-size:11px;margin-bottom:8px;">1ª Via Farmácia &nbsp;|&nbsp; 2ª Via Paciente</div>' : '';
-  var tipoLabel = isEspecial ? 'RECEITUÁRIO DE CONTROLE ESPECIAL' : (isAnti ? 'Antimicrobiano' : 'Receita Simples');
-
-  var cpfMedHtml = (local.exibir_cpf_medico !== false && med.cpf)
-    ? '<br>CPF: '+escapeHTML(med.cpf) : '';
-  var endPacHtml = (local.exibir_endereco_paciente && pac.endereco)
-    ? '<br>Endereço: '+escapeHTML(pac.endereco) : '';
-
-  var identificacaoComprador = (isAnti||isEspecial) ? [
-    '<table style="width:100%;border-top:1px solid #ccc;margin-top:16px;font-size:11px;"><tr><td style="padding-top:8px;font-weight:600;">IDENTIFICAÇÃO DO COMPRADOR</td></tr>',
-    '<tr><td>Nome: _________________________________________ RG: _______________</td></tr>',
-    '<tr><td>Endereço: _________________________________________</td></tr>',
-    '<tr><td style="padding-bottom:8px;">Data: ___/___/___</td></tr></table>'
-  ].join('') : '';
-
-  var identificacaoFornecedor = (isAnti||isEspecial) ? [
-    '<table style="width:100%;border-top:1px solid #ccc;margin-top:8px;font-size:11px;"><tr><td style="padding-top:8px;font-weight:600;">IDENTIFICAÇÃO DO FORNECEDOR</td></tr>',
-    '<tr><td>Nome: _________________________________________</td></tr>',
-    '<tr><td>Cidade/UF: __________________________ Telefone: __________________</td></tr>',
-    '<tr><td style="padding-bottom:8px;">Assinatura do Farmacêutico: ___________________________ Data: ___/___/___</td></tr></table>'
-  ].join('') : '';
-
-  var html = [
-    '<!DOCTYPE html><html><head><meta charset="utf-8">',
-    '<title>'+tipoLabel+'</title>',
-    '<style>',
-      'body{font-family:Arial,sans-serif;font-size:12px;margin:0;padding:24px;color:#000;}',
-      '@media print{body{padding:12px;} .no-print{display:none;}}',
-      'table{width:100%;border-collapse:collapse;}',
-      'h2{font-size:14px;text-align:center;text-transform:uppercase;margin:8px 0;}',
-    '</style>',
-    '</head><body>',
-    vias,
-    // Cabeçalho médico
-    '<table><tr>',
-      '<td style="vertical-align:top;width:70%;">',
-        '<strong>Dr(a). '+escapeHTML(med.nome||'')+'</strong>'+cpfMedHtml,
-        '<br>CRM: '+escapeHTML((med.crm||'')+(med.uf_crm?' - '+med.uf_crm:'')),
-        '<br>'+escapeHTML(med.especialidade||''),
-      '</td>',
-      '<td style="vertical-align:top;text-align:right;font-size:11px;">',
-        'Data de emissão: '+dataEmissao,
-        '<br>'+escapeHTML(endLocal),
-      '</td>',
-    '</tr></table>',
-    '<hr style="margin:10px 0;">',
-    // Paciente
-    '<div style="font-size:11px;margin-bottom:10px;">',
-      '<strong>Paciente:</strong> '+(pac.cpf?escapeHTML(pac.cpf)+' - ':'')+escapeHTML(pac.nome||''),
-      (pac.sexo?' &nbsp;|&nbsp; Sexo: '+escapeHTML(pac.sexo):''),
-      (idadePac?' &nbsp;|&nbsp; Idade: '+idadePac:''),
-      endPacHtml,
-    '</div>',
-    '<h2>'+tipoLabel+'</h2>',
-    // Medicamentos
-    '<table>'+itensTxt+'</table>',
-    // Observações
-    (dados.observacoes?'<div style="margin-top:12px;font-size:11px;color:#333;border-top:1px solid #eee;padding-top:8px;">'+escapeHTML(dados.observacoes)+'</div>':''),
-    identificacaoComprador,
-    identificacaoFornecedor,
-    // Assinatura
-    '<div style="margin-top:40px;text-align:right;font-size:11px;">',
-      '<div style="display:inline-block;border-top:1px solid #000;padding-top:4px;min-width:200px;text-align:center;">',
-        'Assinatura do médico',
-      '</div>',
-    '</div>',
-    '<div class="no-print" style="text-align:center;margin-top:20px;">',
-      '<button onclick="window.print()" style="padding:8px 20px;background:#0F6E56;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Imprimir / Salvar PDF</button>',
-      ' <button onclick="window.close()" style="padding:8px 16px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;margin-left:8px;">Fechar</button>',
-    '</div>',
-    '</body></html>'
-  ].join('');
-
-  // Para receita especial e antimicrobiano: 2 vias = abrir 2x
-  var win = window.open('','_blank','width=700,height=900');
-  if(win){
-    win.document.write(html);
-    win.document.close();
-  }
-}
-
-// ── NOVO PACIENTE (modal inline simples) ──
-function pfNovoPacModal(){
-  var area = document.getElementById('pfPacArea');
-  if(!area) return;
-  area.innerHTML = [
-    '<div style="background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);padding:12px;">',
-      '<div style="font-size:12px;font-weight:600;color:var(--preto);margin-bottom:10px;">Novo paciente</div>',
-      '<div class="pf-row col2" style="margin-bottom:.5rem;">',
-        '<div><div class="pf-lbl">Nome completo *</div><input class="pf-inp" id="npNome" placeholder="Nome"></div>',
-        '<div><div class="pf-lbl">CPF</div><input class="pf-inp" id="npCpf" placeholder="000.000.000-00" maxlength="14" oninput="npCpfMask(this)"></div>',
-      '</div>',
-      '<div class="pf-row col3" style="margin-bottom:.5rem;">',
-        '<div><div class="pf-lbl">Sexo</div>',
-          '<select class="pf-sel" id="npSexo"><option value="">-</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select>',
-        '</div>',
-        '<div><div class="pf-lbl">Data de nasc.</div><input class="pf-inp" id="npNasc" type="date"></div>',
-        '<div><div class="pf-lbl">Endereço</div><input class="pf-inp" id="npEnd" placeholder="Rua, nº, cidade"></div>',
-      '</div>',
-      '<div id="npMsg" style="font-size:11px;min-height:14px;margin-bottom:6px;"></div>',
-      '<div style="display:flex;gap:.5rem;">',
-        '<button class="pbtn" onclick="pfSalvarNovoPac()" style="width:auto;padding:7px 14px;font-size:12px;">Salvar paciente</button>',
-        '<button class="bts" onclick="pfLimparPac()" style="font-size:12px;padding:6px 10px;">Cancelar</button>',
-      '</div>',
-    '</div>'
-  ].join('');
-}
-
-function npCpfMask(input){
-  var v = input.value.replace(/\D/g,'').substring(0,11);
-  if(v.length>9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/,'$1.$2.$3-$4');
-  else if(v.length>6) v=v.replace(/(\d{3})(\d{3})(\d{1,3})/,'$1.$2.$3');
-  else if(v.length>3) v=v.replace(/(\d{3})(\d{1,3})/,'$1.$2');
-  input.value=v;
-}
-
-async function pfSalvarNovoPac(){
-  var nome = (document.getElementById('npNome')||{}).value||'';
-  var msg  = document.getElementById('npMsg');
-  if(!nome.trim()){ if(msg){ msg.textContent='Nome obrigatório.'; msg.style.color='var(--red)'; } return; }
-  if(msg) msg.textContent='';
-  try {
-    var token = await getToken();
-    var body = {
-      nome: nome.trim(),
-      nome_normalizado: nome.trim().toLowerCase(),
-      cpf: ((document.getElementById('npCpf')||{}).value||'').replace(/\D/g,'')||null,
-      sexo: (document.getElementById('npSexo')||{}).value||null,
-      data_nascimento: (document.getElementById('npNasc')||{}).value||null,
-      endereco: (document.getElementById('npEnd')||{}).value||null
-    };
-    var r = await fetch(window.SUPABASE_URL+'/rest/v1/pacientes', {
-      method:'POST',
-      headers:{
-        'apikey':window.SUPABASE_ANON_KEY,'Authorization':'Bearer '+token,
-        'Content-Type':'application/json','Prefer':'return=representation'
-      },
-      body: JSON.stringify(body)
-    });
-    var arr = await r.json();
-    if(!r.ok) throw new Error(arr.message||'Erro');
-    pfSelecionarPac(arr[0]);
-  } catch(e){
-    if(msg){ msg.textContent='Erro: '+e.message; msg.style.color='var(--red)'; }
-  }
-}
-
 async function prescNovaClick(){
   // Verifica se tem local cadastrado
   try {
     var token = await getToken();
-    var r = await fetch(window.SUPABASE_URL+'/rest/v1/locais_atendimento?ativo=eq.true&limit=1', {
-      headers:{'apikey':window.SUPABASE_ANON_KEY,'Authorization':'Bearer '+token}
+    var r = await fetch(SUPA_URL+'/rest/v1/locais_atendimento?ativo=eq.true&limit=1', {
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
     });
     var arr = await r.json();
     if(!arr || arr.length === 0){
       // Sem local — abre modal de cadastro
       laOpen();
     } else {
-      // Tem local — abre formulário de prescrição (Etapa 3)
-      prescFormAbrir(arr[0]);
+      // Tem local — Etapa 3 (formulário de prescrição) em breve
+      alert('Formulário de prescrição em implementação. Disponível na próxima etapa!');
     }
   } catch(e){
     console.error('prescNovaClick', e);
