@@ -1202,21 +1202,21 @@ body.nav-open{padding-left:276px;}
   <div class="panel-body">
     <div class="lbl">Modo de operação</div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;">
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;" id="osler-opt-claude">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-claude">
         <input type="radio" name="oslerMode" value="claude" style="margin-top:2px;accent-color:var(--verde);" onchange="setOslerMode('claude')" checked>
         <div>
           <div style="font-size:12px;font-weight:600;color:var(--preto);">Somente Claude</div>
           <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Raciocínio clínico baseado no conhecimento geral do modelo.</div>
         </div>
       </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;" id="osler-opt-pdf">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-pdf">
         <input type="radio" name="oslerMode" value="pdf" style="margin-top:2px;accent-color:var(--verde);" onchange="setOslerMode('pdf')">
         <div>
           <div style="font-size:12px;font-weight:600;color:var(--preto);">Somente PDF</div>
           <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Responde exclusivamente com base nos seus documentos carregados.</div>
         </div>
       </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;" id="osler-opt-hybrid">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-hybrid">
         <input type="radio" name="oslerMode" value="hybrid" style="margin-top:2px;accent-color:var(--verde);" onchange="setOslerMode('hybrid')">
         <div>
           <div style="font-size:12px;font-weight:600;color:var(--preto);">Híbrido <span style="font-size:10px;background:var(--verde-l);color:var(--verde);padding:1px 6px;border-radius:8px;font-weight:500;">Recomendado</span></div>
@@ -1226,7 +1226,7 @@ body.nav-open{padding-left:276px;}
     </div>
 
     <div class="lbl">Habilitar Osler na anamnese</div>
-    <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;margin-bottom:1rem;">
+    <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;margin-bottom:1rem;background:var(--branco);">
       <input type="checkbox" id="oslerEnabledChk" style="width:16px;height:16px;accent-color:var(--verde);" onchange="toggleOslerEnabled(this.checked)">
       <div>
         <div style="font-size:12px;font-weight:500;color:var(--preto);">Mostrar chat Osler após gerar anamnese</div>
@@ -1236,17 +1236,17 @@ body.nav-open{padding-left:276px;}
 
     <div class="lbl">Seções geradas pela IA</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;">
+      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
         <input type="checkbox" id="hipoteseChk" style="width:16px;height:16px;accent-color:var(--verde);" checked onchange="activeKeys['hipoteses']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
         <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">13. Hipóteses Diagnósticas</div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Hipóteses Diagnósticas</div>
           <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Sugestões de diagnóstico diferencial pela IA</div>
         </div>
       </label>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;">
+      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
         <input type="checkbox" id="condutaChk" style="width:16px;height:16px;accent-color:var(--verde);" checked onchange="activeKeys['conduta']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
         <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">14. Conduta Sugerida</div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Conduta Sugerida</div>
           <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Proposta terapêutica e investigação complementar</div>
         </div>
       </label>
