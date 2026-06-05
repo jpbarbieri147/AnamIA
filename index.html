@@ -4928,22 +4928,27 @@ async function laSave(){
   var msg = document.getElementById('laMsg');
   var get = function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
 
-  var nome = get('laNome');
-  var rua  = get('laRua');
-  var uf   = get('laUf');
+  var nome   = get('laNome');
+  var rua    = get('laRua');
+  var uf     = get('laUf');
   var cidade = get('laCidade');
 
-  if(!nome){ msg.textContent='Nome do local obrigatório.'; msg.style.color='var(--red)'; return; }
-  if(!rua){  msg.textContent='Logradouro obrigatório.'; msg.style.color='var(--red)'; return; }
-  if(!uf){   msg.textContent='UF obrigatória.'; msg.style.color='var(--red)'; return; }
-  if(!cidade){ msg.textContent='Cidade obrigatória.'; msg.style.color='var(--red)'; return; }
+  if(!nome)  { msg.textContent='Nome do local obrigatório.'; msg.style.color='var(--red)'; return; }
+  if(!rua)   { msg.textContent='Logradouro obrigatório.';   msg.style.color='var(--red)'; return; }
+  if(!uf)    { msg.textContent='UF obrigatória.';           msg.style.color='var(--red)'; return; }
+  if(!cidade){ msg.textContent='Cidade obrigatória.';       msg.style.color='var(--red)'; return; }
 
-  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" aria-hidden="true"></i> Salvando...';
+  btn.disabled=true;
+  btn.innerHTML='<i class="ti ti-loader" aria-hidden="true"></i> Salvando...';
   msg.textContent='';
 
   try {
     var token = await getToken();
-    var body = {
+
+    // Upload de logo via Vercel (base64 enviado junto)
+    var payload = {
+      acao: 'local_save',
+      id: laEditId || undefined,
       nome: nome,
       cnes: get('laCnes')||null,
       logradouro: rua,
@@ -4957,31 +4962,20 @@ async function laSave(){
       email: get('laEmail')||null,
       exibir_cpf_medico: document.getElementById('laExibirCpf').checked,
       exibir_endereco_paciente: document.getElementById('laExibirEndereco').checked,
-      logo_url: null
+      logo_base64: laLogoBase64 || null
     };
 
-    // Upload de logo se houver
-    if(laLogoBase64){
-      var uploadResult = await laUploadLogo(token, laLogoBase64);
-      if(uploadResult) body.logo_url = uploadResult;
-    }
-
-    var method = laEditId ? 'PATCH' : 'POST';
-    var url = window.SUPABASE_URL+'/rest/v1/locais_atendimento';
-    if(laEditId) url += '?id=eq.'+laEditId;
-
-    var r = await fetch(url, {
-      method: method,
+    var r = await fetch('/api/prescricao', {
+      method: 'POST',
       headers:{
-        'apikey': window.SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer '+token,
         'Content-Type': 'application/json',
-        'Prefer': laEditId ? 'return=minimal' : 'return=representation'
+        'Authorization': 'Bearer '+token
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(payload)
     });
 
-    if(!r.ok){ throw new Error('HTTP '+r.status); }
+    var data = await r.json();
+    if(!r.ok || !data.ok){ throw new Error(data.error || 'HTTP '+r.status); }
 
     msg.textContent = laEditId ? 'Local atualizado.' : 'Local cadastrado com sucesso!';
     msg.style.color = 'var(--verde)';
@@ -4991,8 +4985,8 @@ async function laSave(){
     }, 1000);
 
   } catch(e){
-    console.error('laSave',e);
-    msg.textContent = 'Erro ao salvar. Tente novamente.';
+    console.error('laSave', e);
+    msg.textContent = 'Erro ao salvar: '+(e.message||'tente novamente.');
     msg.style.color = 'var(--red)';
   } finally {
     btn.disabled=false;
