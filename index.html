@@ -4909,12 +4909,16 @@ async function lagExcluir(id, nome){
 // Helper para chamar a Vercel Function de prescrição
 async function prescApi(payload){
   var token = await getToken();
+  if(!token) throw new Error('Sessão expirada. Faça login novamente.');
   var r = await fetch('/api/prescricao', {
     method: 'POST',
     headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
     body: JSON.stringify(payload)
   });
-  var d = await r.json();
+  var text = await r.text();
+  var d;
+  try { d = JSON.parse(text); }
+  catch(e) { throw new Error('Resposta inválida da API: '+text.substring(0,100)); }
   if(!r.ok || !d.ok) throw new Error(d.error || 'HTTP '+r.status);
   return d.data;
 }
@@ -5106,10 +5110,16 @@ async function laUploadLogo(token, base64){
 
 // ── PRESCRIÇÃO ──
 async function prescLoad(){
-  // Verifica se médico tem local cadastrado
+  var empty = document.getElementById('prescEmpty');
+  if(!empty) return;
+  // Aguardar autenticação
+  if(!currentUser){
+    empty.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--cinza);font-size:13px;">Verificando sessão...</div>';
+    setTimeout(prescLoad, 800);
+    return;
+  }
   try {
     var arr = await prescApi({acao:'local_list'});
-    var empty = document.getElementById('prescEmpty');
     if(!empty) return;
     if(arr && arr.length > 0){
       // Tem local — mostrar estado vazio com local cadastrado (Etapa 3 preencherá com lista)
@@ -5150,14 +5160,20 @@ async function prescLoad(){
       ].join('');
     }
   } catch(e){
-    console.error('prescLoad',e);
+    console.error('prescLoad', e);
+    var empty = document.getElementById('prescEmpty');
+    if(empty){
+      empty.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--red);font-size:13px;">'+
+        'Erro ao carregar: '+escapeHTML(e.message)+'<br>'+
+        '<button class="bts" onclick="prescLoad()" style="margin-top:8px;font-size:12px;">Tentar novamente</button>'+
+      '</div>';
+    }
   }
 }
 
 async function prescNovaClick(){
   // Verifica se tem local cadastrado
   try {
-    var token = await getToken();
     var arr = await prescApi({acao:'local_list'});
     if(!arr || arr.length === 0){
       // Sem local — abre modal de cadastro
