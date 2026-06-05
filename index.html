@@ -5078,9 +5078,25 @@ async function prescLoad(){
   }
 }
 
-function prescNovaClick(){
-  // Etapa 3 — por ora verifica local e abre modal de local se necessário
-  prescLoad();
+async function prescNovaClick(){
+  // Verifica se tem local cadastrado
+  try {
+    var token = await getToken();
+    var r = await fetch(window.SUPABASE_URL+'/rest/v1/locais_atendimento?ativo=eq.true&limit=1', {
+      headers:{'apikey':window.SUPABASE_ANON_KEY,'Authorization':'Bearer '+token}
+    });
+    var arr = await r.json();
+    if(!arr || arr.length === 0){
+      // Sem local — abre modal de cadastro
+      laOpen();
+    } else {
+      // Tem local — Etapa 3 (formulário de prescrição) em breve
+      alert('Formulário de prescrição em implementação. Disponível na próxima etapa!');
+    }
+  } catch(e){
+    console.error('prescNovaClick', e);
+    laOpen();
+  }
 }
 
 // ── INIT ──
