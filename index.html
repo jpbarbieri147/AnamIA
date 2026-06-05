@@ -245,6 +245,23 @@ body{
 .la-chk-row div span{display:block;font-size:11px;color:var(--cinza);margin-top:1px;}
 .la-ftr{padding:1rem 1.5rem;border-top:1px solid var(--cinza-l);display:flex;justify-content:flex-end;gap:.5rem;}
 .la-msg{font-size:12px;margin-top:.25rem;min-height:16px;}
+/* ── MODAL GERENCIAR LOCAIS ── */
+.lag-ovl{position:fixed;inset:0;background:rgba(10,10,10,.45);z-index:9998;display:none;align-items:center;justify-content:center;padding:1rem;}
+.lag-ovl.open{display:flex;}
+.lag-card{background:var(--branco);border-radius:var(--rl);width:100%;max-width:500px;box-shadow:var(--sh-lg);max-height:80vh;display:flex;flex-direction:column;}
+.lag-hdr{padding:1.1rem 1.4rem;border-bottom:1px solid var(--cinza-l);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.lag-hdr h2{font-family:var(--font-serif);font-size:17px;font-weight:500;color:var(--preto);}
+.lag-hdr button{background:none;border:none;cursor:pointer;color:var(--cinza);font-size:20px;padding:2px 6px;}
+.lag-body{padding:1rem 1.2rem;overflow-y:auto;flex:1;}
+.lag-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--cinza-l);border-radius:var(--rs);margin-bottom:.5rem;background:var(--branco);}
+.lag-item:last-child{margin-bottom:0;}
+.lag-item-ico{width:36px;height:36px;background:var(--verde-l);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.lag-item-ico i{color:var(--verde);font-size:16px;}
+.lag-item-info{flex:1;min-width:0;}
+.lag-item-nome{font-size:13px;font-weight:500;color:var(--preto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lag-item-end{font-size:11px;color:var(--cinza);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lag-item-acts{display:flex;gap:4px;flex-shrink:0;}
+.lag-ftr{padding:.9rem 1.2rem;border-top:1px solid var(--cinza-l);flex-shrink:0;}
 .cal-header{display:flex;align-items:center;padding:16px 20px 10px;border-bottom:1px solid var(--cinza-l);flex-shrink:0;position:relative;}
 .cal-header-center{display:flex;align-items:center;gap:12px;position:absolute;left:50%;transform:translateX(-50%);}
 .cal-header-right{margin-left:auto;}
@@ -4823,6 +4840,72 @@ function obShowAgain() {
 var laLogoBase64 = null;
 var laEditId = null;
 
+// ── GERENCIAR LOCAIS ──
+async function laGerenciar(){
+  document.getElementById('lagOvl').classList.add('open');
+  await lagCarregar();
+}
+
+function lagClose(){
+  document.getElementById('lagOvl').classList.remove('open');
+}
+
+async function lagCarregar(){
+  var body = document.getElementById('lagBody');
+  if(!body) return;
+  body.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--cinza);font-size:13px;">Carregando...</div>';
+  try {
+    var arr = await prescApi({acao:'local_list'});
+    if(!arr || arr.length === 0){
+      body.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--cinza);font-size:13px;">Nenhum local cadastrado ainda.</div>';
+      return;
+    }
+    body.innerHTML = '';
+    arr.forEach(function(local){
+      var end = [local.logradouro, local.numero, local.cidade, local.uf].filter(Boolean).join(', ');
+      var item = document.createElement('div');
+      item.className = 'lag-item';
+      item.innerHTML =
+        '<div class="lag-item-ico"><i class="ti ti-building-hospital" aria-hidden="true"></i></div>'+
+        '<div class="lag-item-info">'+
+          '<div class="lag-item-nome">'+escapeHTML(local.nome)+'</div>'+
+          (end?'<div class="lag-item-end">'+escapeHTML(end)+'</div>':'')+
+        '</div>'+
+        '<div class="lag-item-acts">'+
+          '<button class="bts" title="Editar" style="padding:5px 8px;font-size:12px;" data-id="'+local.id+'">'+
+            '<i class="ti ti-pencil" aria-hidden="true"></i>'+
+          '</button>'+
+          '<button class="bts" title="Excluir" style="padding:5px 8px;font-size:12px;color:var(--red);" data-del="'+local.id+'">'+
+            '<i class="ti ti-trash" aria-hidden="true"></i>'+
+          '</button>'+
+        '</div>';
+      // Eventos via addEventListener para evitar problemas de escaping
+      item.querySelector('[data-id]').addEventListener('click', function(){
+        lagClose();
+        laOpen(local.id);
+      });
+      item.querySelector('[data-del]').addEventListener('click', function(){
+        lagExcluir(local.id, local.nome);
+      });
+      body.appendChild(item);
+    });
+  } catch(e){
+    body.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--red);font-size:13px;">Erro ao carregar locais.</div>';
+    console.error('lagCarregar', e);
+  }
+}
+
+async function lagExcluir(id, nome){
+  if(!confirm('Excluir "'+nome+'"? Esta ação não pode ser desfeita.')) return;
+  try {
+    await prescApi({acao:'local_delete', id: id});
+    await lagCarregar();
+    prescLoad(); // atualiza a tela de prescrição
+  } catch(e){
+    alert('Erro ao excluir local: '+e.message);
+  }
+}
+
 // Helper para chamar a Vercel Function de prescrição
 async function prescApi(payload){
   var token = await getToken();
@@ -5044,7 +5127,7 @@ async function prescLoad(){
           '<button class="pbtn" style="width:auto;padding:10px 20px;" onclick="prescNovaClick()">',
             '<i class="ti ti-plus" aria-hidden="true"></i> Nova prescrição',
           '</button>',
-          '<button class="bts" onclick="laOpen()" style="padding:9px 16px;font-size:12px;">',
+          '<button class="bts" onclick="laGerenciar()" style="padding:9px 16px;font-size:12px;">',
             '<i class="ti ti-settings" aria-hidden="true"></i> Gerenciar locais',
           '</button>',
         '</div>'
@@ -5300,6 +5383,24 @@ buildCustomize();
     <div class="ob-dots" id="obDots"></div>
     <div class="ob-footer" id="obFooter"></div>
     <div class="ob-skip"><a onclick="obClose()">Pular introdução</a></div>
+  </div>
+</div>
+
+<!-- MODAL GERENCIAR LOCAIS -->
+<div class="lag-ovl" id="lagOvl">
+  <div class="lag-card">
+    <div class="lag-hdr">
+      <h2>Locais de atendimento</h2>
+      <button onclick="lagClose()" aria-label="Fechar">&times;</button>
+    </div>
+    <div class="lag-body" id="lagBody">
+      <div style="text-align:center;padding:2rem;color:var(--cinza);font-size:13px;">Carregando...</div>
+    </div>
+    <div class="lag-ftr">
+      <button class="pbtn" style="width:100%;padding:9px;" onclick="lagClose();laOpen()">
+        <i class="ti ti-plus" aria-hidden="true"></i> Adicionar novo local
+      </button>
+    </div>
   </div>
 </div>
 
