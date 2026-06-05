@@ -4823,6 +4823,19 @@ function obShowAgain() {
 var laLogoBase64 = null;
 var laEditId = null;
 
+// Helper para chamar a Vercel Function de prescrição
+async function prescApi(payload){
+  var token = await getToken();
+  var r = await fetch('/api/prescricao', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify(payload)
+  });
+  var d = await r.json();
+  if(!r.ok || !d.ok) throw new Error(d.error || 'HTTP '+r.status);
+  return d.data;
+}
+
 function laOpen(id){
   laEditId = id || null;
   laLogoBase64 = null;
@@ -4852,12 +4865,9 @@ function laClose(){
 async function laLoadDados(id){
   try {
     var token = await getToken();
-    var r = await fetch(SUPA_URL+'/rest/v1/locais_atendimento?id=eq.'+id, {
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
-    });
-    var arr = await r.json();
-    if(!arr||!arr[0]) return;
-    var d = arr[0];
+    var arr = await prescApi({acao:'local_list'});
+    var d = arr ? arr.find(function(x){ return x.id===id; }) : null;
+    if(!d) return;
     var set = function(fid,val){ var el=document.getElementById(fid); if(el&&val!=null) el.value=val||''; };
     set('laNome',d.nome); set('laCnes',d.cnes); set('laCep',d.cep);
     set('laRua',d.logradouro); set('laNumero',d.numero); set('laComplemento',d.complemento);
@@ -4961,34 +4971,21 @@ async function laSave(){
     };
 
     // Upload de logo se houver
-    if(laLogoBase64){
-      var uploadResult = await laUploadLogo(token, laLogoBase64);
-      if(uploadResult) body.logo_url = uploadResult;
-    }
-
-    var method = laEditId ? 'PATCH' : 'POST';
-    var url = SUPA_URL+'/rest/v1/locais_atendimento';
-    if(laEditId) url += '?id=eq.'+laEditId;
-
-    var r = await fetch(url, {
-      method: method,
-      headers:{
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer '+token,
-        'Content-Type': 'application/json',
-        'Prefer': laEditId ? 'return=minimal' : 'return=representation'
-      },
-      body: JSON.stringify(body)
-    });
-
-    if(!r.ok){ throw new Error('HTTP '+r.status); }
+    // Enviar tudo via Vercel Function (inclui upload de logo server-side)
+    var payload = Object.assign({acao:'local_save'}, body);
+    if(laEditId) payload.id = laEditId;
+    if(laLogoBase64) payload.logo_base64 = laLogoBase64;
+    delete payload.logo_url; // será definido pelo servidor
+    await prescApi(payload);
 
     msg.textContent = laEditId ? 'Local atualizado.' : 'Local cadastrado com sucesso!';
     msg.style.color = 'var(--verde)';
+    var eraPrimeiro = !laEditId;
     setTimeout(function(){
       laClose();
       prescLoad();
-    }, 1000);
+      if(eraPrimeiro){ setTimeout(function(){ prescNovaClick(); }, 300); }
+    }, 900);
 
   } catch(e){
     console.error('laSave',e);
@@ -5028,11 +5025,7 @@ async function laUploadLogo(token, base64){
 async function prescLoad(){
   // Verifica se médico tem local cadastrado
   try {
-    var token = await getToken();
-    var r = await fetch(SUPA_URL+'/rest/v1/locais_atendimento?ativo=eq.true&limit=1', {
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
-    });
-    var arr = await r.json();
+    var arr = await prescApi({acao:'local_list'});
     var empty = document.getElementById('prescEmpty');
     if(!empty) return;
     if(arr && arr.length > 0){
@@ -5082,10 +5075,7 @@ async function prescNovaClick(){
   // Verifica se tem local cadastrado
   try {
     var token = await getToken();
-    var r = await fetch(SUPA_URL+'/rest/v1/locais_atendimento?ativo=eq.true&limit=1', {
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
-    });
-    var arr = await r.json();
+    var arr = await prescApi({acao:'local_list'});
     if(!arr || arr.length === 0){
       // Sem local — abre modal de cadastro
       laOpen();
