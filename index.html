@@ -210,6 +210,16 @@ body{
 /* === AGENDA === */
 .vagenda{display:none;flex-direction:column;width:100%;height:100%;overflow:hidden;}
 .vagenda.show{display:flex;}
+.vprescricao{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);}
+.vprescricao.show{display:flex;}
+.presc-hdr{padding:1.5rem 1.75rem 1.25rem;border-bottom:1px solid var(--cinza-l);background:var(--branco);flex-shrink:0;}
+.presc-hdr h1{font-family:var(--font-serif);font-size:24px;font-weight:500;color:var(--preto);letter-spacing:-.3px;}
+.presc-hdr p{font-size:12px;color:var(--cinza);margin-top:3px;}
+.presc-body{padding:1.5rem 1.75rem;flex:1;}
+.presc-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;gap:1rem;text-align:center;}
+.presc-empty-ico{width:56px;height:56px;background:var(--verde-l);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--verde);}
+.presc-empty h3{font-family:var(--font-serif);font-size:18px;font-weight:500;color:var(--preto);}
+.presc-empty p{font-size:13px;color:var(--cinza);max-width:320px;line-height:1.6;}
 .cal-header{display:flex;align-items:center;padding:16px 20px 10px;border-bottom:1px solid var(--cinza-l);flex-shrink:0;position:relative;}
 .cal-header-center{display:flex;align-items:center;gap:12px;position:absolute;left:50%;transform:translateX(-50%);}
 .cal-header-right{margin-left:auto;}
@@ -1054,6 +1064,17 @@ body.nav-open{padding-left:276px;}
       <span class="nav-item-label">Histórico</span>
     </button>
 
+    <button class="nav-item" id="nav-prescricao" onclick="showView('prescricao')">
+      <span class="nav-item-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" fill="none"/>
+          <rect x="9" y="3" width="6" height="4" rx="1" fill="none"/>
+          <path d="M9 12h6M9 16h4" fill="none"/>
+        </svg>
+      </span>
+      <span class="nav-item-label">Prescrição</span>
+    </button>
+
     <button class="nav-item" id="nav-customize" onclick="showView('customize')">
       <span class="nav-item-ico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
@@ -1409,6 +1430,30 @@ body.nav-open{padding-left:276px;}
     <div class="cal-grid" id="calGrid"></div>
   </div>
 
+  <!-- PRESCRIÇÃO -->
+  <div class="vprescricao" id="vPrescricao">
+    <div class="presc-hdr">
+      <h1>Prescrição</h1>
+      <p>Emita receitas digitais com assinatura eletrônica</p>
+    </div>
+    <div class="presc-body">
+      <div class="presc-empty" id="prescEmpty">
+        <div class="presc-empty-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="28" height="28">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" fill="none"/>
+            <rect x="9" y="3" width="6" height="4" rx="1" fill="none"/>
+            <path d="M9 12h6M9 16h4" fill="none"/>
+          </svg>
+        </div>
+        <h3>Nenhuma prescrição ainda</h3>
+        <p>Configure seu local de atendimento e comece a emitir receitas digitais com assinatura eletrônica.</p>
+        <button class="pbtn" style="width:auto;padding:10px 20px;margin-top:.5rem;" onclick="prescNovaClick()">
+          <i class="ti ti-plus" aria-hidden="true"></i> Nova prescrição
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- WELCOME -->
   <div class="wel" id="vWelcome">
     <div class="wel-logo">
@@ -1700,7 +1745,7 @@ function isActive(k){ return activeKeys[k]===true; }
 // ── VIEWS ──
 function showView(v){
   // Atualiza nav items
-  ['record','history','customize','osler','profile','agenda'].forEach(function(id){
+  ['record','history','customize','osler','profile','agenda','prescricao'].forEach(function(id){
     var el = document.getElementById('nav-'+id);
     if(el) el.classList.toggle('active', id===v);
   });
@@ -1718,14 +1763,27 @@ function showView(v){
 
   if(v === 'agenda'){
     if(vAgenda){ vAgenda.style.display='flex'; vAgenda.classList.add('show'); }
+    var vP=document.getElementById('vPrescricao');
+    if(vP){ vP.style.display='none'; vP.classList.remove('show'); }
     if(vWelcome) vWelcome.style.display='none';
     if(vResult) vResult.style.display='none';
     document.getElementById("vLoading").style.display="none";
     agendaLoad();
     agendaLoadPacientes();
-    return; // agenda ocupa a main inteira — não executa o bloco abaixo
+    return;
+  } else if(v === 'prescricao'){
+    var vP=document.getElementById('vPrescricao');
+    if(vP){ vP.style.display='flex'; vP.classList.add('show'); }
+    if(vAgenda){ vAgenda.style.display='none'; vAgenda.classList.remove('show'); }
+    if(vWelcome) vWelcome.style.display='none';
+    if(vResult) vResult.style.display='none';
+    document.getElementById("vLoading").style.display="none";
+    prescLoad();
+    return;
   } else {
     if(vAgenda){ vAgenda.style.display='none'; vAgenda.classList.remove('show'); }
+    var vP=document.getElementById('vPrescricao');
+    if(vP){ vP.style.display='none'; vP.classList.remove('show'); }
   }
 
   // Controla área principal (vWelcome / vResult / vLoading)
@@ -4734,6 +4792,16 @@ function obFinish() {
 function obShowAgain() {
   localStorage.removeItem(OB_KEY);
   obShow();
+}
+
+// ── PRESCRIÇÃO ──
+function prescLoad(){
+  // Etapa 1: stub — carrega lista de prescrições (implementado na Etapa 3)
+  console.log('[prescricao] prescLoad chamado');
+}
+function prescNovaClick(){
+  // Etapa 1: stub — abre fluxo de nova prescrição (implementado na Etapa 2)
+  alert('Em breve: configure seu local de atendimento para emitir prescrições.');
 }
 
 // ── INIT ──
