@@ -1069,10 +1069,10 @@ body.nav-open{padding-left:276px;}
 
     <button class="nav-item" id="nav-osler" onclick="showView('osler')">
       <span class="nav-item-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V12h-4V9.5C8.8 8.8 8 7.5 8 6a4 4 0 0 1 4-4z"/>
-          <path d="M10 12v2a2 2 0 0 0 4 0v-2"/>
-          <circle cx="12" cy="18" r="3"/>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 18h6"/>
+          <path d="M10 21h4"/>
+          <path d="M12 2a7 7 0 0 1 5 11.9V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-2.1A7 7 0 0 1 12 2z"/>
         </svg>
       </span>
       <span class="nav-item-label">Osler</span>
@@ -1200,52 +1200,52 @@ body.nav-open{padding-left:276px;}
     <p>Configure o assistente de raciocínio clínico</p>
   </div>
   <div class="panel-body">
-    <div class="lbl">Modo de operação</div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;">
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-claude">
-        <input type="radio" name="oslerMode" value="claude" style="margin-top:2px;accent-color:var(--verde);" onchange="setOslerMode('claude')" checked>
+    <div class="lbl">Osler na anamnese</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
+        <input type="checkbox" id="hipoteseChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['hipoteses']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
         <div>
-          <div style="font-size:12px;font-weight:600;color:var(--preto);">Somente Claude</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Raciocínio clínico baseado no conhecimento geral do modelo.</div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Hipóteses Diagnósticas Sugeridas</div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Possibilidades de diagnóstico diferencial</div>
         </div>
       </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-pdf">
-        <input type="radio" name="oslerMode" value="pdf" style="margin-top:2px;accent-color:var(--verde);" onchange="setOslerMode('pdf')">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
+        <input type="checkbox" id="condutaChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['conduta']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
         <div>
-          <div style="font-size:12px;font-weight:600;color:var(--preto);">Somente PDF</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Responde exclusivamente com base nos seus documentos carregados.</div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Investigação Complementar e Proposta Terapêutica</div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Sugestões de exames, condutas e tratamento</div>
         </div>
       </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-hybrid">
-        <input type="radio" name="oslerMode" value="hybrid" style="margin-top:2px;accent-color:var(--verde);" onchange="setOslerMode('hybrid')">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
+        <input type="checkbox" id="oslerEnabledChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="toggleOslerEnabled(this.checked)">
         <div>
-          <div style="font-size:12px;font-weight:600;color:var(--preto);">Híbrido <span style="font-size:10px;background:var(--verde-l);color:var(--verde);padding:1px 6px;border-radius:8px;font-weight:500;">Recomendado</span></div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">PDFs têm prioridade; Claude complementa quando necessário.</div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Chat Osler</div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Debate livre sobre as hipóteses sugeridas, investigações e proposta terapêutica com o assistente clínico</div>
         </div>
       </label>
     </div>
 
-    <div class="lbl">Osler na anamnese</div>
+    <div class="lbl">Modo de operação</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
-        <input type="checkbox" id="hipoteseChk" style="width:16px;height:16px;accent-color:var(--verde);" checked onchange="activeKeys['hipoteses']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-claude">
+        <input type="radio" name="oslerMode" value="claude" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('claude')" checked>
         <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Hipóteses Diagnósticas Sugeridas</div>
-          <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Possibilidades de diagnóstico diferencial</div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Somente Claude</div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Raciocínio clínico baseado no conhecimento geral do modelo.</div>
         </div>
       </label>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
-        <input type="checkbox" id="condutaChk" style="width:16px;height:16px;accent-color:var(--verde);" checked onchange="activeKeys['conduta']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-pdf">
+        <input type="radio" name="oslerMode" value="pdf" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('pdf')">
         <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Investigação Complementar e Proposta Terapêutica</div>
-          <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Sugestões de exames, condutas e tratamento</div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Somente PDF</div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Responde exclusivamente com base nos seus documentos carregados.</div>
         </div>
       </label>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
-        <input type="checkbox" id="oslerEnabledChk" style="width:16px;height:16px;accent-color:var(--verde);" onchange="toggleOslerEnabled(this.checked)">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-hybrid">
+        <input type="radio" name="oslerMode" value="hybrid" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('hybrid')">
         <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Chat Osler</div>
-          <div style="font-size:10px;color:var(--cinza);margin-top:1px;">Debate livre sobre as hipóteses sugeridas, investigações e proposta terapêutica com o assistente clínico</div>
+          <div style="font-size:12px;font-weight:500;color:var(--preto);">Híbrido <span style="font-size:10px;background:var(--verde-l);color:var(--verde);padding:1px 6px;border-radius:8px;font-weight:500;">Recomendado</span></div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">PDFs têm prioridade; Claude complementa quando necessário.</div>
         </div>
       </label>
     </div>
@@ -2612,10 +2612,10 @@ function renderResult(d){
   oslerWrap.innerHTML=[
     '<div class="osler-hdr">',
       '<div class="osler-mark">',
-        '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">',
-          '<path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V12h-4V9.5C8.8 8.8 8 7.5 8 6a4 4 0 0 1 4-4z"/>',
-          '<path d="M10 12v2a2 2 0 0 0 4 0v-2"/>',
-          '<circle cx="12" cy="18" r="3"/>',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">',
+          '<path d="M9 18h6"/>',
+          '<path d="M10 21h4"/>',
+          '<path d="M12 2a7 7 0 0 1 5 11.9V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-2.1A7 7 0 0 1 12 2z"/>',
         '</svg>',
       '</div>',
       '<div>',
@@ -4667,7 +4667,7 @@ var OB_SLIDES = [
     desc: '<strong>Salve cada consulta em uma pasta com o nome do paciente.</strong> Acesse o histórico completo a qualquer momento, revise evoluções anteriores e compare consultas para acompanhar a progressão clínica.'
   },
   {
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--verde)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V12h-4V9.5C8.8 8.8 8 7.5 8 6a4 4 0 0 1 4-4z"/><path d="M10 12v2a2 2 0 0 0 4 0v-2"/><circle cx="12" cy="18" r="3"/></svg>',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--verde)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 2a7 7 0 0 1 5 11.9V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-2.1A7 7 0 0 1 12 2z"/></svg>',
     title: 'Raciocínio clínico com o Osler',
     desc: 'Faça perguntas clínicas baseadas na consulta. No modo <strong>Híbrido, o Osler prioriza os seus PDFs de referência</strong> — diretrizes, artigos, protocolos — e complementa com conhecimento geral quando necessário.'
   }
