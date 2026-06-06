@@ -5172,6 +5172,9 @@ async function prescLoad(){
 }
 
 async function prescNovaClick(){
+  var empty = document.getElementById('prescEmpty');
+  // Mostrar loading enquanto verifica
+  if(empty) empty.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--cinza);font-size:13px;"><i class="ti ti-loader" aria-hidden="true"></i> Carregando...</div>';
   try {
     var arr = await prescApi({acao:'local_list'});
     if(!arr || arr.length === 0){
@@ -5181,7 +5184,13 @@ async function prescNovaClick(){
     }
   } catch(e){
     console.error('prescNovaClick', e);
-    laOpen();
+    // Mostrar erro na tela em vez de abrir modal de local
+    if(empty){
+      empty.innerHTML = '<div style="text-align:center;padding:2rem;">'+
+        '<div style="color:var(--red);font-size:13px;margin-bottom:8px;">Erro: '+escapeHTML(e.message)+'</div>'+
+        '<button class="bts" onclick="prescLoad()" style="font-size:12px;">Voltar</button>'+
+      '</div>';
+    }
   }
 }
 
