@@ -31,6 +31,33 @@ async function supaFetch(path, method = 'GET', body = null, extra = {}) {
   return { ok: r.ok, status: r.status, data: text ? JSON.parse(text) : null };
 }
 
+function pfFormatFda(results, q) {
+  const seen = new Set();
+  const items = [];
+  for (const r of results) {
+    const substances = r.openfda?.substance_name || [];
+    const substList = Array.isArray(substances) ? substances : [substances];
+    const brandNames = r.openfda?.brand_name || [];
+    const brand = Array.isArray(brandNames) ? brandNames[0] : (brandNames || '');
+    for (const sub of substList) {
+      if (!sub) continue;
+      const key = sub.toLowerCase();
+      if (!key.includes(q.toLowerCase().substring(0, 3))) continue;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      items.push({
+        substancia: sub,
+        nomeProduto: brand || '',
+        empresa: r.openfda?.manufacturer_name?.[0] || '',
+        apresentacao: ''
+      });
+      if (items.length >= 10) break;
+    }
+    if (items.length >= 10) break;
+  }
+  return items;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -186,42 +213,58 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, data: result.data[0] });
     }
 
-    // ── ANVISA_BUSCAR (proxy para contornar CORS) ──
+    // ── PACIENTE_SAVE ──
+    if (acao === 'paciente_save') {
+      const { nome, cpf, sexo, data_nascimento, endereco } = payload;
+      if (!nome) return res.status(400).json({ error: 'Nome obrigatório' });
+
+      const body = {
+        medico_id: uid,
+        nome: nome.trim(),
+        nome_normalizado: nome.trim().toLowerCase(),
+        cpf: cpf || null,
+        sexo: sexo || null,
+        data_nascimento: data_nascimento || null,
+        endereco: endereco || null
+      };
+
+      const result = await supaFetch('pacientes', 'POST', body);
+      if (!result.ok) {
+        console.error('paciente_save error:', result.data);
+        return res.status(500).json({ error: 'Erro ao salvar paciente' });
+      }
+      return res.status(200).json({ ok: true, data: result.data });
+    }
+
+    // ── ANVISA_BUSCAR — busca por substância via Open FDA (ANVISA bloqueia servidores) ──
     if (acao === 'anvisa_buscar') {
       const { q } = payload;
       if (!q || q.length < 3) return res.status(400).json({ error: 'Query muito curta' });
 
+      // OpenFDA Drug Label API — gratuita, sem CORS, dados de medicamentos
       const enc = encodeURIComponent(q);
-      const url = `https://consultas.anvisa.gov.br/api/consulta/bulario?count=15&filter%5Bsubstancia%5D=${enc}`;
+      const url = `https://api.fda.gov/drug/label.json?search=active_ingredient:"${enc}"&limit=15`;
 
-      const r = await fetch(url, {
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'Mozilla/5.0'
-        }
-      });
+      const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
 
-      if (!r.ok) return res.status(502).json({ error: 'ANVISA indisponível: HTTP ' + r.status });
+      if (r.status === 404) {
+        // Nenhum resultado
+        return res.status(200).json({ ok: true, data: [] });
+      }
+
+      if (!r.ok) {
+        // Tentar busca mais ampla
+        const r2 = await fetch(
+          `https://api.fda.gov/drug/label.json?search=openfda.substance_name:"${enc}"&limit=10`,
+          { headers: { 'Accept': 'application/json' } }
+        );
+        if (!r2.ok) return res.status(200).json({ ok: true, data: [] });
+        const d2 = await r2.json();
+        return res.status(200).json({ ok: true, data: pfFormatFda(d2.results || [], q) });
+      }
 
       const data = await r.json();
-      const rows = (data.content || []);
-
-      // Deduplicar por substância
-      const seen = new Set();
-      const items = rows
-        .filter(row => {
-          const key = (row.substancia || '').toLowerCase();
-          if (seen.has(key)) return false;
-          seen.add(key); return true;
-        })
-        .map(row => ({
-          substancia: row.substancia || '',
-          nomeProduto: row.nomeProduto || '',
-          empresa: row.empresa || '',
-          apresentacao: row.apresentacao || ''
-        }));
-
-      return res.status(200).json({ ok: true, data: items });
+      return res.status(200).json({ ok: true, data: pfFormatFda(data.results || [], q) });
     }
 
     return res.status(400).json({ error: 'Ação inválida: ' + acao });

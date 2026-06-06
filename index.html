@@ -5706,20 +5706,15 @@ async function pfSalvarNovoPac(){
   if(!nome.trim()){ if(msg){msg.textContent='Nome obrigatório.';msg.style.color='var(--red)';} return; }
   if(msg) msg.textContent='';
   try{
-    var token=await getToken();
-    var body={nome:nome.trim(),nome_normalizado:nome.trim().toLowerCase(),
+    var d=await prescApi({
+      acao:'paciente_save',
+      nome:nome.trim(),
       cpf:((document.getElementById('npCpf')||{}).value||'').replace(/\D/g,'')||null,
       sexo:(document.getElementById('npSexo')||{}).value||null,
       data_nascimento:(document.getElementById('npNasc')||{}).value||null,
-      endereco:(document.getElementById('npEnd')||{}).value||null};
-    var r=await fetch(SUPA_URL+'/rest/v1/pacientes',{
-      method:'POST',
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token,
-               'Content-Type':'application/json','Prefer':'return=representation'},
-      body:JSON.stringify(body)});
-    var arr=await r.json();
-    if(!r.ok) throw new Error(arr.message||'Erro');
-    pfSelecionarPac(arr[0]);
+      endereco:(document.getElementById('npEnd')||{}).value||null
+    });
+    pfSelecionarPac(Array.isArray(d)?d[0]:d);
   }catch(e){
     if(msg){msg.textContent='Erro: '+e.message;msg.style.color='var(--red)';}
   }
