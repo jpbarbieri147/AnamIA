@@ -1,4 +1,6 @@
-// api/prescricao.js — Locais de atendimento e prescrições
+// api/prescricao.js — Gerenciamento de locais de atendimento e prescrições
+// Ações: local_save, local_list, local_delete, prescricao_save, prescricao_list, prescricao_get
+
 export const config = { maxDuration: 30 };
 
 const SUPA_URL = process.env.SUPABASE_URL;
@@ -12,7 +14,7 @@ async function getUser(token) {
   return r.json();
 }
 
-async function supaFetch(path, method = 'GET', body = null, extraHeaders = {}) {
+async function supaFetch(path, method = 'GET', body = null, extra = {}) {
   const opts = {
     method,
     headers: {
@@ -20,45 +22,13 @@ async function supaFetch(path, method = 'GET', body = null, extraHeaders = {}) {
       Authorization: `Bearer ${SUPA_KEY}`,
       'Content-Type': 'application/json',
       Prefer: 'return=representation',
-      ...extraHeaders
+      ...extra
     }
   };
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch(`${SUPA_URL}/rest/v1/${path}`, opts);
   const text = await r.text();
   return { ok: r.ok, status: r.status, data: text ? JSON.parse(text) : null };
-}
-
-async function uploadLogo(base64, uid) {
-  try {
-    const arr = base64.split(',');
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    const bytes = new Uint8Array(bstr.length);
-    for (let i = 0; i < bstr.length; i++) bytes[i] = bstr.charCodeAt(i);
-    const ext = mime === 'image/png' ? 'png' : 'jpg';
-    const path = `logos/${uid}_${Date.now()}.${ext}`;
-
-    const r = await fetch(`${SUPA_URL}/storage/v1/object/Logos/${path}`, {
-      method: 'POST',
-      headers: {
-        apikey: SUPA_KEY,
-        Authorization: `Bearer ${SUPA_KEY}`,
-        'Content-Type': mime,
-        'x-upsert': 'true'
-      },
-      body: bytes
-    });
-    if (!r.ok) {
-      const err = await r.text();
-      console.error('uploadLogo error:', err);
-      return null;
-    }
-    return `${SUPA_URL}/storage/v1/object/public/Logos/${path}`;
-  } catch (e) {
-    console.error('uploadLogo exception:', e);
-    return null;
-  }
 }
 
 export default async function handler(req, res) {
@@ -79,38 +49,22 @@ export default async function handler(req, res) {
 
   try {
 
-    // ── LOCAL_SAVE ──
+    // ── LOCAL_SAVE (criar ou editar) ──
     if (acao === 'local_save') {
-      const {
-        id, nome, cnes, logradouro, numero, complemento,
-        bairro, cidade, uf, cep, telefone, email,
-        exibir_cpf_medico, exibir_endereco_paciente, logo_base64
-      } = payload;
+      const { id, nome, cnes, logradouro, numero, complemento, bairro,
+              cidade, uf, cep, telefone, email, logo_url,
+              exibir_cpf_medico, exibir_endereco_paciente } = payload;
 
       if (!nome || !logradouro || !uf || !cidade)
         return res.status(400).json({ error: 'Campos obrigatórios: nome, logradouro, uf, cidade' });
 
-      // Upload de logo se enviada
-      let logo_url = payload.logo_url || null;
-      if (logo_base64) {
-        const url = await uploadLogo(logo_base64, uid);
-        if (url) logo_url = url;
-      }
-
       const body = {
-        medico_id: uid,
-        nome,
-        cnes: cnes || null,
-        logradouro,
-        numero: numero || null,
-        complemento: complemento || null,
-        bairro: bairro || null,
-        cidade,
-        uf: uf.toUpperCase(),
+        medico_id: uid, nome, cnes: cnes || null,
+        logradouro, numero: numero || null, complemento: complemento || null,
+        bairro: bairro || null, cidade, uf: uf.toUpperCase(),
         cep: cep ? cep.replace(/\D/g, '') : null,
-        telefone: telefone || null,
-        email: email || null,
-        logo_url,
+        telefone: telefone || null, email: email || null,
+        logo_url: logo_url || null,
         exibir_cpf_medico: exibir_cpf_medico !== false,
         exibir_endereco_paciente: !!exibir_endereco_paciente,
         ativo: true
@@ -118,18 +72,12 @@ export default async function handler(req, res) {
 
       let result;
       if (id) {
-        delete body.medico_id; // não alterar o dono
-        result = await supaFetch(
-          `locais_atendimento?id=eq.${id}&medico_id=eq.${uid}`, 'PATCH', body
-        );
+        result = await supaFetch(`locais_atendimento?id=eq.${id}&medico_id=eq.${uid}`, 'PATCH', body);
       } else {
         result = await supaFetch('locais_atendimento', 'POST', body);
       }
 
-      if (!result.ok) {
-        console.error('local_save error:', result.data);
-        return res.status(500).json({ error: 'Erro ao salvar local' });
-      }
+      if (!result.ok) return res.status(500).json({ error: 'Erro ao salvar local' });
       return res.status(200).json({ ok: true, data: result.data });
     }
 
@@ -146,6 +94,7 @@ export default async function handler(req, res) {
     if (acao === 'local_delete') {
       const { id } = payload;
       if (!id) return res.status(400).json({ error: 'ID obrigatório' });
+      // Soft delete
       const result = await supaFetch(
         `locais_atendimento?id=eq.${id}&medico_id=eq.${uid}`, 'PATCH', { ativo: false }
       );
@@ -155,7 +104,8 @@ export default async function handler(req, res) {
 
     // ── PRESCRICAO_SAVE ──
     if (acao === 'prescricao_save') {
-      const { id, paciente_id, consulta_id, local_id, tipo, itens, observacoes, status } = payload;
+      const { id, paciente_id, consulta_id, local_id, tipo,
+              itens, observacoes, status } = payload;
 
       if (!local_id || !tipo)
         return res.status(400).json({ error: 'local_id e tipo obrigatórios' });
@@ -166,10 +116,14 @@ export default async function handler(req, res) {
 
       let numero_especial = null;
       if (tipo === 'especial_b' && !id) {
-        const numRes = await supaFetch(`receitas_especiais_numeracao?medico_id=eq.${uid}`);
+        // Incrementa numeração sequencial
+        const numRes = await supaFetch(
+          `receitas_especiais_numeracao?medico_id=eq.${uid}`
+        );
         const atual = numRes.data?.[0]?.ultimo_numero || 0;
         const proximo = atual + 1;
         numero_especial = String(proximo).padStart(6, '0');
+
         if (numRes.data?.[0]) {
           await supaFetch(
             `receitas_especiais_numeracao?medico_id=eq.${uid}`,
@@ -197,8 +151,9 @@ export default async function handler(req, res) {
 
       let result;
       if (id) {
-        delete body.medico_id;
-        result = await supaFetch(`prescricoes?id=eq.${id}&medico_id=eq.${uid}`, 'PATCH', body);
+        result = await supaFetch(
+          `prescricoes?id=eq.${id}&medico_id=eq.${uid}`, 'PATCH', body
+        );
       } else {
         result = await supaFetch('prescricoes', 'POST', body);
       }
@@ -213,6 +168,7 @@ export default async function handler(req, res) {
       let path = `prescricoes?medico_id=eq.${uid}&order=created_at.desc&limit=${limit}&offset=${offset}`;
       if (paciente_id) path += `&paciente_id=eq.${paciente_id}`;
       if (consulta_id) path += `&consulta_id=eq.${consulta_id}`;
+
       const result = await supaFetch(path);
       if (!result.ok) return res.status(500).json({ error: 'Erro ao listar prescrições' });
       return res.status(200).json({ ok: true, data: result.data });
@@ -222,16 +178,56 @@ export default async function handler(req, res) {
     if (acao === 'prescricao_get') {
       const { id } = payload;
       if (!id) return res.status(400).json({ error: 'ID obrigatório' });
-      const result = await supaFetch(`prescricoes?id=eq.${id}&medico_id=eq.${uid}`);
+      const result = await supaFetch(
+        `prescricoes?id=eq.${id}&medico_id=eq.${uid}`
+      );
       if (!result.ok || !result.data?.[0])
         return res.status(404).json({ error: 'Prescrição não encontrada' });
       return res.status(200).json({ ok: true, data: result.data[0] });
+    }
+
+    // ── ANVISA_BUSCAR (proxy para contornar CORS) ──
+    if (acao === 'anvisa_buscar') {
+      const { q } = payload;
+      if (!q || q.length < 3) return res.status(400).json({ error: 'Query muito curta' });
+
+      const enc = encodeURIComponent(q);
+      const url = `https://consultas.anvisa.gov.br/api/consulta/bulario?count=15&filter%5Bsubstancia%5D=${enc}`;
+
+      const r = await fetch(url, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0'
+        }
+      });
+
+      if (!r.ok) return res.status(502).json({ error: 'ANVISA indisponível: HTTP ' + r.status });
+
+      const data = await r.json();
+      const rows = (data.content || []);
+
+      // Deduplicar por substância
+      const seen = new Set();
+      const items = rows
+        .filter(row => {
+          const key = (row.substancia || '').toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key); return true;
+        })
+        .map(row => ({
+          substancia: row.substancia || '',
+          nomeProduto: row.nomeProduto || '',
+          empresa: row.empresa || '',
+          apresentacao: row.apresentacao || ''
+        }));
+
+      return res.status(200).json({ ok: true, data: items });
     }
 
     return res.status(400).json({ error: 'Ação inválida: ' + acao });
 
   } catch (e) {
     console.error('[prescricao]', e);
-    return res.status(500).json({ error: 'Erro interno: ' + e.message });
+    return res.status(500).json({ error: 'Erro interno' });
   }
 }

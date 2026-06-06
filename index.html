@@ -5491,20 +5491,12 @@ function pfAnvisaBuscar(medId,q){
   if(drop){ drop.innerHTML='<div class="pf-ac-loading">Buscando...</div>'; drop.classList.add('open'); }
   pfAnvisaTimers[medId]=setTimeout(async function(){
     try{
-      var enc=encodeURIComponent(q);
-      var r=await fetch('https://consultas.anvisa.gov.br/api/consulta/bulario?count=10&filter%5Bsubstancia%5D='+enc,
-        {headers:{Accept:'application/json'}});
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      var data=await r.json();
-      var rows=data.content||[];
+      // Proxy via Vercel Function para contornar CORS da ANVISA
+      var rows=await prescApi({acao:'anvisa_buscar',q:q});
       if(!drop) return;
-      if(rows.length===0){ drop.innerHTML='<div class="pf-ac-loading">Nenhum resultado</div>'; return; }
-      var seen={};
+      if(!rows||rows.length===0){ drop.innerHTML='<div class="pf-ac-loading">Nenhum resultado</div>'; return; }
       drop.innerHTML='';
-      rows.filter(function(row){
-        var key=(row.substancia||'').toLowerCase();
-        if(seen[key]) return false; seen[key]=true; return true;
-      }).forEach(function(row){
+      rows.forEach(function(row){
         var item=document.createElement('div'); item.className='pf-ac-item';
         var sub=escapeHTML(row.substancia||'');
         var com=escapeHTML(row.nomeProduto||'');
@@ -5517,7 +5509,7 @@ function pfAnvisaBuscar(medId,q){
       drop.classList.add('open');
     }catch(e){
       console.error('pfAnvisaBuscar',e);
-      if(drop) drop.innerHTML='<div class="pf-ac-loading" style="color:var(--red)">Erro na busca</div>';
+      if(drop) drop.innerHTML='<div class="pf-ac-loading" style="color:var(--red)">Erro: '+escapeHTML(e.message)+'</div>';
     }
   },400);
 }
