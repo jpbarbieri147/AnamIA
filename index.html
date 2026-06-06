@@ -5172,15 +5172,12 @@ async function prescLoad(){
 }
 
 async function prescNovaClick(){
-  // Verifica se tem local cadastrado
   try {
     var arr = await prescApi({acao:'local_list'});
     if(!arr || arr.length === 0){
-      // Sem local — abre modal de cadastro
       laOpen();
     } else {
-      // Tem local — Etapa 3 (formulário de prescrição) em breve
-      alert('Formulário de prescrição em implementação. Disponível na próxima etapa!');
+      prescFormAbrir(arr[0]);
     }
   } catch(e){
     console.error('prescNovaClick', e);
