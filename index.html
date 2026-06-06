@@ -245,6 +245,53 @@ body{
 .la-chk-row div span{display:block;font-size:11px;color:var(--cinza);margin-top:1px;}
 .la-ftr{padding:1rem 1.5rem;border-top:1px solid var(--cinza-l);display:flex;justify-content:flex-end;gap:.5rem;}
 .la-msg{font-size:12px;margin-top:.25rem;min-height:16px;}
+/* ── FORMULÁRIO DE PRESCRIÇÃO ── */
+.pf-wrap{display:flex;flex-direction:column;gap:1.25rem;max-width:720px;}
+.pf-sec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh-sm);}
+.pf-sec-hdr{padding:10px 14px;background:var(--verde-ll);border-bottom:1px solid var(--verde-b);display:flex;align-items:center;gap:8px;}
+.pf-sec-hdr i{color:var(--verde);font-size:15px;}
+.pf-sec-ttl{font-size:12px;font-weight:600;color:var(--verde-txt);text-transform:uppercase;letter-spacing:.4px;}
+.pf-sec-body{padding:14px;}
+.pf-row{display:grid;gap:.6rem;margin-bottom:.6rem;}
+.pf-row.col2{grid-template-columns:1fr 1fr;}
+.pf-row.col3{grid-template-columns:1fr 1fr 1fr;}
+.pf-lbl{font-size:11px;font-weight:500;color:var(--cinza);margin-bottom:3px;}
+.pf-inp{width:100%;padding:7px 10px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:var(--font-sans);color:var(--preto);background:var(--branco);}
+.pf-inp:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 3px var(--verde-ll);}
+.pf-inp::placeholder{color:var(--cinza);}
+.pf-sel{width:100%;padding:7px 10px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:var(--font-sans);color:var(--preto);background:var(--branco);cursor:pointer;}
+.pf-tipos{display:flex;gap:.5rem;flex-wrap:wrap;}
+.pf-tipo-btn{flex:1;min-width:140px;padding:10px 12px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);background:var(--branco);cursor:pointer;text-align:left;transition:all .15s;font-family:var(--font-sans);}
+.pf-tipo-btn:hover{border-color:var(--verde-b);background:var(--verde-ll);}
+.pf-tipo-btn.active{border-color:var(--verde);background:var(--verde-l);}
+.pf-tipo-btn .ptb-ico{font-size:18px;margin-bottom:4px;display:block;}
+.pf-tipo-btn .ptb-name{font-size:12px;font-weight:600;color:var(--preto);display:block;}
+.pf-tipo-btn .ptb-desc{font-size:10px;color:var(--cinza);display:block;margin-top:1px;}
+.pf-search-wrap{position:relative;}
+.pf-search-drop{position:absolute;top:100%;left:0;right:0;background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:var(--sh-md);z-index:200;max-height:200px;overflow-y:auto;display:none;}
+.pf-search-drop.open{display:block;}
+.pf-search-item{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--cinza-l);}
+.pf-search-item:last-child{border-bottom:none;}
+.pf-search-item:hover{background:var(--verde-ll);}
+.pf-search-item .psi-nome{font-weight:500;color:var(--preto);}
+.pf-search-item .psi-info{font-size:11px;color:var(--cinza);}
+.pf-pac-card{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--verde-ll);border:1px solid var(--verde-b);border-radius:var(--rs);}
+.pf-pac-card .ppc-nome{font-size:13px;font-weight:500;color:var(--preto);}
+.pf-pac-card .ppc-info{font-size:11px;color:var(--cinza);}
+.pf-med-item{border:1px solid var(--cinza-l);border-radius:var(--rs);padding:12px;margin-bottom:.6rem;background:var(--cinza-ll);position:relative;}
+.pf-med-num{font-size:10px;font-weight:600;color:var(--verde);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.pf-med-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--cinza);font-size:16px;padding:2px 6px;border-radius:4px;}
+.pf-med-del:hover{background:var(--cinza-l);color:var(--red);}
+.pf-ac-wrap{position:relative;}
+.pf-ac-drop{position:absolute;top:100%;left:0;right:0;background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:var(--sh-md);z-index:200;max-height:220px;overflow-y:auto;display:none;}
+.pf-ac-drop.open{display:block;}
+.pf-ac-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--cinza-l);font-size:12px;}
+.pf-ac-item:last-child{border-bottom:none;}
+.pf-ac-item:hover{background:var(--verde-ll);}
+.pf-ac-item .pai-sub{font-weight:500;color:var(--preto);}
+.pf-ac-item .pai-com{font-size:11px;color:var(--cinza);}
+.pf-ac-loading{padding:10px 12px;font-size:12px;color:var(--cinza);text-align:center;}
+.pf-actions{display:flex;gap:.5rem;justify-content:flex-end;padding-top:.5rem;}
 /* ── MODAL GERENCIAR LOCAIS ── */
 .lag-ovl{position:fixed;inset:0;background:rgba(10,10,10,.45);z-index:9998;display:none;align-items:center;justify-content:center;padding:1rem;}
 .lag-ovl.open{display:flex;}
@@ -5191,6 +5238,498 @@ async function prescNovaClick(){
         '<button class="bts" onclick="prescLoad()" style="font-size:12px;">Voltar</button>'+
       '</div>';
     }
+  }
+}
+
+
+// ── ESTADO DO FORMULÁRIO DE PRESCRIÇÃO ──
+var pfLocal    = null;
+var pfTipo     = null;
+var pfPaciente = null;
+var pfMeds     = [];
+var pfRascId   = null;
+var pfMedCounter = 0;
+
+function prescFormAbrir(local){
+  pfLocal=local; pfTipo=null; pfPaciente=null; pfMeds=[]; pfRascId=null; pfMedCounter=0;
+  var body=document.getElementById('prescEmpty');
+  if(!body) return;
+  body.className=''; body.style.cssText='';
+
+  // Cabeçalho
+  var hdr=document.createElement('div');
+  hdr.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:.75rem;';
+  var btnVolt=document.createElement('button');
+  btnVolt.className='bts'; btnVolt.style.cssText='padding:6px 10px;font-size:12px;';
+  btnVolt.innerHTML='<i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar';
+  btnVolt.onclick=function(){ var e=document.getElementById('prescEmpty'); if(e){e.className='presc-empty';e.style.cssText='';} prescLoad(); };
+  var ttl=document.createElement('div');
+  ttl.style.cssText='font-family:var(--font-serif);font-size:18px;color:var(--preto);';
+  ttl.textContent='Nova prescrição';
+  var loc=document.createElement('div');
+  loc.style.cssText='font-size:11px;color:var(--cinza);margin-left:auto;';
+  loc.innerHTML='<i class="ti ti-building-hospital" aria-hidden="true"></i> '+escapeHTML(local.nome);
+  hdr.appendChild(btnVolt); hdr.appendChild(ttl); hdr.appendChild(loc);
+
+  // Wrapper
+  var wrap=document.createElement('div');
+  wrap.className='pf-wrap'; wrap.id='pfWrap';
+
+  // Seção 1 — Tipo
+  var s1=pfMkSec('ti-list','1. Tipo de receita');
+  var tipos=document.createElement('div'); tipos.className='pf-tipos'; tipos.id='pfTipos';
+  [['simples','ti-clipboard-text','Receita Simples','Medicamentos comuns'],
+   ['antimicrobiano','ti-pill','Antimicrobiano','2 vias obrigatórias'],
+   ['especial_b','ti-license','Controle Especial','Receituário tipo B']
+  ].forEach(function(t){
+    var btn=document.createElement('button'); btn.className='pf-tipo-btn';
+    btn.innerHTML='<i class="ti '+t[1]+' ptb-ico" aria-hidden="true"></i>'+
+      '<span class="ptb-name">'+t[2]+'</span><span class="ptb-desc">'+t[3]+'</span>';
+    btn.onclick=function(){ pfSetTipo(t[0],btn); };
+    tipos.appendChild(btn);
+  });
+  s1.body.appendChild(tipos);
+
+  // Seção 2 — Paciente
+  var s2=pfMkSec('ti-user','2. Paciente');
+  s2.body.id='pfPacArea';
+  pfRenderPacSearch(s2.body);
+
+  // Seção 3 — Medicamentos
+  var s3=pfMkSec('ti-pill','3. Medicamentos');
+  var medList=document.createElement('div'); medList.id='pfMedList';
+  var addBtn=document.createElement('button'); addBtn.className='bts';
+  addBtn.style.cssText='font-size:12px;padding:6px 12px;margin-top:.25rem;';
+  addBtn.innerHTML='<i class="ti ti-plus" aria-hidden="true"></i> Adicionar medicamento';
+  addBtn.onclick=pfAddMed;
+  s3.body.appendChild(medList); s3.body.appendChild(addBtn);
+
+  // Seção 4 — Observações
+  var s4=pfMkSec('ti-notes','4. Observações');
+  var obs=document.createElement('textarea');
+  obs.className='pf-inp'; obs.id='pfObs'; obs.rows=3;
+  obs.style.resize='vertical';
+  obs.placeholder='Orientações gerais, posologia adicional...';
+  s4.body.appendChild(obs);
+
+  // Ações
+  var acts=document.createElement('div'); acts.className='pf-actions';
+  var msgEl=document.createElement('div'); msgEl.id='pfMsg'; msgEl.style.cssText='font-size:12px;flex:1;align-self:center;';
+  var btnRasc=document.createElement('button'); btnRasc.className='bts'; btnRasc.id='pfBtnRasc';
+  btnRasc.style.padding='9px 16px';
+  btnRasc.innerHTML='<i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar rascunho';
+  btnRasc.onclick=pfSalvarRascunho;
+  var btnPdf=document.createElement('button'); btnPdf.className='pbtn'; btnPdf.id='pfBtnPdf';
+  btnPdf.style.cssText='width:auto;padding:9px 18px;';
+  btnPdf.innerHTML='<i class="ti ti-file-download" aria-hidden="true"></i> Gerar receita';
+  btnPdf.onclick=pfGerarPdf;
+  acts.appendChild(msgEl); acts.appendChild(btnRasc); acts.appendChild(btnPdf);
+
+  wrap.appendChild(hdr); wrap.appendChild(s1.sec); wrap.appendChild(s2.sec);
+  wrap.appendChild(s3.sec); wrap.appendChild(s4.sec); wrap.appendChild(acts);
+  body.appendChild(wrap);
+  pfAddMed();
+}
+
+function pfMkSec(ico, titulo){
+  var sec=document.createElement('div'); sec.className='pf-sec';
+  var hdr=document.createElement('div'); hdr.className='pf-sec-hdr';
+  hdr.innerHTML='<i class="ti '+ico+'" aria-hidden="true"></i><span class="pf-sec-ttl">'+titulo+'</span>';
+  var body=document.createElement('div'); body.className='pf-sec-body';
+  sec.appendChild(hdr); sec.appendChild(body);
+  return {sec:sec, body:body};
+}
+
+function pfSetTipo(tipo, btn){
+  pfTipo=tipo;
+  document.querySelectorAll('.pf-tipo-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+}
+
+// ── BUSCA PACIENTE ──
+function pfRenderPacSearch(area){
+  area.innerHTML='';
+  var wrap=document.createElement('div'); wrap.className='pf-search-wrap';
+  var lbl=document.createElement('div'); lbl.className='pf-lbl'; lbl.textContent='Buscar por nome';
+  var inp=document.createElement('input'); inp.className='pf-inp'; inp.id='pfPacSearch';
+  inp.placeholder='Digite o nome...'; inp.autocomplete='off';
+  inp.oninput=function(){ pfPacBuscar(this.value); };
+  inp.onblur=function(){ setTimeout(function(){ pfPacDrop(false); },200); };
+  var drop=document.createElement('div'); drop.className='pf-search-drop'; drop.id='pfPacDrop';
+  wrap.appendChild(lbl); wrap.appendChild(inp); wrap.appendChild(drop);
+  var novBtn=document.createElement('div'); novBtn.style.marginTop='.5rem';
+  var nb=document.createElement('button'); nb.className='bts';
+  nb.style.cssText='font-size:12px;padding:6px 10px;';
+  nb.innerHTML='<i class="ti ti-user-plus" aria-hidden="true"></i> Novo paciente';
+  nb.onclick=pfNovoPacModal;
+  novBtn.appendChild(nb); area.appendChild(wrap); area.appendChild(novBtn);
+}
+
+var pfPacTimer=null;
+function pfPacBuscar(q){
+  clearTimeout(pfPacTimer);
+  var drop=document.getElementById('pfPacDrop');
+  if(!q||q.length<2){ if(drop){drop.classList.remove('open');drop.innerHTML='';} return; }
+  pfPacTimer=setTimeout(async function(){
+    try{
+      var token=await getToken();
+      var enc=encodeURIComponent(q.toLowerCase());
+      var r=await fetch(SUPA_URL+'/rest/v1/pacientes?nome_normalizado=ilike.*'+enc+'*&limit=8',
+        {headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}});
+      var arr=await r.json();
+      if(!drop) return;
+      if(!arr||arr.length===0){
+        drop.innerHTML='<div class="pf-ac-loading">Nenhum paciente encontrado</div>';
+        drop.classList.add('open'); return;
+      }
+      drop.innerHTML='';
+      arr.forEach(function(p){
+        var info=[p.cpf||'',p.sexo||''].filter(Boolean).join(' · ');
+        var item=document.createElement('div'); item.className='pf-search-item';
+        item.innerHTML='<div class="psi-nome">'+escapeHTML(p.nome)+'</div>'+
+          (info?'<div class="psi-info">'+escapeHTML(info)+'</div>':'');
+        item.addEventListener('mousedown',function(){ pfSelecionarPac(p); });
+        drop.appendChild(item);
+      });
+      drop.classList.add('open');
+    }catch(e){ console.error('pfPacBuscar',e); }
+  },280);
+}
+
+function pfPacDrop(show){
+  var drop=document.getElementById('pfPacDrop');
+  if(drop){ if(show) drop.classList.add('open'); else drop.classList.remove('open'); }
+}
+
+function pfSelecionarPac(p){
+  pfPaciente=p; pfPacDrop(false);
+  var idadeStr='';
+  if(p.data_nascimento){
+    var nasc=new Date(p.data_nascimento),hoje=new Date();
+    var idade=hoje.getFullYear()-nasc.getFullYear();
+    if(hoje.getMonth()<nasc.getMonth()||(hoje.getMonth()===nasc.getMonth()&&hoje.getDate()<nasc.getDate())) idade--;
+    idadeStr=idade+' anos';
+  }
+  var info=[p.cpf||'',p.sexo||'',idadeStr].filter(Boolean).join(' · ');
+  var area=document.getElementById('pfPacArea'); if(!area) return;
+  area.innerHTML='';
+  var card=document.createElement('div'); card.className='pf-pac-card';
+  var ico=document.createElement('i'); ico.className='ti ti-user-check';
+  ico.style.cssText='font-size:20px;color:var(--verde);'; ico.setAttribute('aria-hidden','true');
+  var info2=document.createElement('div');
+  info2.innerHTML='<div class="ppc-nome">'+escapeHTML(p.nome)+'</div>'+
+    (info?'<div class="ppc-info">'+escapeHTML(info)+'</div>':'');
+  var troc=document.createElement('button'); troc.className='bts';
+  troc.style.cssText='margin-left:auto;font-size:11px;padding:4px 8px;';
+  troc.textContent='Trocar'; troc.onclick=function(){ pfPaciente=null; pfRenderPacSearch(area); };
+  card.appendChild(ico); card.appendChild(info2); card.appendChild(troc);
+  area.appendChild(card);
+}
+
+// ── MEDICAMENTOS ──
+function pfAddMed(){
+  pfMedCounter++;
+  var id='pfMed_'+pfMedCounter;
+  pfMeds.push({id:id});
+  var list=document.getElementById('pfMedList'); if(!list) return;
+  var num=pfMeds.length;
+  var div=document.createElement('div'); div.className='pf-med-item'; div.id=id;
+  var numDiv=document.createElement('div'); numDiv.className='pf-med-num';
+  numDiv.textContent='Medicamento '+num;
+  var delBtn=document.createElement('button'); delBtn.className='pf-med-del'; delBtn.title='Remover';
+  delBtn.innerHTML='<i class="ti ti-x" aria-hidden="true"></i>';
+  delBtn.onclick=function(){ pfRemMed(id); };
+
+  function mkInp(id2,ph){ var i=document.createElement('input'); i.className='pf-inp'; i.id=id2; i.placeholder=ph; return i; }
+  function mkLbl(t){ var l=document.createElement('div'); l.className='pf-lbl'; l.textContent=t; return l; }
+  function mkField(lbl,fid,ph){ var w=document.createElement('div'); w.appendChild(mkLbl(lbl)); w.appendChild(mkInp(id+'_'+fid,ph)); return w; }
+
+  // Autocomplete substância
+  var acWrap=document.createElement('div'); acWrap.className='pf-ac-wrap';
+  acWrap.appendChild(mkLbl('Princípio ativo *'));
+  var subInp=document.createElement('input'); subInp.className='pf-inp';
+  subInp.id=id+'_sub'; subInp.placeholder='Ex: Amoxicilina...'; subInp.autocomplete='off';
+  subInp.oninput=function(){ pfAnvisaBuscar(id,this.value); };
+  subInp.onblur=function(){ setTimeout(function(){ pfAcDrop(id,false); },200); };
+  var acDrop=document.createElement('div'); acDrop.className='pf-ac-drop'; acDrop.id=id+'_drop';
+  acWrap.appendChild(subInp); acWrap.appendChild(acDrop);
+
+  var row1=document.createElement('div'); row1.className='pf-row'; row1.style.marginBottom='.6rem';
+  row1.appendChild(acWrap);
+  var row2=document.createElement('div'); row2.className='pf-row col2'; row2.style.marginBottom='.6rem';
+  row2.appendChild(mkField('Nome comercial','com','Ex: Amoxil 500mg'));
+  row2.appendChild(mkField('Dose / Apresentação','dose','Ex: 500mg'));
+  var row3=document.createElement('div'); row3.className='pf-row col3';
+  row3.appendChild(mkField('Posologia *','pos','Ex: 1 cp de 8/8h'));
+  row3.appendChild(mkField('Duração','dur','Ex: 7 dias'));
+  row3.appendChild(mkField('Quantidade','qtd','Ex: 21 cps'));
+
+  div.appendChild(numDiv); div.appendChild(delBtn);
+  div.appendChild(row1); div.appendChild(row2); div.appendChild(row3);
+  list.appendChild(div);
+}
+
+function pfRemMed(id){
+  pfMeds=pfMeds.filter(function(m){ return m.id!==id; });
+  var el=document.getElementById(id); if(el) el.remove();
+  document.querySelectorAll('.pf-med-item').forEach(function(el,i){
+    var n=el.querySelector('.pf-med-num'); if(n) n.textContent='Medicamento '+(i+1);
+  });
+}
+
+function pfAcDrop(id,show){
+  var drop=document.getElementById(id+'_drop');
+  if(drop){ if(show) drop.classList.add('open'); else drop.classList.remove('open'); }
+}
+
+// ── AUTOCOMPLETE ANVISA ──
+var pfAnvisaTimers={};
+function pfAnvisaBuscar(medId,q){
+  clearTimeout(pfAnvisaTimers[medId]);
+  var drop=document.getElementById(medId+'_drop');
+  if(!q||q.length<3){ if(drop){drop.classList.remove('open');drop.innerHTML='';} return; }
+  if(drop){ drop.innerHTML='<div class="pf-ac-loading">Buscando...</div>'; drop.classList.add('open'); }
+  pfAnvisaTimers[medId]=setTimeout(async function(){
+    try{
+      var enc=encodeURIComponent(q);
+      var r=await fetch('https://consultas.anvisa.gov.br/api/consulta/bulario?count=10&filter%5Bsubstancia%5D='+enc,
+        {headers:{Accept:'application/json'}});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      var data=await r.json();
+      var rows=data.content||[];
+      if(!drop) return;
+      if(rows.length===0){ drop.innerHTML='<div class="pf-ac-loading">Nenhum resultado</div>'; return; }
+      var seen={};
+      drop.innerHTML='';
+      rows.filter(function(row){
+        var key=(row.substancia||'').toLowerCase();
+        if(seen[key]) return false; seen[key]=true; return true;
+      }).forEach(function(row){
+        var item=document.createElement('div'); item.className='pf-ac-item';
+        var sub=escapeHTML(row.substancia||'');
+        var com=escapeHTML(row.nomeProduto||'');
+        var emp=escapeHTML(row.empresa||'');
+        item.innerHTML='<div class="pai-sub">'+sub+'</div>'+
+          '<div class="pai-com">'+(com||'')+(emp?' &middot; '+emp:'')+'</div>';
+        item.addEventListener('mousedown',function(){ pfAnvisaSelect(medId,row); });
+        drop.appendChild(item);
+      });
+      drop.classList.add('open');
+    }catch(e){
+      console.error('pfAnvisaBuscar',e);
+      if(drop) drop.innerHTML='<div class="pf-ac-loading" style="color:var(--red)">Erro na busca</div>';
+    }
+  },400);
+}
+
+function pfAnvisaSelect(medId,row){
+  pfAcDrop(medId,false);
+  var s=function(fid,val){ var el=document.getElementById(fid); if(el&&val) el.value=val; };
+  s(medId+'_sub',row.substancia||'');
+  s(medId+'_com',row.nomeProduto||'');
+}
+
+// ── COLETAR DADOS ──
+function pfColetarDados(){
+  var meds=[];
+  document.querySelectorAll('.pf-med-item').forEach(function(el){
+    var id=el.id;
+    var get=function(s){ var e=document.getElementById(id+s); return e?e.value.trim():''; };
+    var sub=get('_sub'); if(!sub) return;
+    meds.push({substancia:sub,nomeComercial:get('_com'),dose:get('_dose'),
+               posologia:get('_pos'),duracao:get('_dur'),quantidade:get('_qtd')});
+  });
+  return {tipo:pfTipo,paciente:pfPaciente,local:pfLocal,itens:meds,
+          observacoes:(document.getElementById('pfObs')||{}).value||''};
+}
+
+function pfValidar(dados){
+  if(!dados.tipo) return 'Selecione o tipo de receita.';
+  if(!dados.paciente) return 'Selecione um paciente.';
+  if(!dados.itens.length) return 'Adicione ao menos um medicamento.';
+  if(dados.itens.find(function(m){ return !m.posologia; })) return 'Preencha a posologia de todos os medicamentos.';
+  return null;
+}
+
+// ── SALVAR RASCUNHO ──
+async function pfSalvarRascunho(){
+  var btn=document.getElementById('pfBtnRasc'), msg=document.getElementById('pfMsg');
+  var dados=pfColetarDados(), erro=pfValidar(dados);
+  if(erro){ msg.textContent=erro; msg.style.color='var(--red)'; return; }
+  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" aria-hidden="true"></i> Salvando...';
+  msg.textContent='';
+  try{
+    var d=await prescApi({acao:'prescricao_save',id:pfRascId||undefined,
+      local_id:pfLocal.id,paciente_id:pfPaciente.id,tipo:dados.tipo,
+      itens:dados.itens,observacoes:dados.observacoes,status:'rascunho'});
+    if(d&&d[0]) pfRascId=d[0].id;
+    msg.textContent='Rascunho salvo.'; msg.style.color='var(--verde)';
+  }catch(e){ msg.textContent='Erro: '+e.message; msg.style.color='var(--red)'; }
+  finally{ btn.disabled=false; btn.innerHTML='<i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar rascunho'; }
+}
+
+// ── GERAR PDF ──
+async function pfGerarPdf(){
+  var btn=document.getElementById('pfBtnPdf'), msg=document.getElementById('pfMsg');
+  var dados=pfColetarDados(), erro=pfValidar(dados);
+  if(erro){ msg.textContent=erro; msg.style.color='var(--red)'; return; }
+  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" aria-hidden="true"></i> Gerando...';
+  msg.textContent='';
+  try{
+    var dSave=await prescApi({acao:'prescricao_save',id:pfRascId||undefined,
+      local_id:pfLocal.id,paciente_id:pfPaciente.id,tipo:dados.tipo,
+      itens:dados.itens,observacoes:dados.observacoes,status:'rascunho'});
+    if(dSave&&dSave[0]) pfRascId=dSave[0].id;
+    var token=await getToken();
+    var rMed=await fetch(SUPA_URL+'/rest/v1/medicos?id=eq.'+currentUser.id,
+      {headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}});
+    var medArr=await rMed.json();
+    var med=medArr&&medArr[0]?medArr[0]:{};
+    pfGerarPdfDoc(dados,med);
+    msg.textContent='Receita gerada!'; msg.style.color='var(--verde)';
+  }catch(e){ msg.textContent='Erro: '+e.message; msg.style.color='var(--red)'; }
+  finally{ btn.disabled=false; btn.innerHTML='<i class="ti ti-file-download" aria-hidden="true"></i> Gerar receita'; }
+}
+
+function pfGerarPdfDoc(dados,med){
+  var tipo=dados.tipo, pac=dados.paciente||{}, local=pfLocal||{};
+  var idadePac='';
+  if(pac.data_nascimento){
+    var nasc=new Date(pac.data_nascimento),hoje=new Date();
+    var idade=hoje.getFullYear()-nasc.getFullYear();
+    if(hoje.getMonth()<nasc.getMonth()||(hoje.getMonth()===nasc.getMonth()&&hoje.getDate()<nasc.getDate())) idade--;
+    idadePac=idade+' anos';
+  }
+  var dataEmissao=new Date().toLocaleDateString('pt-BR');
+  var endLocal=[local.logradouro,local.numero,local.bairro,local.cidade+' - '+local.uf].filter(Boolean).join(', ');
+  var isEspecial=tipo==='especial_b', isAnti=tipo==='antimicrobiano';
+  var tipoLabel=isEspecial?'RECEITUÁRIO DE CONTROLE ESPECIAL':(isAnti?'Antimicrobiano':'Receita Simples');
+  var vias=(isEspecial||isAnti)?'<div style="text-align:right;font-size:11px;margin-bottom:8px;">1ª Via Farmácia &nbsp;|&nbsp; 2ª Via Paciente</div>':'';
+  var cpfMedHtml=(local.exibir_cpf_medico!==false&&med.cpf)?'<br>CPF: '+escapeHTML(med.cpf):'';
+  var itensTxt=dados.itens.map(function(m,i){
+    var nome=m.nomeComercial?m.substancia+' ('+m.nomeComercial+')':m.substancia;
+    if(m.dose) nome+=' '+m.dose;
+    var pts=''; for(var p=0;p<Math.max(0,58-nome.length);p++) pts+='-';
+    return '<tr><td style="padding:6px 0;font-weight:500;">'+(i+1)+'. '+escapeHTML(nome)+' '+pts+' '+(i+1)+'</td></tr>'+
+      (m.posologia?'<tr><td style="padding:0 0 6px 16px;color:#333;">'+escapeHTML(m.posologia)+(m.duracao?' por '+escapeHTML(m.duracao):'')+'</td></tr>':'')+
+      (m.quantidade?'<tr><td style="padding:0 0 6px 16px;color:#555;font-size:11px;">Qtd: '+escapeHTML(m.quantidade)+'</td></tr>':'');
+  }).join('');
+  var blocos=(isAnti||isEspecial)?
+    '<table style="width:100%;font-size:11px;border-top:1px solid #ccc;margin-top:16px;">'+
+    '<tr><td style="padding:8px 0 4px;font-weight:600;">IDENTIFICAÇÃO DO COMPRADOR</td></tr>'+
+    '<tr><td>Nome: ________________________________ RG: _____________ Data: ___/___/___</td></tr>'+
+    '<tr><td style="padding-bottom:8px;">Endereço: _________________________________</td></tr>'+
+    '<tr><td style="padding-top:8px;font-weight:600;">IDENTIFICAÇÃO DO FORNECEDOR</td></tr>'+
+    '<tr><td>Nome: ________________________________ Telefone: ___________________</td></tr>'+
+    '<tr><td style="padding-bottom:8px;">Assinatura do Farmacêutico: _________________________ Data: ___/___/___</td></tr>'+
+    '</table>':'';
+  var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+tipoLabel+'</title>'+
+    '<style>body{font-family:Arial,sans-serif;font-size:12px;margin:0;padding:24px;color:#000;}'+
+    '@media print{body{padding:12px;}.no-print{display:none;}}table{width:100%;border-collapse:collapse;}</style>'+
+    '</head><body>'+vias+
+    '<table><tr>'+
+    '<td style="vertical-align:top;width:65%;"><strong>Dr(a). '+escapeHTML(med.nome||'')+'</strong>'+cpfMedHtml+
+    '<br>CRM: '+escapeHTML((med.crm||'')+(med.uf_crm?' - '+med.uf_crm:''))+'<br>'+escapeHTML(med.especialidade||'')+'</td>'+
+    '<td style="vertical-align:top;text-align:right;font-size:11px;">Data: '+dataEmissao+'<br>'+escapeHTML(endLocal)+'</td>'+
+    '</tr></table><hr style="margin:8px 0;">'+
+    '<div style="font-size:11px;margin-bottom:10px;"><strong>Paciente:</strong> '+
+    (pac.cpf?escapeHTML(pac.cpf)+' - ':'')+escapeHTML(pac.nome||'')+
+    (pac.sexo?' &nbsp;|&nbsp; '+escapeHTML(pac.sexo):'')+(idadePac?' &nbsp;|&nbsp; '+idadePac:'')+'</div>'+
+    '<h2 style="font-size:13px;text-align:center;text-transform:uppercase;margin:8px 0;">'+tipoLabel+'</h2>'+
+    '<table>'+itensTxt+'</table>'+
+    (dados.observacoes?'<div style="margin-top:10px;font-size:11px;border-top:1px solid #eee;padding-top:8px;">'+escapeHTML(dados.observacoes)+'</div>':'')+
+    blocos+
+    '<div style="margin-top:40px;text-align:right;font-size:11px;">'+
+    '<div style="display:inline-block;border-top:1px solid #000;padding-top:4px;min-width:200px;text-align:center;">Assinatura do médico</div></div>'+
+    '<div class="no-print" style="text-align:center;margin-top:20px;">'+
+    '<button onclick="window.print()" style="padding:8px 20px;background:#0F6E56;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Imprimir / Salvar PDF</button>'+
+    ' <button onclick="window.close()" style="padding:8px 16px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;margin-left:8px;">Fechar</button>'+
+    '</div></body></html>';
+  var win=window.open('','_blank','width=700,height=900');
+  if(win){ win.document.write(html); win.document.close(); }
+}
+
+// ── NOVO PACIENTE INLINE ──
+function pfNovoPacModal(){
+  var area=document.getElementById('pfPacArea'); if(!area) return;
+  area.innerHTML='';
+  var box=document.createElement('div');
+  box.style.cssText='background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);padding:12px;';
+  var ttl=document.createElement('div');
+  ttl.style.cssText='font-size:12px;font-weight:600;color:var(--preto);margin-bottom:10px;';
+  ttl.textContent='Novo paciente';
+  function mkRow(){ var r=document.createElement('div'); r.className='pf-row col2'; r.style.marginBottom='.5rem'; return r; }
+  function mkFld(lbl,id,ph,type){
+    var w=document.createElement('div');
+    var l=document.createElement('div'); l.className='pf-lbl'; l.textContent=lbl;
+    var i=document.createElement('input'); i.className='pf-inp'; i.id=id; i.placeholder=ph;
+    if(type) i.type=type;
+    w.appendChild(l); w.appendChild(i); return w;
+  }
+  var r1=mkRow(); r1.appendChild(mkFld('Nome *','npNome','Nome completo'));
+  r1.appendChild(mkFld('CPF','npCpf','000.000.000-00'));
+  document.getElementById('npCpf') && (document.getElementById('npCpf').oninput=function(){ npCpfMask(this); });
+  var r2=document.createElement('div'); r2.className='pf-row col3'; r2.style.marginBottom='.5rem';
+  var sexoWrap=document.createElement('div');
+  var sexoLbl=document.createElement('div'); sexoLbl.className='pf-lbl'; sexoLbl.textContent='Sexo';
+  var sexoSel=document.createElement('select'); sexoSel.className='pf-sel'; sexoSel.id='npSexo';
+  [['','—'],['Masculino','Masculino'],['Feminino','Feminino'],['Outro','Outro']].forEach(function(o){
+    var opt=document.createElement('option'); opt.value=o[0]; opt.textContent=o[1]; sexoSel.appendChild(opt);
+  });
+  sexoWrap.appendChild(sexoLbl); sexoWrap.appendChild(sexoSel);
+  r2.appendChild(sexoWrap); r2.appendChild(mkFld('Data nasc.','npNasc','','date'));
+  r2.appendChild(mkFld('Endereço','npEnd','Rua, nº, cidade'));
+  var npMsg=document.createElement('div'); npMsg.id='npMsg';
+  npMsg.style.cssText='font-size:11px;min-height:14px;margin-bottom:6px;';
+  var acts=document.createElement('div'); acts.style.cssText='display:flex;gap:.5rem;';
+  var salvar=document.createElement('button'); salvar.className='pbtn';
+  salvar.style.cssText='width:auto;padding:7px 14px;font-size:12px;';
+  salvar.textContent='Salvar paciente'; salvar.onclick=pfSalvarNovoPac;
+  var cancelar=document.createElement('button'); cancelar.className='bts';
+  cancelar.style.cssText='font-size:12px;padding:6px 10px;';
+  cancelar.textContent='Cancelar';
+  cancelar.onclick=function(){ pfPaciente=null; pfRenderPacSearch(area); };
+  acts.appendChild(salvar); acts.appendChild(cancelar);
+  box.appendChild(ttl); box.appendChild(r1); box.appendChild(r2);
+  box.appendChild(npMsg); box.appendChild(acts);
+  area.appendChild(box);
+  // Máscara CPF após inserir no DOM
+  setTimeout(function(){
+    var cpfInp=document.getElementById('npCpf');
+    if(cpfInp) cpfInp.oninput=function(){ npCpfMask(this); };
+  },50);
+}
+
+function npCpfMask(input){
+  var v=input.value.replace(/\D/g,'').substring(0,11);
+  if(v.length>9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/,'$1.$2.$3-$4');
+  else if(v.length>6) v=v.replace(/(\d{3})(\d{3})(\d{1,3})/,'$1.$2.$3');
+  else if(v.length>3) v=v.replace(/(\d{3})(\d{1,3})/,'$1.$2');
+  input.value=v;
+}
+
+async function pfSalvarNovoPac(){
+  var nome=(document.getElementById('npNome')||{}).value||'';
+  var msg=document.getElementById('npMsg');
+  if(!nome.trim()){ if(msg){msg.textContent='Nome obrigatório.';msg.style.color='var(--red)';} return; }
+  if(msg) msg.textContent='';
+  try{
+    var token=await getToken();
+    var body={nome:nome.trim(),nome_normalizado:nome.trim().toLowerCase(),
+      cpf:((document.getElementById('npCpf')||{}).value||'').replace(/\D/g,'')||null,
+      sexo:(document.getElementById('npSexo')||{}).value||null,
+      data_nascimento:(document.getElementById('npNasc')||{}).value||null,
+      endereco:(document.getElementById('npEnd')||{}).value||null};
+    var r=await fetch(SUPA_URL+'/rest/v1/pacientes',{
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token,
+               'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify(body)});
+    var arr=await r.json();
+    if(!r.ok) throw new Error(arr.message||'Erro');
+    pfSelecionarPac(arr[0]);
+  }catch(e){
+    if(msg){msg.textContent='Erro: '+e.message;msg.style.color='var(--red)';}
   }
 }
 
