@@ -53,7 +53,11 @@ body{
 /* === DASHBOARD === */
 .vdashboard{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);}
 .vdashboard.show{display:flex;}
-.dash-body{padding:2rem 2.5rem;flex:1;max-width:1200px;}
+.dash-body{
+  padding:2rem 2.5rem;flex:1;
+  width:100%;
+  box-sizing:border-box;
+}
 .dash-greeting{margin-bottom:2rem;}
 .dash-greeting h1{font-family:var(--font-serif);font-size:32px;font-weight:500;color:var(--preto);letter-spacing:-.4px;line-height:1.2;}
 .dash-greeting p{font-size:13px;color:var(--cinza);margin-top:4px;}
@@ -527,35 +531,11 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .topnav-logout:hover{background:rgba(255,255,255,.1);color:#fff;}
 .topnav-logout svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 
-/* ── PAINEL LATERAL (conteúdo dos itens do nav) ── */
-.panel{
-  width:380px;flex-shrink:0;
-  background:var(--pergaminho);
-  border-right:1px solid var(--cinza-l);
-  display:flex;flex-direction:column;
-  height:100vh;
-  overflow:hidden;
-  transition:width .2s, opacity .2s;
-}
-.panel.hidden{width:0;opacity:0;pointer-events:none;}
-.panel-hdr{
-  padding:24px 28px 16px;
-  border-bottom:1px solid var(--cinza-l);
-  flex-shrink:0;
-}
-.panel-hdr h2{
-  font-family:var(--font-serif);
-  font-size:20px;font-weight:400;
-  color:var(--preto);margin-bottom:2px;
-}
-.panel-hdr p{font-size:11px;color:var(--cinza);line-height:1.5;}
-.panel-body{
-  flex:1;overflow-y:auto;
-  padding:1.5rem 1.75rem;
-  display:flex;flex-direction:column;gap:1rem;
-}
-.panel-body::-webkit-scrollbar{width:4px;}
-.panel-body::-webkit-scrollbar-thumb{background:var(--cinza-l);border-radius:4px;}
+/* ── PAINEL LATERAL — agora é .vc-left-card (mantido como fallback) ── */
+.panel{display:none !important;}
+.panel.hidden{display:none !important;}
+.panel-hdr{display:none;}
+.panel-body{display:none;}
 
 /* ── LEGADO: .sb mantido para outros usos, mas painel de gravação não usa mais ── */
 .sb{ display:contents; }
@@ -678,7 +658,71 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .ast{font-size:10px;margin-top:2px;}
 
 /* ── MAIN ── */
-.main{overflow-y:auto;height:100vh;flex:1;}
+.main{
+  overflow-y:auto;height:100%;flex:1;
+  display:flex;flex-direction:column;
+  background:var(--pergaminho);
+}
+
+/* ── VIEW CONTAINER — layout iOS centralizado ── */
+.view-container{
+  display:none;
+  width:100%;height:100%;
+  flex-direction:row;
+  align-items:flex-start;
+  padding:1.5rem 2.5rem;
+  gap:1.5rem;
+  box-sizing:border-box;
+  overflow-y:auto;
+  animation:fadeIn .22s ease;
+}
+.view-container.show{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* Coluna esquerda — controles/lista */
+.vc-left{
+  width:320px;flex-shrink:0;
+  display:flex;flex-direction:column;
+  gap:0;
+}
+.vc-left-card{
+  background:var(--branco);
+  border:1px solid var(--cinza-l);
+  border-radius:24px;
+  box-shadow:var(--sh-sm);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.vc-left-hdr{
+  padding:20px 24px 14px;
+  border-bottom:1px solid var(--cinza-l);
+  flex-shrink:0;
+}
+.vc-left-hdr h2{
+  font-family:var(--font-serif);
+  font-size:20px;font-weight:400;
+  color:var(--preto);margin-bottom:2px;letter-spacing:-.2px;
+}
+.vc-left-hdr p{font-size:11px;color:var(--cinza);line-height:1.5;}
+.vc-left-body{
+  flex:1;overflow-y:auto;
+  padding:1.25rem 1.5rem;
+  display:flex;flex-direction:column;gap:.85rem;
+}
+.vc-left-body::-webkit-scrollbar{width:3px;}
+.vc-left-body::-webkit-scrollbar-thumb{background:var(--cinza-l);border-radius:3px;}
+
+/* Coluna direita — conteúdo/resultado */
+.vc-right{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;
+  background:var(--branco);
+  border:1px solid var(--cinza-l);
+  border-radius:24px;
+  box-shadow:var(--sh-sm);
+  overflow:hidden;
+  min-height:calc(100vh - 140px);
+}
 
 /* ── WELCOME SCREEN ── */
 .wel{
@@ -1213,92 +1257,173 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 
 <div class="layout">
 
-<!-- PAINEL: NOVA CONSULTA -->
-<aside class="panel" id="panel-record">
-  <div class="panel-hdr">
-    <h2>Nova Consulta</h2>
-    <p>Grave ou cole a transcrição da consulta</p>
+<!-- VIEW: NOVA CONSULTA -->
+<div class="view-container" id="panel-record">
+  <div class="vc-left-card">
+    <div class="vc-left-hdr">
+      <h2>Nova Consulta</h2>
+      <p>Grave ou cole a transcrição da consulta</p>
+    </div>
+    <div class="vc-left-body" id="recordPanelBody">
+      <div>
+        <div class="lbl">Status</div>
+        <div style="color:var(--verde);font-size:11px;display:flex;align-items:center;gap:5px;">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--verde-m);display:inline-block;flex-shrink:0;"></span>
+          Backend conectado
+        </div>
+      </div>
+      <div>
+        <div class="lbl">Gravação</div>
+        <div class="reca" id="recArea">
+          <button class="rbtn" id="recBtn" onclick="toggleRec()">
+            <svg id="micIco" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <rect x="9" y="2" width="6" height="12" rx="3"/>
+              <path d="M5 10a7 7 0 0014 0"/>
+              <line x1="12" y1="19" x2="12" y2="22"/>
+              <line x1="8" y1="22" x2="16" y2="22"/>
+            </svg>
+            <svg id="stopIco" viewBox="0 0 24 24" style="display:none" fill="white" width="20" height="20">
+              <rect x="6" y="6" width="12" height="12" rx="2"/>
+            </svg>
+          </button>
+          <div class="tmr" id="timer">00:00</div>
+          <div class="rst" id="recSt">Clique para gravar</div>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">Transcrição ao vivo</div>
+        <div class="txb" id="txBox"><p class="txph">A transcrição aparecerá aqui...</p></div>
+        <div class="log-mini" id="logMini"></div>
+      </div>
+      <div>
+        <div class="lbl">Ou cole a transcrição</div>
+        <textarea class="mta" id="manTx" placeholder="[MEDICO]: Qual o motivo da consulta?&#10;[PACIENTE]: Estou com dor no peito..."></textarea>
+      </div>
+      <button class="pbtn" onclick="processTranscript()">
+        <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M5 3l14 9-14 9V3z"/></svg>
+        Gerar Anamnese com IA
+      </button>
+    </div>
   </div>
-  <div class="panel-body" id="recordPanelBody">
-    <div>
-      <div class="lbl">Status</div>
-      <div style="color:var(--verde);font-size:11px;display:flex;align-items:center;gap:5px;">
-        <span style="width:7px;height:7px;border-radius:50%;background:var(--verde-m);display:inline-block;flex-shrink:0;"></span>
-        Backend conectado
+  <div class="vc-right" id="mainArea-record">
+    <!-- WELCOME -->
+    <div class="wel" id="vWelcome">
+      <div class="wel-logo">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 7L9 37H15.5L18.5 29H25.5L28.5 37H35L22 7Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+          <line x1="18" y1="23.5" x2="26" y2="23.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>Anam<em>IA</em></h1>
+      <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
+      <div class="wel-divider"></div>
+      <p class="wel-desc">Preenchimento automático da anamnese médica. Grave a consulta ou cole a transcrição e deixe a IA organizar.</p>
+      <div class="wst">
+        <div class="wstp"><div class="wsn">1</div><p>Personalize os campos na aba acima</p></div>
+        <div class="wstp"><div class="wsn">2</div><p>Grave ou cole a transcrição</p></div>
+        <div class="wstp"><div class="wsn">3</div><p>Gere e revise a anamnese</p></div>
       </div>
     </div>
-    <div>
-      <div class="lbl">Gravação</div>
-      <div class="reca" id="recArea">
-        <button class="rbtn" id="recBtn" onclick="toggleRec()">
-          <svg id="micIco" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-            <rect x="9" y="2" width="6" height="12" rx="3"/>
-            <path d="M5 10a7 7 0 0014 0"/>
-            <line x1="12" y1="19" x2="12" y2="22"/>
-            <line x1="8" y1="22" x2="16" y2="22"/>
-          </svg>
-          <svg id="stopIco" viewBox="0 0 24 24" style="display:none" fill="white" width="20" height="20">
-            <rect x="6" y="6" width="12" height="12" rx="2"/>
-          </svg>
-        </button>
-        <div class="tmr" id="timer">00:00</div>
-        <div class="rst" id="recSt">Clique para gravar</div>
+    <!-- LOADING -->
+    <div class="ld" id="vLoading" style="display:none">
+      <div class="spin"></div>
+      <div><strong id="ldMsg">Analisando a consulta...</strong><p id="ldSub">Identificando falas e preenchendo seções</p></div>
+    </div>
+    <!-- RESULT -->
+    <div id="vResult" style="display:none">
+      <div class="rhdr">
+        <div><h1>Anamnese Gerada</h1><p id="resMeta">—</p></div>
+        <div class="hacts">
+          <button class="bts" id="editBtn" onclick="toggleEdit()"><i class="ti ti-pencil" aria-hidden="true"></i> Editar</button>
+          <button class="bts" onclick="openExport()"><i class="ti ti-download" aria-hidden="true"></i> Baixar</button>
+          <button class="btp" onclick="doPrint()"><i class="ti ti-printer" aria-hidden="true"></i> Imprimir</button>
+        </div>
+      </div>
+      <div class="save-bar" id="saveBar" style="display:none">
+        <label><i class="ti ti-folder" aria-hidden="true"></i> Salvar em:</label>
+        <select id="savePastaSelect"><option value="">Carregando...</option></select>
+        <button class="save-bar-btn" id="saveBarBtn" onclick="executarSave()">Salvar</button>
+      </div>
+      <div class="rb" id="resCont"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW: HISTÓRICO -->
+<div class="view-container" id="panel-history">
+  <div class="vc-left-card">
+    <div class="vc-left-hdr">
+      <h2>Histórico</h2>
+      <p>Pastas de pacientes e consultas salvas.</p>
+    </div>
+    <div class="vc-left-body">
+      <div id="hList" class="hlist">
+        <div class="hloading">Carregando...</div>
       </div>
     </div>
-    <div>
-      <div class="lbl">Transcrição ao vivo</div>
-      <div class="txb" id="txBox"><p class="txph">A transcrição aparecerá aqui...</p></div>
-      <div class="log-mini" id="logMini"></div>
-    </div>
-    <div>
-      <div class="lbl">Ou cole a transcrição</div>
-      <textarea class="mta" id="manTx" placeholder="[MEDICO]: Qual o motivo da consulta?&#10;[PACIENTE]: Estou com dor no peito..."></textarea>
-    </div>
-    <button class="pbtn" onclick="processTranscript()">
-      <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M5 3l14 9-14 9V3z"/></svg>
-      Gerar Anamnese com IA
-    </button>
   </div>
-</aside>
+  <div class="vc-right" id="mainArea-history">
+    <div class="wel" id="vWelcome-history" style="display:flex;">
+      <div class="wel-logo">
+        <svg viewBox="0 0 44 44" fill="none"><path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </div>
+      <h1>Anam<em>IA</em></h1>
+      <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
+      <div class="wel-divider"></div>
+      <p class="wel-desc">Selecione um paciente ao lado para ver o histórico de consultas.</p>
+    </div>
+    <div id="vResult-history" style="display:none">
+      <div class="rhdr">
+        <div><h1 id="histPacName">Consulta</h1><p id="histMeta">—</p></div>
+        <div class="hacts">
+          <button class="bts" onclick="openExport()"><i class="ti ti-download" aria-hidden="true"></i> Baixar</button>
+          <button class="btp" onclick="doPrint()"><i class="ti ti-printer" aria-hidden="true"></i> Imprimir</button>
+        </div>
+      </div>
+      <div class="rb" id="histResCont"></div>
+    </div>
+  </div>
+</div>
 
-<!-- PAINEL: HISTÓRICO -->
-<aside class="panel hidden" id="panel-history">
-  <div class="panel-hdr">
-    <h2>Histórico</h2>
-    <p>Pastas de pacientes e consultas salvas.</p>
-  </div>
-  <div class="panel-body">
-    <div id="hList" class="hlist">
-      <div class="hloading">Carregando...</div>
+<!-- VIEW: PERSONALIZAÇÃO -->
+<div class="view-container" id="panel-customize">
+  <div class="vc-left-card">
+    <div class="vc-left-hdr">
+      <h2>Personalização</h2>
+      <p>Selecione as seções que a IA deve preencher</p>
+    </div>
+    <div class="vc-left-body">
+      <div class="cacts">
+        <button class="cbtn" onclick="selAll(true)"><i class="ti ti-checks" aria-hidden="true"></i> Marcar todos</button>
+        <button class="cbtn" onclick="selAll(false)"><i class="ti ti-square" aria-hidden="true"></i> Desmarcar todos</button>
+        <button class="cbtn sv" onclick="savePrefs()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar</button>
+        <span class="csaved" id="cSaved">✓ Salvo!</span>
+      </div>
+      <div id="custSecs"></div>
     </div>
   </div>
-</aside>
-
-<!-- PAINEL: PERSONALIZAÇÃO -->
-<aside class="panel hidden" id="panel-customize">
-  <div class="panel-hdr">
-    <h2>Personalização</h2>
-    <p>Selecione as seções que a IA deve preencher</p>
-  </div>
-  <div class="panel-body">
-    <div class="cacts">
-      <button class="cbtn" onclick="selAll(true)"><i class="ti ti-checks" aria-hidden="true"></i> Marcar todos</button>
-      <button class="cbtn" onclick="selAll(false)"><i class="ti ti-square" aria-hidden="true"></i> Desmarcar todos</button>
-      <button class="cbtn sv" onclick="savePrefs()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar</button>
-      <span class="csaved" id="cSaved">✓ Salvo!</span>
+  <div class="vc-right" id="mainArea-customize">
+    <div class="wel" id="vWelcome-customize" style="display:flex;">
+      <div class="wel-logo">
+        <svg viewBox="0 0 44 44" fill="none"><path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </div>
+      <h1>Anam<em>IA</em></h1>
+      <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
+      <div class="wel-divider"></div>
+      <p class="wel-desc">Configure aqui quais seções a IA deve preencher automaticamente na anamnese.</p>
     </div>
-    <div id="custSecs"></div>
   </div>
-</aside>
+</div>
 
-<!-- PAINEL: OSLER -->
-<aside class="panel hidden" id="panel-osler">
-  <div class="panel-hdr">
-    <h2>Osler</h2>
-    <p>Configure o assistente de raciocínio clínico</p>
-  </div>
-  <div class="panel-body">
-    <div class="lbl">Osler na anamnese</div>
+<!-- VIEW: OSLER -->
+<div class="view-container" id="panel-osler">
+  <div class="vc-left-card">
+    <div class="vc-left-hdr">
+      <h2>Osler</h2>
+      <p>Configure o assistente de raciocínio clínico</p>
+    </div>
+    <div class="vc-left-body">
+      <div class="lbl">Osler na anamnese</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
       <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
         <input type="checkbox" id="hipoteseChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['hipoteses']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
@@ -1370,18 +1495,30 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
       <strong style="display:block;margin-bottom:2px;">Sobre o Osler</strong>
       Homenagem a William Osler, pai da medicina moderna. O Osler analisa a consulta e a anamnese gerada para fornecer raciocínio clínico de apoio — não substitui o julgamento médico.
     </div>
+    </div>
   </div>
-</aside>
+  <div class="vc-right" id="mainArea-osler">
+    <div class="wel" style="display:flex;">
+      <div class="wel-logo">
+        <svg viewBox="0 0 44 44" fill="none"><path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </div>
+      <h1>Anam<em>IA</em></h1>
+      <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
+      <div class="wel-divider"></div>
+      <p class="wel-desc">Gere uma anamnese e o Osler aparecerá aqui com raciocínio clínico de apoio.</p>
+    </div>
+  </div>
+</div>
 
 <!-- PAINEL: PERFIL -->
-<aside class="panel hidden" id="panel-profile">
-  <div class="panel-hdr">
-    <h2>Perfil</h2>
-    <p>Suas informações profissionais</p>
-  </div>
-  <div class="panel-body">
-
-    <!-- Avatar + nome atual -->
+<div class="view-container" id="panel-profile">
+  <div class="vc-left-card">
+    <div class="vc-left-hdr">
+      <h2>Perfil</h2>
+      <p>Suas informações profissionais</p>
+    </div>
+    <div class="vc-left-body">
+      <!-- Avatar + nome atual -->
     <div class="profile-avatar-wrap">
       <div class="profile-avatar-big" id="profileAvatarBig">?</div>
       <div>
@@ -1478,9 +1615,20 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
     <div style="text-align:center;padding-top:8px;">
       <a onclick="obShowAgain()" style="font-size:11px;color:var(--cinza);text-decoration:underline;cursor:pointer;">Ver introdução novamente</a>
     </div>
-
+    </div>
   </div>
-</aside>
+  <div class="vc-right" id="mainArea-profile">
+    <div class="wel" style="display:flex;">
+      <div class="wel-logo">
+        <svg viewBox="0 0 44 44" fill="none"><path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </div>
+      <h1>Anam<em>IA</em></h1>
+      <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
+      <div class="wel-divider"></div>
+      <p class="wel-desc">Mantenha seu perfil atualizado para que a anamnese gerada reflita suas informações clínicas.</p>
+    </div>
+  </div>
+</div>
 
 <!-- PAINEL: PERFIL FIM -->
 <main class="main" id="mainArea">
@@ -1617,70 +1765,6 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
       </div>
     </div>
   </div>
-
-  <!-- WELCOME -->
-  <div class="wel" id="vWelcome">
-    <div class="wel-logo">
-      <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22 7L9 37H15.5L18.5 29H25.5L28.5 37H35L22 7Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
-        <line x1="18" y1="23.5" x2="26" y2="23.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
-    </div>
-    <h1>Anam<em>IA</em></h1>
-    <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
-    <div class="wel-divider"></div>
-    <p class="wel-desc">Preenchimento automático da anamnese médica. Grave a consulta ou cole a transcrição e deixe a IA organizar.</p>
-    <div class="wst">
-      <div class="wstp">
-        <div class="wsn">1</div>
-        <p>Personalize os campos na aba acima</p>
-      </div>
-      <div class="wstp">
-        <div class="wsn">2</div>
-        <p>Grave ou cole a transcrição</p>
-      </div>
-      <div class="wstp">
-        <div class="wsn">3</div>
-        <p>Gere e revise a anamnese</p>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- LOADING -->
-  <div class="ld" id="vLoading" style="display:none">
-    <div class="spin"></div>
-    <div>
-      <strong id="ldMsg">Analisando a consulta...</strong>
-      <p id="ldSub">Identificando falas e preenchendo seções</p>
-    </div>
-  </div>
-
-  <!-- RESULT -->
-  <div id="vResult" style="display:none">
-    <div class="rhdr">
-      <div>
-        <h1>Anamnese Gerada</h1>
-        <p id="resMeta">—</p>
-      </div>
-      <div class="hacts">
-        <button class="bts" id="editBtn" onclick="toggleEdit()"><i class="ti ti-pencil" aria-hidden="true"></i> Editar</button>
-        <button class="bts" onclick="openExport()"><i class="ti ti-download" aria-hidden="true"></i> Baixar</button>
-        <button class="btp" onclick="doPrint()"><i class="ti ti-printer" aria-hidden="true"></i> Imprimir</button>
-      </div>
-    </div>
-
-    <!-- BARRA DE SALVAMENTO -->
-    <div class="save-bar" id="saveBar" style="display:none">
-      <label><i class="ti ti-folder" aria-hidden="true"></i> Salvar em:</label>
-      <select id="savePastaSelect">
-        <option value="">Carregando...</option>
-      </select>
-      <button class="save-bar-btn" id="saveBarBtn" onclick="executarSave()">Salvar</button>
-    </div>
-    <div class="rb" id="resCont"></div>
-  </div>
-
 
 </main>
 </div>
@@ -1822,7 +1906,7 @@ async function authLogout() {
   document.getElementById('authPwd').value = '';
   document.getElementById('authErr').classList.remove('show');
   document.getElementById('authOvl').style.display = 'flex';
-  document.getElementById('vResult').style.display = 'none';
+  var _vr = document.getElementById('vResult'); if(_vr) _vr.style.display = 'none';
   showView('dashboard');
 }
 
@@ -1933,68 +2017,67 @@ function isActive(k){ return activeKeys[k]===true; }
 
 // ── VIEWS ──
 function showView(v){
-  // Atualiza sidebar items
+  // Atualiza nav items
   ['dashboard','record','history','customize','osler','profile','agenda','prescricao'].forEach(function(id){
     var el = document.getElementById('sb-'+id);
     if(el) el.classList.toggle('active', id===v);
   });
 
-  // Mostra/oculta painéis laterais
+  // Oculta todos os view-containers e full-screen views
   ['record','history','customize','osler','profile'].forEach(function(id){
     var p = document.getElementById('panel-'+id);
-    if(p) p.classList.toggle('hidden', id!==v);
+    if(p){ p.style.display='none'; p.classList.remove('show'); }
   });
-
   var vAgenda = document.getElementById('vAgenda');
   var vPrescricao = document.getElementById('vPrescricao');
   var vDashboard = document.getElementById('vDashboard');
-  var vWelcome = document.getElementById('vWelcome');
-  var vResult = document.getElementById('vResult');
-  var vLoading = document.getElementById('vLoading');
-
-  // Oculta tudo primeiro
   if(vAgenda){ vAgenda.style.display='none'; vAgenda.classList.remove('show'); }
   if(vPrescricao){ vPrescricao.style.display='none'; vPrescricao.classList.remove('show'); }
   if(vDashboard){ vDashboard.style.display='none'; vDashboard.classList.remove('show'); }
-  if(vWelcome) vWelcome.style.display='none';
-  if(vResult) vResult.style.display='none';
-  if(vLoading) vLoading.style.display='none';
-
-  // Oculta todos os painéis laterais se for view de tela cheia
-  var fullScreenViews = ['dashboard','agenda','prescricao'];
-  ['record','history','customize','osler','profile'].forEach(function(id){
-    var p = document.getElementById('panel-'+id);
-    if(p) p.classList.toggle('hidden', fullScreenViews.indexOf(v) !== -1 || id !== v);
-  });
 
   if(v === 'dashboard'){
     if(vDashboard){ vDashboard.style.display='flex'; vDashboard.classList.add('show'); }
     dashLoad();
     return;
-  } else if(v === 'agenda'){
+  }
+  if(v === 'agenda'){
     if(vAgenda){ vAgenda.style.display='flex'; vAgenda.classList.add('show'); }
-    agendaLoad();
-    agendaLoadPacientes();
+    agendaLoad(); agendaLoadPacientes();
     return;
-  } else if(v === 'prescricao'){
+  }
+  if(v === 'prescricao'){
     if(vPrescricao){ vPrescricao.style.display='flex'; vPrescricao.classList.add('show'); }
     prescLoad();
     return;
   }
 
-  // Views com painel lateral: mostram welcome ou result na área principal
-  if(v==="history"){
-    loadHistory();
-  } else if(v==="profile"){
-    profileLoad();
-  } else if(v==="osler"){
-    docLoadList();
-  }
+  // View-containers (record, history, customize, osler, profile)
+  var container = document.getElementById('panel-'+v);
+  if(container){ container.style.display='flex'; container.classList.add('show'); }
 
-  if(Object.keys(resultData).length > 0){
-    if(vResult) vResult.style.display='block';
-  } else {
-    if(vWelcome) vWelcome.style.display='flex';
+  if(v === 'record'){
+    var vWelcome = document.getElementById('vWelcome');
+    var vResult = document.getElementById('vResult');
+    var vLoading = document.getElementById('vLoading');
+    if(Object.keys(resultData).length > 0){
+      if(vResult) vResult.style.display='block';
+      if(vWelcome) vWelcome.style.display='none';
+    } else {
+      if(vWelcome) vWelcome.style.display='flex';
+      if(vResult) vResult.style.display='none';
+    }
+    if(vLoading) vLoading.style.display='none';
+  } else if(v === 'history'){
+    loadHistory();
+    // Show welcome-history by default; hcard click will reveal vResult-history
+    var wh = document.getElementById('vWelcome-history');
+    var rh = document.getElementById('vResult-history');
+    if(wh) wh.style.display='flex';
+    if(rh) rh.style.display='none';
+  } else if(v === 'profile'){
+    profileLoad();
+  } else if(v === 'osler'){
+    docLoadList();
   }
 }
 
@@ -2535,8 +2618,8 @@ function processTranscript(){
   if(!txManual && !fullTx){ alert("Cole ou grave uma transcrição antes de processar."); return; }
 
   showView("record");
-  document.getElementById("vWelcome").style.display="none";
-  document.getElementById("vResult").style.display="none";
+  var _vw2 = document.getElementById("vWelcome"); if(_vw2) _vw2.style.display="none";
+  var _vr2 = document.getElementById("vResult"); if(_vr2) _vr2.style.display="none";
   document.getElementById("vLoading").style.display="flex";
 
   var fldMap={};SECTIONS.forEach(function(s){getAllFields(s).forEach(function(f){fldMap[f.k]=f.l;});});
@@ -3775,10 +3858,25 @@ async function abrirConsulta(id){
 
     resultData = c.anamnese;
     currentConsultaId = c.id;
-    showView('record');
-    document.getElementById('vWelcome').style.display='none';
-    document.getElementById('vResult').style.display='block';
+    // Show in history view's vc-right
+    showView('history');
     renderResult(resultData);
+    // Move result display to history vc-right
+    var vw = document.getElementById('vWelcome'); if(vw) vw.style.display='none';
+    var vr = document.getElementById('vResult'); if(vr) vr.style.display='none';
+    var wh = document.getElementById('vWelcome-history'); if(wh) wh.style.display='none';
+    var rh = document.getElementById('vResult-history');
+    if(rh){
+      // Move result content into history right
+      var resCont = document.getElementById('resCont');
+      var histResCont = document.getElementById('histResCont');
+      if(histResCont && resCont) histResCont.innerHTML = resCont.innerHTML;
+      rh.style.display='block';
+      var histMeta = document.getElementById('histMeta');
+      if(histMeta) histMeta.textContent = 'Consulta salva em ' + fmtData(c.created_at);
+      var histName = document.getElementById('histPacName');
+      if(histName) histName.textContent = c.paciente_nome || 'Consulta';
+    }
     setTimeout(function(){ anexosInit(); }, 100);
     // Consulta ja salva — esconde barra de save
     var saveBar = document.getElementById('saveBar');
@@ -4209,7 +4307,7 @@ async function tcEncerrar() {
   if(audioBlob && audioBlob.size > 1000){
     if(confirm('Teleconsulta encerrada (' + Math.floor(duracaoSegundos/60) + 'min). Deseja transcrever e gerar a anamnese agora?')){
       showView('record');
-      document.getElementById('vWelcome').style.display = 'none';
+      var _tcw = document.getElementById('vWelcome'); if(_tcw) _tcw.style.display = 'none';
       await tcTranscrever(audioBlob, duracaoSegundos);
     }
   } else {
