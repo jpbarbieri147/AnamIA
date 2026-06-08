@@ -405,15 +405,17 @@ body{
 body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .layout{display:flex;height:calc(100vh - 76px);}
 
-/* ── TOP NAV — flutuante com bordas arredondadas ── */
+/* ── TOP NAV — flutuante centralizado, comprimento automático ── */
 .topnav{
-  position:fixed;top:10px;left:12px;right:12px;
+  position:fixed;top:10px;
+  left:50%;transform:translateX(-50%);
   height:56px;
   background:#283820;
-  display:flex;align-items:center;
+  display:inline-flex;align-items:center;
   z-index:400;
   border-radius:16px;
   box-shadow:0 4px 20px rgba(20,30,15,.25), 0 1px 4px rgba(20,30,15,.15);
+  white-space:nowrap;
 }
 /* Logo — sem borda direita */
 .topnav-logo{
@@ -442,26 +444,12 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 }
 .topnav-wordmark em{font-style:normal;color:var(--verde-m);}
 
-/* Saudação — canto superior esquerdo fora da nav */
-.topnav-greeting{
-  position:fixed;top:78px;left:20px;
-  font-family:var(--font-serif);
-  font-size:15px;font-weight:400;
-  color:var(--verde-txt);
-  letter-spacing:-.1px;
-  z-index:300;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity .3s;
-}
-.topnav-greeting.show{opacity:1;}
 
 /* Nav items — ícone em cima, label embaixo */
 .topnav-items{
   display:flex;align-items:center;gap:1px;
   padding:0 8px;
   height:100%;
-  flex:1;
 }
 .tn-item{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
@@ -1158,9 +1146,6 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 </head>
 <body>
 
-<!-- Saudação flutuante -->
-<div class="topnav-greeting" id="topGreeting"></div>
-
 <!-- TOP NAV -->
 <nav class="topnav" id="topNav">
   <!-- Logo — sem borda separadora -->
@@ -1809,8 +1794,7 @@ function onAuthSuccess(user) {
   if(topItems) topItems.style.display = 'flex';
   var topSep = document.getElementById('topNavSep');
   if(topSep) topSep.style.display = 'block';
-  var topGreeting = document.getElementById('topGreeting');
-  if(topGreeting) topGreeting.classList.add('show');
+
   var topName = document.getElementById('topNavName');
   if(topName) topName.textContent = name;
   var topAv = document.getElementById('topNavAvatar');
@@ -1833,8 +1817,7 @@ async function authLogout() {
   if(topItems) topItems.style.display = 'none';
   var topSep = document.getElementById('topNavSep');
   if(topSep) topSep.style.display = 'none';
-  var topGreeting = document.getElementById('topGreeting');
-  if(topGreeting) topGreeting.classList.remove('show');
+
   document.getElementById('authEmail').value = '';
   document.getElementById('authPwd').value = '';
   document.getElementById('authErr').classList.remove('show');
@@ -2023,8 +2006,7 @@ function dashSetGreeting(name) {
   var text = saud + (firstName ? ', Dr. ' + firstName : '') + '.';
   var el = document.getElementById('dashGreeting');
   if(el) el.textContent = text;
-  var tg = document.getElementById('topGreeting');
-  if(tg) tg.textContent = text;
+
 }
 
 async function dashLoad() {
