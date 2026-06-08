@@ -2946,13 +2946,17 @@ function oslerAddMsg(type, text){
   msgs.scrollTop=msgs.scrollHeight;
 }
 
-function renderResult(d){
-  document.getElementById("vLoading").style.display="none";
-  var _riX=document.getElementById("recordInputState");if(_riX)_riX.style.display="none";
-  document.getElementById("vResult").style.display="flex";
-  // Não redireciona automaticamente — quem chama renderResult decide qual view mostrar
-  document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR");
-  var c=document.getElementById("resCont"); c.innerHTML="";
+function renderResult(d, targetContainer){
+  // targetContainer: elemento DOM onde renderizar (default: resCont em panel-record)
+  var isHistory = !!targetContainer;
+  if(!isHistory){
+    document.getElementById("vLoading").style.display="none";
+    var _riX=document.getElementById("recordInputState");if(_riX)_riX.style.display="none";
+    document.getElementById("vResult").style.display="flex";
+    document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR");
+  }
+  var c = targetContainer || document.getElementById("resCont");
+  c.innerHTML="";
 
   function ri(k,l){ return isActive(k)?mkField(k,l,d[k]):""; }
   function hasSome(ks){ return ks.some(function(k){return isActive(k);}); }
@@ -3879,36 +3883,32 @@ async function abrirConsulta(id){
 
     resultData = c.anamnese;
     currentConsultaId = c.id;
-    // Show history panel without reloading the list
-    var _hp = document.getElementById('panel-history');
-    if(_hp){ 
-      document.querySelectorAll('.view-container').forEach(function(el){ el.style.display='none'; el.classList.remove('show'); });
-      _hp.style.display='flex'; _hp.classList.add('show');
-    }
-    // Update nav active state
+
+    // Garante que panel-history está visível e nav ativa
+    document.querySelectorAll('.view-container').forEach(function(el){ el.style.display='none'; el.classList.remove('show'); });
     document.querySelectorAll('.tn-item').forEach(function(el){ el.classList.remove('active'); });
+    var _hp = document.getElementById('panel-history');
+    if(_hp){ _hp.style.display='flex'; _hp.classList.add('show'); }
     var _hn = document.getElementById('sb-history'); if(_hn) _hn.classList.add('active');
-    renderResult(resultData);
-    // Populate histResCont from resCont
-    var resCont = document.getElementById('resCont');
+
+    // Renderiza diretamente em histResCont — sem tocar em vResult (que está em panel-record)
     var histResCont = document.getElementById('histResCont');
-    if(histResCont && resCont) histResCont.innerHTML = resCont.innerHTML;
-    // Switch states
-    var hl = document.getElementById('histListState');
-    var hr = document.getElementById('histResultState');
-    if(hl) hl.style.display='none';
-    if(hr) hr.style.display='flex';
+    if(histResCont) renderResult(resultData, histResCont);
+
+    // Atualiza metadados do header do histórico
     var histMeta = document.getElementById('histMeta');
     if(histMeta) histMeta.textContent = 'Consulta salva em ' + fmtData(c.created_at);
     var histName = document.getElementById('histPacName');
     if(histName) histName.textContent = c.paciente_nome || 'Consulta';
+
+    // Troca para o estado de resultado dentro da view histórico
+    var hl = document.getElementById('histListState');
+    var hr = document.getElementById('histResultState');
+    if(hl) hl.style.display='none';
+    if(hr) hr.style.display='flex';
+
     setTimeout(function(){ anexosInit(); }, 100);
-    // Consulta ja salva — esconde barra de save
-    var saveBar = document.getElementById('saveBar');
-    if(saveBar) saveBar.style.display = 'none';
     pendingSave = null;
-    var meta = document.getElementById('resMeta');
-    if(meta) meta.textContent = 'Consulta salva em ' + fmtData(c.created_at) + '';
   } catch(e) {
     console.error('abrirConsulta exception:', e);
     alert('Erro ao abrir a consulta.');
