@@ -146,16 +146,16 @@ body{
 /* === AGENDA === */
 .vagenda{display:none;flex-direction:column;width:100%;height:100%;overflow:hidden;}
 .vagenda.show{display:flex;}
-.vprescricao{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);}
+.vprescricao{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
 .vprescricao.show{display:flex;}
-.presc-hdr{padding:1.5rem 1.75rem 1.25rem;border-bottom:1px solid var(--cinza-l);background:var(--branco);flex-shrink:0;}
-.presc-hdr h1{font-family:var(--font-serif);font-size:24px;font-weight:500;color:var(--preto);letter-spacing:-.3px;}
+.presc-hdr{padding:2rem 2.5rem 1.25rem;border-bottom:1px solid var(--cinza-l);background:var(--pergaminho);flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;}
+.presc-hdr h1{font-family:var(--font-serif);font-size:26px;font-weight:400;color:var(--preto);letter-spacing:-.3px;margin-bottom:3px;}
 .presc-hdr p{font-size:12px;color:var(--cinza);margin-top:3px;}
-.presc-body{padding:1.5rem 1.75rem;flex:1;}
-.presc-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;gap:1rem;text-align:center;}
-.presc-empty-ico{width:56px;height:56px;background:var(--verde-l);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--verde);}
-.presc-empty h3{font-family:var(--font-serif);font-size:18px;font-weight:500;color:var(--preto);}
-.presc-empty p{font-size:13px;color:var(--cinza);max-width:320px;line-height:1.6;}
+.presc-body{padding:1.75rem 2.5rem;flex:1;overflow-y:auto;}
+.presc-empty{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:1rem;text-align:left;max-width:860px;margin:0 auto;width:100%;}
+.presc-empty-ico{width:52px;height:52px;background:var(--verde-l);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--verde);margin-bottom:.5rem;}
+.presc-empty h3{font-family:var(--font-serif);font-size:20px;font-weight:500;color:var(--preto);margin-bottom:.25rem;}
+.presc-empty p{font-size:13px;color:var(--cinza);max-width:420px;line-height:1.6;}
 /* ── MODAL LOCAL ATENDIMENTO ── */
 .la-ovl{position:fixed;inset:0;background:rgba(10,10,10,.45);z-index:9998;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:2rem 1rem;}
 .la-ovl.open{display:flex;}
@@ -182,8 +182,8 @@ body{
 .la-ftr{padding:1rem 1.5rem;border-top:1px solid var(--cinza-l);display:flex;justify-content:flex-end;gap:.5rem;}
 .la-msg{font-size:12px;margin-top:.25rem;min-height:16px;}
 /* ── FORMULÁRIO DE PRESCRIÇÃO ── */
-.pf-wrap{display:flex;flex-direction:column;gap:1.25rem;max-width:720px;}
-.pf-sec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh-sm);}
+.pf-wrap{display:flex;flex-direction:column;gap:1.25rem;max-width:860px;width:100%;margin:0 auto;}
+.pf-sec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:20px;overflow:hidden;box-shadow:var(--sh-sm);}
 .pf-sec-hdr{padding:10px 14px;background:var(--verde-ll);border-bottom:1px solid var(--verde-b);display:flex;align-items:center;gap:8px;}
 .pf-sec-hdr i{color:var(--verde);font-size:15px;}
 .pf-sec-ttl{font-size:12px;font-weight:600;color:var(--verde-txt);text-transform:uppercase;letter-spacing:.4px;}
@@ -197,7 +197,7 @@ body{
 .pf-inp::placeholder{color:var(--cinza);}
 .pf-sel{width:100%;padding:7px 10px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:var(--font-sans);color:var(--preto);background:var(--branco);cursor:pointer;}
 .pf-tipos{display:flex;gap:.5rem;flex-wrap:wrap;}
-.pf-tipo-btn{flex:1;min-width:140px;padding:10px 12px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);background:var(--branco);cursor:pointer;text-align:left;transition:all .15s;font-family:var(--font-sans);}
+.pf-tipo-btn{flex:1;min-width:140px;padding:14px 16px;border:1.5px solid var(--cinza-l);border-radius:16px;background:var(--branco);cursor:pointer;text-align:left;transition:all .15s;font-family:var(--font-sans);box-shadow:var(--sh-sm);}
 .pf-tipo-btn:hover{border-color:var(--verde-b);background:var(--verde-ll);}
 .pf-tipo-btn.active{border-color:var(--verde);background:var(--verde-l);}
 .pf-tipo-btn .ptb-ico{font-size:18px;margin-bottom:4px;display:block;}
@@ -1643,8 +1643,11 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
   <!-- PRESCRIÇÃO -->
   <div class="vprescricao" id="vPrescricao">
     <div class="presc-hdr">
-      <h1>Prescrição</h1>
-      <p>Emita receitas digitais com assinatura eletrônica</p>
+      <div>
+        <h1>Prescrição</h1>
+        <p>Emita receitas digitais com assinatura eletrônica</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;" id="prescHdrActions"></div>
     </div>
     <div class="presc-body">
       <div class="presc-empty" id="prescEmpty">
@@ -1657,9 +1660,14 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
         </div>
         <h3>Nenhuma prescrição ainda</h3>
         <p>Configure seu local de atendimento e comece a emitir receitas digitais com assinatura eletrônica.</p>
-        <button class="pbtn" style="width:auto;padding:10px 20px;margin-top:.5rem;" onclick="prescNovaClick()">
-          <i class="ti ti-plus" aria-hidden="true"></i> Nova prescrição
-        </button>
+        <div style="display:flex;gap:10px;margin-top:.75rem;flex-wrap:wrap;">
+          <button class="pbtn" style="width:auto;padding:10px 20px;" onclick="prescNovaClick()">
+            <i class="ti ti-plus" aria-hidden="true"></i> Nova prescrição
+          </button>
+          <button class="bts" style="padding:10px 16px;" onclick="laModalOpen()">
+            <i class="ti ti-settings" aria-hidden="true"></i> Gerenciar locais
+          </button>
+        </div>
       </div>
     </div>
   </div>
