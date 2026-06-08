@@ -664,65 +664,91 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
   background:var(--pergaminho);
 }
 
-/* ── VIEW CONTAINER — layout iOS centralizado ── */
+/* ── VIEW CONTAINER — tela cheia iOS ── */
 .view-container{
   display:none;
   width:100%;height:100%;
-  flex-direction:row;
-  align-items:flex-start;
-  padding:1.5rem 2.5rem;
-  gap:1.5rem;
+  flex-direction:column;
   box-sizing:border-box;
   overflow-y:auto;
   animation:fadeIn .22s ease;
+  background:var(--pergaminho);
 }
 .view-container.show{display:flex;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
-/* Coluna esquerda — controles/lista */
-.vc-left{
-  width:320px;flex-shrink:0;
-  display:flex;flex-direction:column;
-  gap:0;
-}
-.vc-left-card{
-  background:var(--branco);
-  border:1px solid var(--cinza-l);
-  border-radius:24px;
-  box-shadow:var(--sh-sm);
-  overflow:hidden;
-  display:flex;flex-direction:column;
-}
-.vc-left-hdr{
-  padding:20px 24px 14px;
-  border-bottom:1px solid var(--cinza-l);
+/* Header da view */
+.vh{
+  padding:2rem 2.5rem 1.25rem;
   flex-shrink:0;
+  border-bottom:1px solid var(--cinza-l);
+  background:var(--pergaminho);
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:1rem;
 }
-.vc-left-hdr h2{
+.vh-title{
   font-family:var(--font-serif);
-  font-size:20px;font-weight:400;
-  color:var(--preto);margin-bottom:2px;letter-spacing:-.2px;
+  font-size:26px;font-weight:400;
+  color:var(--preto);letter-spacing:-.3px;margin-bottom:3px;
 }
-.vc-left-hdr p{font-size:11px;color:var(--cinza);line-height:1.5;}
-.vc-left-body{
-  flex:1;overflow-y:auto;
-  padding:1.25rem 1.5rem;
-  display:flex;flex-direction:column;gap:.85rem;
-}
-.vc-left-body::-webkit-scrollbar{width:3px;}
-.vc-left-body::-webkit-scrollbar-thumb{background:var(--cinza-l);border-radius:3px;}
+.vh-sub{font-size:12px;color:var(--cinza);line-height:1.5;}
+.vh-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
 
-/* Coluna direita — conteúdo/resultado */
-.vc-right{
-  flex:1;min-width:0;
-  display:flex;flex-direction:column;
+/* Body da view — área com padding e scroll */
+.vb{
+  flex:1;overflow-y:auto;
+  padding:1.75rem 2.5rem;
+  display:flex;flex-direction:column;gap:1.5rem;
+}
+.vb::-webkit-scrollbar{width:4px;}
+.vb::-webkit-scrollbar-thumb{background:var(--cinza-l);border-radius:4px;}
+
+/* Card iOS dentro das views */
+.vc{
   background:var(--branco);
   border:1px solid var(--cinza-l);
-  border-radius:24px;
+  border-radius:20px;
   box-shadow:var(--sh-sm);
   overflow:hidden;
-  min-height:calc(100vh - 140px);
 }
+.vc-hdr{
+  padding:14px 20px;
+  border-bottom:1px solid var(--cinza-l);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.vc-hdr-title{
+  font-size:12px;font-weight:600;
+  letter-spacing:.6px;text-transform:uppercase;
+  color:var(--cinza);
+}
+.vc-body{padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:.85rem;}
+
+/* Grid de cards */
+.vc-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+.vc-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;}
+
+/* Resultado inline (anamnese gerada) */
+.vr-wrap{
+  background:var(--branco);
+  border:1px solid var(--cinza-l);
+  border-radius:20px;
+  box-shadow:var(--sh-sm);
+  overflow:hidden;
+  flex:1;
+}
+.vr-hdr{
+  padding:1.25rem 1.75rem;
+  border-bottom:1px solid var(--cinza-l);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:8px;
+}
+.vr-hdr h2{font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--preto);letter-spacing:-.2px;}
+.vr-hdr p{font-size:11px;color:var(--cinza);margin-top:2px;}
+.vr-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.vr-body{padding:0 1.75rem 1.75rem;overflow-y:auto;}
+
+/* Loading inline */
+.vl{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1.25rem;text-align:center;}
 
 /* ── WELCOME SCREEN ── */
 .wel{
@@ -1259,373 +1285,326 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 
 <!-- VIEW: NOVA CONSULTA -->
 <div class="view-container" id="panel-record">
-  <div class="vc-left-card">
-    <div class="vc-left-hdr">
-      <h2>Nova Consulta</h2>
-      <p>Grave ou cole a transcrição da consulta</p>
-    </div>
-    <div class="vc-left-body" id="recordPanelBody">
+  <!-- Estado: entrada (gravação/transcrição) -->
+  <div id="recordInputState">
+    <div class="vh">
       <div>
-        <div class="lbl">Status</div>
+        <div class="vh-title">Nova Consulta</div>
+        <div class="vh-sub">Grave a consulta ou cole a transcrição para gerar a anamnese</div>
+      </div>
+      <div class="vh-actions">
         <div style="color:var(--verde);font-size:11px;display:flex;align-items:center;gap:5px;">
           <span style="width:7px;height:7px;border-radius:50%;background:var(--verde-m);display:inline-block;flex-shrink:0;"></span>
           Backend conectado
         </div>
       </div>
-      <div>
-        <div class="lbl">Gravação</div>
-        <div class="reca" id="recArea">
-          <button class="rbtn" id="recBtn" onclick="toggleRec()">
-            <svg id="micIco" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-              <rect x="9" y="2" width="6" height="12" rx="3"/>
-              <path d="M5 10a7 7 0 0014 0"/>
-              <line x1="12" y1="19" x2="12" y2="22"/>
-              <line x1="8" y1="22" x2="16" y2="22"/>
-            </svg>
-            <svg id="stopIco" viewBox="0 0 24 24" style="display:none" fill="white" width="20" height="20">
-              <rect x="6" y="6" width="12" height="12" rx="2"/>
-            </svg>
-          </button>
-          <div class="tmr" id="timer">00:00</div>
-          <div class="rst" id="recSt">Clique para gravar</div>
+    </div>
+    <div class="vb" id="recordPanelBody">
+      <div class="vc-grid-2">
+        <!-- Card: Gravação -->
+        <div class="vc">
+          <div class="vc-hdr"><span class="vc-hdr-title">Gravação</span></div>
+          <div class="vc-body" style="align-items:center;text-align:center;padding:2rem 1.5rem;">
+            <div class="reca" id="recArea" style="border:none;padding:0;background:transparent;">
+              <button class="rbtn" id="recBtn" onclick="toggleRec()">
+                <svg id="micIco" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+                  <rect x="9" y="2" width="6" height="12" rx="3"/>
+                  <path d="M5 10a7 7 0 0014 0"/>
+                  <line x1="12" y1="19" x2="12" y2="22"/>
+                  <line x1="8" y1="22" x2="16" y2="22"/>
+                </svg>
+                <svg id="stopIco" viewBox="0 0 24 24" style="display:none" fill="white" width="22" height="22">
+                  <rect x="6" y="6" width="12" height="12" rx="2"/>
+                </svg>
+              </button>
+              <div class="tmr" id="timer">00:00</div>
+              <div class="rst" id="recSt">Clique para gravar</div>
+            </div>
+            <div style="margin-top:1.25rem;width:100%;">
+              <div class="lbl" style="text-align:left;">Transcrição ao vivo</div>
+              <div class="txb" id="txBox" style="min-height:120px;"><p class="txph">A transcrição aparecerá aqui...</p></div>
+              <div class="log-mini" id="logMini"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Card: Colar transcrição -->
+        <div class="vc">
+          <div class="vc-hdr"><span class="vc-hdr-title">Colar transcrição</span></div>
+          <div class="vc-body" style="height:100%;">
+            <div style="font-size:12px;color:var(--cinza);line-height:1.6;">
+              Cole aqui a transcrição da consulta no formato médico. Use os prefixos <strong>[MEDICO]</strong> e <strong>[PACIENTE]</strong> para identificar as falas.
+            </div>
+            <textarea class="mta" id="manTx" placeholder="[MEDICO]: Qual o motivo da consulta?&#10;[PACIENTE]: Estou com dor no peito..." style="flex:1;min-height:200px;resize:none;"></textarea>
+          </div>
         </div>
       </div>
-      <div>
-        <div class="lbl">Transcrição ao vivo</div>
-        <div class="txb" id="txBox"><p class="txph">A transcrição aparecerá aqui...</p></div>
-        <div class="log-mini" id="logMini"></div>
-      </div>
-      <div>
-        <div class="lbl">Ou cole a transcrição</div>
-        <textarea class="mta" id="manTx" placeholder="[MEDICO]: Qual o motivo da consulta?&#10;[PACIENTE]: Estou com dor no peito..."></textarea>
-      </div>
-      <button class="pbtn" onclick="processTranscript()">
+      <!-- Botão gerar -->
+      <button class="pbtn" onclick="processTranscript()" style="max-width:400px;margin:0 auto;">
         <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M5 3l14 9-14 9V3z"/></svg>
         Gerar Anamnese com IA
       </button>
     </div>
   </div>
-  <div class="vc-right" id="mainArea-record">
-    <!-- WELCOME -->
-    <div class="wel" id="vWelcome">
-      <div class="wel-logo">
-        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M22 7L9 37H15.5L18.5 29H25.5L28.5 37H35L22 7Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
-          <line x1="18" y1="23.5" x2="26" y2="23.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
+
+  <!-- Estado: loading -->
+  <div id="vLoading" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;padding:4rem 2rem;text-align:center;" class="vl">
+    <div class="spin"></div>
+    <div><strong id="ldMsg" style="font-family:var(--font-serif);font-size:18px;color:var(--preto);">Analisando a consulta...</strong><p id="ldSub" style="color:var(--cinza);font-size:12px;margin-top:4px;">Identificando falas e preenchendo seções</p></div>
+  </div>
+
+  <!-- Estado: resultado -->
+  <div id="vResult" style="display:none;flex-direction:column;flex:1;">
+    <div class="vh">
+      <div>
+        <div class="vh-title">Anamnese Gerada</div>
+        <div class="vh-sub" id="resMeta">—</div>
       </div>
-      <h1>Anam<em>IA</em></h1>
-      <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
-      <div class="wel-divider"></div>
-      <p class="wel-desc">Preenchimento automático da anamnese médica. Grave a consulta ou cole a transcrição e deixe a IA organizar.</p>
-      <div class="wst">
-        <div class="wstp"><div class="wsn">1</div><p>Personalize os campos na aba acima</p></div>
-        <div class="wstp"><div class="wsn">2</div><p>Grave ou cole a transcrição</p></div>
-        <div class="wstp"><div class="wsn">3</div><p>Gere e revise a anamnese</p></div>
-      </div>
-    </div>
-    <!-- LOADING -->
-    <div class="ld" id="vLoading" style="display:none">
-      <div class="spin"></div>
-      <div><strong id="ldMsg">Analisando a consulta...</strong><p id="ldSub">Identificando falas e preenchendo seções</p></div>
-    </div>
-    <!-- RESULT -->
-    <div id="vResult" style="display:none">
-      <div class="rhdr">
-        <div><h1>Anamnese Gerada</h1><p id="resMeta">—</p></div>
-        <div class="hacts">
-          <button class="bts" id="editBtn" onclick="toggleEdit()"><i class="ti ti-pencil" aria-hidden="true"></i> Editar</button>
-          <button class="bts" onclick="openExport()"><i class="ti ti-download" aria-hidden="true"></i> Baixar</button>
-          <button class="btp" onclick="doPrint()"><i class="ti ti-printer" aria-hidden="true"></i> Imprimir</button>
+      <div class="vh-actions">
+        <div class="save-bar" id="saveBar" style="display:none;background:none;border:none;padding:0;margin:0;gap:6px;">
+          <label style="font-size:11px;color:var(--cinza);white-space:nowrap;"><i class="ti ti-folder"></i> Salvar em:</label>
+          <select id="savePastaSelect" style="font-size:11px;border:1px solid var(--cinza-l);border-radius:8px;padding:4px 8px;background:var(--branco);"><option value="">Carregando...</option></select>
+          <button class="save-bar-btn" id="saveBarBtn" onclick="executarSave()">Salvar</button>
         </div>
+        <button class="bts" id="editBtn" onclick="toggleEdit()"><i class="ti ti-pencil"></i> Editar</button>
+        <button class="bts" onclick="openExport()"><i class="ti ti-download"></i> Baixar</button>
+        <button class="btp" onclick="doPrint()"><i class="ti ti-printer"></i> Imprimir</button>
+        <button class="bts" onclick="showView('record');document.getElementById('recordInputState').style.display='flex';" style="color:var(--cinza);">
+          <i class="ti ti-arrow-left"></i> Nova
+        </button>
       </div>
-      <div class="save-bar" id="saveBar" style="display:none">
-        <label><i class="ti ti-folder" aria-hidden="true"></i> Salvar em:</label>
-        <select id="savePastaSelect"><option value="">Carregando...</option></select>
-        <button class="save-bar-btn" id="saveBarBtn" onclick="executarSave()">Salvar</button>
-      </div>
-      <div class="rb" id="resCont"></div>
+    </div>
+    <div class="vb">
+      <div class="rb" id="resCont" style="background:var(--branco);border:1px solid var(--cinza-l);border-radius:20px;padding:1.5rem;box-shadow:var(--sh-sm);"></div>
     </div>
   </div>
 </div>
 
 <!-- VIEW: HISTÓRICO -->
 <div class="view-container" id="panel-history">
-  <div class="vc-left-card">
-    <div class="vc-left-hdr">
-      <h2>Histórico</h2>
-      <p>Pastas de pacientes e consultas salvas.</p>
+  <!-- Estado: lista de pastas -->
+  <div id="histListState" style="display:flex;flex-direction:column;flex:1;">
+    <div class="vh">
+      <div>
+        <div class="vh-title">Histórico</div>
+        <div class="vh-sub">Pastas de pacientes e consultas salvas</div>
+      </div>
     </div>
-    <div class="vc-left-body">
-      <div id="hList" class="hlist">
-        <div class="hloading">Carregando...</div>
+    <div class="vb">
+      <div class="vc">
+        <div class="vc-body" style="padding:0;">
+          <div id="hList" class="hlist">
+            <div class="hloading">Carregando...</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="vc-right" id="mainArea-history">
-    <div class="wel" id="vWelcome-history" style="display:flex;">
-      <div class="wel-logo">
-        <svg viewBox="0 0 44 44" fill="none"><path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/></svg>
+  <!-- Estado: resultado de consulta -->
+  <div id="histResultState" style="display:none;flex-direction:column;flex:1;">
+    <div class="vh">
+      <div>
+        <div class="vh-title" id="histPacName">Consulta</div>
+        <div class="vh-sub" id="histMeta">—</div>
       </div>
-      <h1>Anam<em>IA</em></h1>
-      <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
-      <div class="wel-divider"></div>
-      <p class="wel-desc">Selecione um paciente ao lado para ver o histórico de consultas.</p>
+      <div class="vh-actions">
+        <button class="bts" onclick="openExport()"><i class="ti ti-download"></i> Baixar</button>
+        <button class="btp" onclick="doPrint()"><i class="ti ti-printer"></i> Imprimir</button>
+        <button class="bts" onclick="document.getElementById('histListState').style.display='flex';document.getElementById('histResultState').style.display='none';" style="color:var(--cinza);">
+          <i class="ti ti-arrow-left"></i> Voltar
+        </button>
+      </div>
     </div>
-    <div id="vResult-history" style="display:none">
-      <div class="rhdr">
-        <div><h1 id="histPacName">Consulta</h1><p id="histMeta">—</p></div>
-        <div class="hacts">
-          <button class="bts" onclick="openExport()"><i class="ti ti-download" aria-hidden="true"></i> Baixar</button>
-          <button class="btp" onclick="doPrint()"><i class="ti ti-printer" aria-hidden="true"></i> Imprimir</button>
-        </div>
-      </div>
-      <div class="rb" id="histResCont"></div>
+    <div class="vb">
+      <div class="rb" id="histResCont" style="background:var(--branco);border:1px solid var(--cinza-l);border-radius:20px;padding:1.5rem;box-shadow:var(--sh-sm);"></div>
     </div>
   </div>
 </div>
 
 <!-- VIEW: PERSONALIZAÇÃO -->
 <div class="view-container" id="panel-customize">
-  <div class="vc-left-card">
-    <div class="vc-left-hdr">
-      <h2>Personalização</h2>
-      <p>Selecione as seções que a IA deve preencher</p>
+  <div class="vh">
+    <div>
+      <div class="vh-title">Personalização</div>
+      <div class="vh-sub">Selecione as seções que a IA deve preencher na anamnese</div>
     </div>
-    <div class="vc-left-body">
-      <div class="cacts">
-        <button class="cbtn" onclick="selAll(true)"><i class="ti ti-checks" aria-hidden="true"></i> Marcar todos</button>
-        <button class="cbtn" onclick="selAll(false)"><i class="ti ti-square" aria-hidden="true"></i> Desmarcar todos</button>
-        <button class="cbtn sv" onclick="savePrefs()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar</button>
+    <div class="vh-actions">
+      <div class="cacts" style="margin:0;">
+        <button class="cbtn" onclick="selAll(true)"><i class="ti ti-checks"></i> Marcar todos</button>
+        <button class="cbtn" onclick="selAll(false)"><i class="ti ti-square"></i> Desmarcar todos</button>
+        <button class="cbtn sv" onclick="savePrefs()"><i class="ti ti-device-floppy"></i> Salvar</button>
         <span class="csaved" id="cSaved">✓ Salvo!</span>
       </div>
-      <div id="custSecs"></div>
     </div>
   </div>
-  <div class="vc-right" id="mainArea-customize">
-    <div class="wel" id="vWelcome-customize" style="display:flex;">
-      <div class="wel-logo">
-        <svg viewBox="0 0 44 44" fill="none"><path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/></svg>
-      </div>
-      <h1>Anam<em>IA</em></h1>
-      <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
-      <div class="wel-divider"></div>
-      <p class="wel-desc">Configure aqui quais seções a IA deve preencher automaticamente na anamnese.</p>
-    </div>
+  <div class="vb">
+    <div id="custSecs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
   </div>
 </div>
 
 <!-- VIEW: OSLER -->
 <div class="view-container" id="panel-osler">
-  <div class="vc-left-card">
-    <div class="vc-left-hdr">
-      <h2>Osler</h2>
-      <p>Configure o assistente de raciocínio clínico</p>
-    </div>
-    <div class="vc-left-body">
-      <div class="lbl">Osler na anamnese</div>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
-        <input type="checkbox" id="hipoteseChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['hipoteses']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Hipóteses Diagnósticas Sugeridas</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Possibilidades de diagnóstico diferencial</div>
-        </div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
-        <input type="checkbox" id="condutaChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['conduta']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Investigação Complementar e Proposta Terapêutica</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Sugestões de exames, condutas e tratamento</div>
-        </div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
-        <input type="checkbox" id="oslerEnabledChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="toggleOslerEnabled(this.checked)">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Chat Osler</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Debate livre sobre as hipóteses sugeridas, investigações e proposta terapêutica com o assistente clínico</div>
-        </div>
-      </label>
-    </div>
-
-    <div class="lbl">Modo de operação</div>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-claude">
-        <input type="radio" name="oslerMode" value="claude" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('claude')" checked>
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Somente Claude</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Raciocínio clínico baseado no conhecimento geral do modelo.</div>
-        </div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-pdf">
-        <input type="radio" name="oslerMode" value="pdf" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('pdf')">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Somente PDF</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Responde exclusivamente com base nos seus documentos carregados.</div>
-        </div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-hybrid">
-        <input type="radio" name="oslerMode" value="hybrid" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('hybrid')">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Híbrido <span style="font-size:10px;background:var(--verde-l);color:var(--verde);padding:1px 6px;border-radius:8px;font-weight:500;">Recomendado</span></div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">PDFs têm prioridade; Claude complementa quando necessário.</div>
-        </div>
-      </label>
-    </div>
-
-    <div class="lbl" style="margin-top:.25rem;">PDFs de referência</div>
-
-    <div id="docUploadArea" style="border:1.5px dashed var(--verde-b);border-radius:var(--rs);padding:14px;text-align:center;cursor:pointer;transition:all .15s;background:var(--verde-l);" onclick="document.getElementById('docFileInput').click()">
-      <svg viewBox="0 0 24 24" style="width:22px;height:22px;margin:0 auto 5px;display:block;fill:none;stroke:var(--verde);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="12" y1="18" x2="12" y2="12"/>
-        <line x1="9" y1="15" x2="15" y2="15"/>
-      </svg>
-      <div style="font-size:12px;font-weight:500;color:var(--verde);">Adicionar PDF</div>
-      <div style="font-size:10px;color:var(--cinza);margin-top:2px;">Guidelines, artigos, protocolos</div>
-    </div>
-    <input type="file" id="docFileInput" accept=".pdf" style="display:none" onchange="docHandleFile(this)"/>
-
-    <div id="docUploadStatus" style="display:none;font-size:11px;color:var(--cinza);padding:6px 0;text-align:center;"></div>
-
-    <div id="docList" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;"></div>
-
-    <div style="margin-top:.5rem;background:var(--verde-l);border:1px solid var(--verde-b);border-radius:var(--rs);padding:8px 10px;font-size:10px;color:var(--verde);line-height:1.5;">
-      <strong style="display:block;margin-bottom:2px;">Sobre o Osler</strong>
-      Homenagem a William Osler, pai da medicina moderna. O Osler analisa a consulta e a anamnese gerada para fornecer raciocínio clínico de apoio — não substitui o julgamento médico.
-    </div>
+  <div class="vh">
+    <div>
+      <div class="vh-title">Osler</div>
+      <div class="vh-sub">Assistente de raciocínio clínico — homenagem a William Osler, pai da medicina moderna</div>
     </div>
   </div>
-  <div class="vc-right" id="mainArea-osler">
-    <div class="wel" style="display:flex;">
-      <div class="wel-logo">
-        <svg viewBox="0 0 44 44" fill="none"><path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/></svg>
+  <div class="vb">
+    <div class="vc-grid-2">
+      <!-- Card: Configurações na anamnese -->
+      <div class="vc">
+        <div class="vc-hdr"><span class="vc-hdr-title">Na anamnese gerada</span></div>
+        <div class="vc-body">
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);">
+            <input type="checkbox" id="hipoteseChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['hipoteses']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Hipóteses Diagnósticas</div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">Possibilidades de diagnóstico diferencial</div></div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);">
+            <input type="checkbox" id="condutaChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['conduta']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Investigação e Terapêutica</div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">Sugestões de exames, condutas e tratamento</div></div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);">
+            <input type="checkbox" id="oslerEnabledChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="toggleOslerEnabled(this.checked)">
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Chat Osler</div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">Debate livre sobre hipóteses e condutas</div></div>
+          </label>
+        </div>
       </div>
-      <h1>Anam<em>IA</em></h1>
-      <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
-      <div class="wel-divider"></div>
-      <p class="wel-desc">Gere uma anamnese e o Osler aparecerá aqui com raciocínio clínico de apoio.</p>
+      <!-- Card: Modo de operação -->
+      <div class="vc">
+        <div class="vc-hdr"><span class="vc-hdr-title">Modo de operação</span></div>
+        <div class="vc-body">
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);" id="osler-opt-claude">
+            <input type="radio" name="oslerMode" value="claude" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('claude')" checked>
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Somente Claude</div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">Raciocínio clínico baseado no conhecimento do modelo</div></div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);" id="osler-opt-pdf">
+            <input type="radio" name="oslerMode" value="pdf" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('pdf')">
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Somente PDF</div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">Responde exclusivamente com base nos seus documentos</div></div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);" id="osler-opt-hybrid">
+            <input type="radio" name="oslerMode" value="hybrid" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('hybrid')">
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Híbrido <span style="font-size:10px;background:var(--verde-l);color:var(--verde);padding:1px 6px;border-radius:8px;">Recomendado</span></div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">PDFs têm prioridade; Claude complementa quando necessário</div></div>
+          </label>
+        </div>
+      </div>
+    </div>
+    <!-- Card: PDFs de referência (largura total) -->
+    <div class="vc">
+      <div class="vc-hdr"><span class="vc-hdr-title">PDFs de referência</span></div>
+      <div class="vc-body">
+        <div id="docUploadArea" style="border:1.5px dashed var(--verde-b);border-radius:var(--rs);padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--verde-ll);" onclick="document.getElementById('docFileInput').click()">
+          <svg viewBox="0 0 24 24" style="width:24px;height:24px;margin:0 auto 6px;display:block;fill:none;stroke:var(--verde);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          <div style="font-size:13px;font-weight:500;color:var(--verde);">Adicionar PDF</div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Guidelines, artigos, protocolos</div>
+        </div>
+        <input type="file" id="docFileInput" accept=".pdf" style="display:none" onchange="docHandleFile(this)"/>
+        <div id="docUploadStatus" style="display:none;font-size:11px;color:var(--cinza);text-align:center;"></div>
+        <div id="docList" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div style="background:var(--verde-ll);border:1px solid var(--verde-b);border-radius:var(--rs);padding:10px 12px;font-size:11px;color:var(--verde);line-height:1.5;">
+          <strong style="display:block;margin-bottom:2px;">Sobre o Osler</strong>
+          Homenagem a William Osler, pai da medicina moderna. O Osler analisa a consulta e a anamnese gerada para fornecer raciocínio clínico de apoio — não substitui o julgamento médico.
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- PAINEL: PERFIL -->
 <div class="view-container" id="panel-profile">
-  <div class="vc-left-card">
-    <div class="vc-left-hdr">
-      <h2>Perfil</h2>
-      <p>Suas informações profissionais</p>
+  <div class="vh">
+    <div>
+      <div class="vh-title">Perfil</div>
+      <div class="vh-sub">Suas informações profissionais e de contato</div>
     </div>
-    <div class="vc-left-body">
-      <!-- Avatar + nome atual -->
-    <div class="profile-avatar-wrap">
-      <div class="profile-avatar-big" id="profileAvatarBig">?</div>
+    <div class="vh-actions">
+      <div class="profile-avatar-big" id="profileAvatarBig" style="width:40px;height:40px;font-size:16px;">?</div>
       <div>
-        <div class="profile-name-big" id="profileNameBig">Carregando...</div>
+        <div class="profile-name-big" id="profileNameBig" style="font-size:14px;">Carregando...</div>
         <div class="profile-crm-tag" id="profileCrmTag"></div>
       </div>
     </div>
-
-    <!-- Campos editáveis -->
-    <div class="profile-field">
-      <div class="profile-label">Nome completo</div>
-      <input type="text" class="profile-input" id="pNome" placeholder="Dr. Nome Completo"/>
-    </div>
-
-    <div class="profile-field">
-      <div class="profile-label">Especialidade</div>
-      <input type="text" class="profile-input" id="pEspecialidade" placeholder="Ex: Clínica Médica, Cardiologia..."/>
-    </div>
-
-    <div class="profile-row">
-      <div class="profile-field">
-        <div class="profile-label">CRM</div>
-        <input type="text" class="profile-input" id="pCrm" placeholder="123456"/>
-      </div>
-      <div class="profile-field">
-        <div class="profile-label">UF</div>
-        <input type="text" class="profile-input" id="pUfCrm" placeholder="SP" maxlength="2" style="text-transform:uppercase;"/>
-      </div>
-    </div>
-
-    <div class="profile-field">
-      <div class="profile-label">Telefone / WhatsApp</div>
-      <input type="tel" class="profile-input" id="pTelefone" placeholder="(11) 99999-9999"/>
-    </div>
-
-    <div class="profile-field">
-      <div class="profile-label">E-mail de contato</div>
-      <input type="email" class="profile-input" id="pEmailContato" placeholder="medico@exemplo.com"/>
-    </div>
-
-    <button type="button" class="profile-save-btn" id="profileSaveBtn" onclick="profileSave('profileSaveBtn')">Salvar perfil</button>
-    <div class="profile-msg" id="profileMsg"></div>
-
-    <!-- ENDEREÇO -->
-    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--cinza-l);">
-      <div style="font-size:13px;font-weight:600;color:var(--preto);margin-bottom:4px;">Endereço</div>
-      <div style="font-size:11px;color:var(--cinza);margin-bottom:1rem;">Confira ou altere o seu endereço físico</div>
-
-      <div class="profile-row" style="grid-template-columns:140px 1fr;">
-        <div class="profile-field">
-          <div class="profile-label">CEP</div>
-          <input type="text" class="profile-input" id="pCep" placeholder="00000-000" maxlength="9" oninput="cepMask(this)" onblur="cepBuscar(this.value)"/>
-        </div>
-        <div class="profile-field">
-          <div class="profile-label">Rua</div>
-          <input type="text" class="profile-input" id="pRua" placeholder="Rua, Avenida..."/>
-        </div>
-      </div>
-
-      <div class="profile-row" style="grid-template-columns:100px 1fr;">
-        <div class="profile-field">
-          <div class="profile-label">Número</div>
-          <input type="text" class="profile-input" id="pNumero" placeholder="123"/>
-        </div>
-        <div class="profile-field">
-          <div class="profile-label">Complemento</div>
-          <input type="text" class="profile-input" id="pComplemento" placeholder="Sala, Andar..."/>
-        </div>
-      </div>
-
-      <div class="profile-field">
-        <div class="profile-label">Bairro</div>
-        <input type="text" class="profile-input" id="pBairro" placeholder="Bairro"/>
-      </div>
-
-      <div class="profile-row" style="grid-template-columns:1fr 80px;">
-        <div class="profile-field">
-          <div class="profile-label">Cidade</div>
-          <input type="text" class="profile-input" id="pCidade" placeholder="Cidade"/>
-        </div>
-        <div class="profile-field">
-          <div class="profile-label">UF</div>
-          <input type="text" class="profile-input" id="pUfEndereco" placeholder="SP" maxlength="2" style="text-transform:uppercase;"/>
-        </div>
-      </div>
-
-      <div style="font-size:10px;color:var(--cinza);margin-bottom:12px;margin-top:-6px;">
-        <span id="cepStatus"></span>
-      </div>
-
-      <button type="button" class="profile-save-btn" id="enderecoSaveBtn" onclick="event.stopPropagation();profileSave('enderecoSaveBtn')">Salvar endereço</button>
-    </div>
-
-    <div style="text-align:center;padding-top:8px;">
-      <a onclick="obShowAgain()" style="font-size:11px;color:var(--cinza);text-decoration:underline;cursor:pointer;">Ver introdução novamente</a>
-    </div>
-    </div>
   </div>
-  <div class="vc-right" id="mainArea-profile">
-    <div class="wel" style="display:flex;">
-      <div class="wel-logo">
-        <svg viewBox="0 0 44 44" fill="none"><path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/></svg>
+  <div class="vb">
+    <div class="vc-grid-2">
+      <!-- Card: Dados profissionais -->
+      <div class="vc">
+        <div class="vc-hdr"><span class="vc-hdr-title">Dados profissionais</span></div>
+        <div class="vc-body">
+          <div class="profile-field">
+            <div class="profile-label">Nome completo</div>
+            <input type="text" class="profile-input" id="pNome" placeholder="Dr. Nome Completo"/>
+          </div>
+          <div class="profile-field">
+            <div class="profile-label">Especialidade</div>
+            <input type="text" class="profile-input" id="pEspecialidade" placeholder="Ex: Clínica Médica, Cardiologia..."/>
+          </div>
+          <div class="profile-row">
+            <div class="profile-field">
+              <div class="profile-label">CRM</div>
+              <input type="text" class="profile-input" id="pCrm" placeholder="123456"/>
+            </div>
+            <div class="profile-field">
+              <div class="profile-label">UF</div>
+              <input type="text" class="profile-input" id="pUfCrm" placeholder="SP" maxlength="2" style="text-transform:uppercase;"/>
+            </div>
+          </div>
+          <div class="profile-field">
+            <div class="profile-label">Telefone / WhatsApp</div>
+            <input type="tel" class="profile-input" id="pTelefone" placeholder="(11) 99999-9999"/>
+          </div>
+          <div class="profile-field">
+            <div class="profile-label">E-mail de contato</div>
+            <input type="email" class="profile-input" id="pEmailContato" placeholder="medico@exemplo.com"/>
+          </div>
+          <button type="button" class="profile-save-btn" id="profileSaveBtn" onclick="profileSave('profileSaveBtn')">Salvar perfil</button>
+          <div class="profile-msg" id="profileMsg"></div>
+        </div>
       </div>
-      <h1>Anam<em>IA</em></h1>
-      <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
-      <div class="wel-divider"></div>
-      <p class="wel-desc">Mantenha seu perfil atualizado para que a anamnese gerada reflita suas informações clínicas.</p>
+      <!-- Card: Endereço -->
+      <div class="vc">
+        <div class="vc-hdr"><span class="vc-hdr-title">Endereço do consultório</span></div>
+        <div class="vc-body">
+          <div class="profile-row" style="grid-template-columns:140px 1fr;">
+            <div class="profile-field">
+              <div class="profile-label">CEP</div>
+              <input type="text" class="profile-input" id="pCep" placeholder="00000-000" maxlength="9" oninput="cepMask(this)" onblur="cepBuscar(this.value)"/>
+            </div>
+            <div class="profile-field">
+              <div class="profile-label">Rua</div>
+              <input type="text" class="profile-input" id="pRua" placeholder="Rua, Avenida..."/>
+            </div>
+          </div>
+          <div class="profile-row" style="grid-template-columns:100px 1fr;">
+            <div class="profile-field">
+              <div class="profile-label">Número</div>
+              <input type="text" class="profile-input" id="pNumero" placeholder="123"/>
+            </div>
+            <div class="profile-field">
+              <div class="profile-label">Complemento</div>
+              <input type="text" class="profile-input" id="pComplemento" placeholder="Sala, Andar..."/>
+            </div>
+          </div>
+          <div class="profile-field">
+            <div class="profile-label">Bairro</div>
+            <input type="text" class="profile-input" id="pBairro" placeholder="Bairro"/>
+          </div>
+          <div class="profile-row" style="grid-template-columns:1fr 80px;">
+            <div class="profile-field">
+              <div class="profile-label">Cidade</div>
+              <input type="text" class="profile-input" id="pCidade" placeholder="Cidade"/>
+            </div>
+            <div class="profile-field">
+              <div class="profile-label">UF</div>
+              <input type="text" class="profile-input" id="pUfEndereco" placeholder="SP" maxlength="2" style="text-transform:uppercase;"/>
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--cinza);"><span id="cepStatus"></span></div>
+          <button type="button" class="profile-save-btn" id="enderecoSaveBtn" onclick="event.stopPropagation();profileSave('enderecoSaveBtn')">Salvar endereço</button>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding-top:4px;">
+      <a onclick="obShowAgain()" style="font-size:11px;color:var(--cinza);text-decoration:underline;cursor:pointer;">Ver introdução novamente</a>
     </div>
   </div>
 </div>
@@ -1907,6 +1886,7 @@ async function authLogout() {
   document.getElementById('authErr').classList.remove('show');
   document.getElementById('authOvl').style.display = 'flex';
   var _vr = document.getElementById('vResult'); if(_vr) _vr.style.display = 'none';
+  var _ri3 = document.getElementById('recordInputState'); if(_ri3) _ri3.style.display='flex';
   showView('dashboard');
 }
 
@@ -2056,24 +2036,24 @@ function showView(v){
   if(container){ container.style.display='flex'; container.classList.add('show'); }
 
   if(v === 'record'){
-    var vWelcome = document.getElementById('vWelcome');
     var vResult = document.getElementById('vResult');
     var vLoading = document.getElementById('vLoading');
+    var recInput = document.getElementById('recordInputState');
     if(Object.keys(resultData).length > 0){
-      if(vResult) vResult.style.display='block';
-      if(vWelcome) vWelcome.style.display='none';
+      if(vResult){ vResult.style.display='flex'; }
+      if(recInput) recInput.style.display='none';
     } else {
-      if(vWelcome) vWelcome.style.display='flex';
+      if(recInput) recInput.style.display='flex';
       if(vResult) vResult.style.display='none';
     }
     if(vLoading) vLoading.style.display='none';
   } else if(v === 'history'){
     loadHistory();
-    // Show welcome-history by default; hcard click will reveal vResult-history
-    var wh = document.getElementById('vWelcome-history');
-    var rh = document.getElementById('vResult-history');
-    if(wh) wh.style.display='flex';
-    if(rh) rh.style.display='none';
+    // Always show list state when navigating to history
+    var hl = document.getElementById('histListState');
+    var hr = document.getElementById('histResultState');
+    if(hl) hl.style.display='flex';
+    if(hr) hr.style.display='none';
   } else if(v === 'profile'){
     profileLoad();
   } else if(v === 'osler'){
@@ -2288,7 +2268,7 @@ function oslerSetMode(m, btn){
 function toggleOslerEnabled(v){
   activeKeys['osler_chat'] = v;
   if(Object.keys(resultData).length>0){
-    document.getElementById("vResult").style.display="block";
+    document.getElementById("vResult").style.display="flex";
     renderResult(resultData);
   }
 }
@@ -2540,7 +2520,7 @@ function buildCustomize(){
         if(el) el.checked=on;
       });
       // Re-render instantly
-      if(Object.keys(resultData).length>0){document.getElementById("vResult").style.display="block";renderResult(resultData);}
+      if(Object.keys(resultData).length>0){document.getElementById("vResult").style.display="flex";renderResult(resultData);}
     });;
     hdr.addEventListener("click",function(e){
       if(e.target.tagName==="INPUT") return;
@@ -2585,7 +2565,7 @@ function mkChk(f){
     }
     // Re-render instantly if anamnese already generated
     if(Object.keys(resultData).length>0){
-      document.getElementById("vResult").style.display="block";
+      document.getElementById("vResult").style.display="flex";
       renderResult(resultData);
     }
   });
@@ -2618,7 +2598,7 @@ function processTranscript(){
   if(!txManual && !fullTx){ alert("Cole ou grave uma transcrição antes de processar."); return; }
 
   showView("record");
-  var _vw2 = document.getElementById("vWelcome"); if(_vw2) _vw2.style.display="none";
+  var _ri2 = document.getElementById("recordInputState"); if(_ri2) _ri2.style.display="none";
   var _vr2 = document.getElementById("vResult"); if(_vr2) _vr2.style.display="none";
   document.getElementById("vLoading").style.display="flex";
 
@@ -2704,7 +2684,7 @@ function processTranscript(){
   .catch(function(err){
     clearInterval(mint);
     document.getElementById("vLoading").style.display="none";
-    document.getElementById("vWelcome").style.display="flex";
+    var _riW=document.getElementById("recordInputState");if(_riW)_riW.style.display="flex";;
     alert("Erro: "+err.message);
   });
 }
@@ -2929,7 +2909,11 @@ function oslerAddMsg(type, text){
 
 function renderResult(d){
   document.getElementById("vLoading").style.display="none";
-  document.getElementById("vResult").style.display="block";
+  var _riX=document.getElementById("recordInputState");if(_riX)_riX.style.display="none";
+  document.getElementById("vResult").style.display="flex";
+  // Ensure record view-container is visible
+  var _pr=document.getElementById("panel-record");
+  if(_pr && _pr.style.display==="none"){ showView("record"); }
   document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR");
   var c=document.getElementById("resCont"); c.innerHTML="";
 
@@ -3136,7 +3120,7 @@ function renderResult(d){
 
 function renderRaw(txt){
   document.getElementById("vLoading").style.display="none";
-  document.getElementById("vResult").style.display="block";
+  document.getElementById("vResult").style.display="flex";
   document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR");
   document.getElementById("resCont").innerHTML="<div class=\"sc\"><div class=\"sch\" onclick=\"toggleSec(this)\"><div class=\"schl\"><div class=\"sct\">Anamnese</div></div><span class=\"scc open\">▾</span></div><div class=\"scb open\" style=\"white-space:pre-wrap;font-size:12px\">"+esc(txt)+"</div></div>";
 }
@@ -3858,25 +3842,22 @@ async function abrirConsulta(id){
 
     resultData = c.anamnese;
     currentConsultaId = c.id;
-    // Show in history view's vc-right
+    // Show in history view — switch to result state
     showView('history');
     renderResult(resultData);
-    // Move result display to history vc-right
-    var vw = document.getElementById('vWelcome'); if(vw) vw.style.display='none';
-    var vr = document.getElementById('vResult'); if(vr) vr.style.display='none';
-    var wh = document.getElementById('vWelcome-history'); if(wh) wh.style.display='none';
-    var rh = document.getElementById('vResult-history');
-    if(rh){
-      // Move result content into history right
-      var resCont = document.getElementById('resCont');
-      var histResCont = document.getElementById('histResCont');
-      if(histResCont && resCont) histResCont.innerHTML = resCont.innerHTML;
-      rh.style.display='block';
-      var histMeta = document.getElementById('histMeta');
-      if(histMeta) histMeta.textContent = 'Consulta salva em ' + fmtData(c.created_at);
-      var histName = document.getElementById('histPacName');
-      if(histName) histName.textContent = c.paciente_nome || 'Consulta';
-    }
+    // Populate histResCont from resCont
+    var resCont = document.getElementById('resCont');
+    var histResCont = document.getElementById('histResCont');
+    if(histResCont && resCont) histResCont.innerHTML = resCont.innerHTML;
+    // Switch states
+    var hl = document.getElementById('histListState');
+    var hr = document.getElementById('histResultState');
+    if(hl) hl.style.display='none';
+    if(hr) hr.style.display='flex';
+    var histMeta = document.getElementById('histMeta');
+    if(histMeta) histMeta.textContent = 'Consulta salva em ' + fmtData(c.created_at);
+    var histName = document.getElementById('histPacName');
+    if(histName) histName.textContent = c.paciente_nome || 'Consulta';
     setTimeout(function(){ anexosInit(); }, 100);
     // Consulta ja salva — esconde barra de save
     var saveBar = document.getElementById('saveBar');
@@ -4307,7 +4288,7 @@ async function tcEncerrar() {
   if(audioBlob && audioBlob.size > 1000){
     if(confirm('Teleconsulta encerrada (' + Math.floor(duracaoSegundos/60) + 'min). Deseja transcrever e gerar a anamnese agora?')){
       showView('record');
-      var _tcw = document.getElementById('vWelcome'); if(_tcw) _tcw.style.display = 'none';
+      var _riTC=document.getElementById("recordInputState");if(_riTC)_riTC.style.display="none";
       await tcTranscrever(audioBlob, duracaoSegundos);
     }
   } else {
