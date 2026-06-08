@@ -151,11 +151,11 @@ body{
 .presc-hdr{padding:2rem 2.5rem 1.25rem;border-bottom:1px solid var(--cinza-l);background:var(--pergaminho);flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;}
 .presc-hdr h1{font-family:var(--font-serif);font-size:26px;font-weight:400;color:var(--preto);letter-spacing:-.3px;margin-bottom:3px;}
 .presc-hdr p{font-size:12px;color:var(--cinza);margin-top:3px;}
-.presc-body{padding:1.75rem 2.5rem;flex:1;overflow-y:auto;}
-.presc-empty{display:flex;flex-direction:column;align-items:flex-start;gap:.6rem;max-width:860px;margin:0 auto;width:100%;}
+.presc-body{padding:1.75rem 2.5rem;flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.presc-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:.6rem;max-width:500px;margin:0 auto;padding:3rem 0;width:100%;}
 .presc-empty-ico{width:52px;height:52px;background:var(--verde-l);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--verde);margin-bottom:.75rem;}
 .presc-empty h3{font-family:var(--font-serif);font-size:26px;font-weight:400;color:var(--preto);letter-spacing:-.3px;line-height:1.2;}
-.presc-empty p{font-size:13px;color:var(--cinza);max-width:460px;line-height:1.7;margin-top:.1rem;}
+.presc-empty p{font-size:13px;color:var(--cinza);max-width:400px;line-height:1.7;margin-top:.1rem;text-align:center;}
 /* ── MODAL LOCAL ATENDIMENTO ── */
 .la-ovl{position:fixed;inset:0;background:rgba(10,10,10,.45);z-index:9998;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:2rem 1rem;}
 .la-ovl.open{display:flex;}
@@ -670,7 +670,7 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
   width:100%;height:100%;
   flex-direction:column;
   box-sizing:border-box;
-  overflow-y:auto;
+  overflow:hidden;
   animation:fadeIn .22s ease;
   background:var(--pergaminho);
 }
@@ -697,8 +697,9 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 /* Body da view — área com padding e scroll */
 .vb{
   flex:1;overflow-y:auto;
-  padding:1.75rem 2.5rem;
+  padding:1.75rem 2.5rem 3rem;
   display:flex;flex-direction:column;gap:1.5rem;
+  min-height:0;
 }
 .vb::-webkit-scrollbar{width:4px;}
 .vb::-webkit-scrollbar-thumb{background:var(--cinza-l);border-radius:4px;}
