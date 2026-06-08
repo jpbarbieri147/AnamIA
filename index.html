@@ -1915,10 +1915,17 @@ window.addEventListener('DOMContentLoaded', async function() {
       onAuthSuccess(sessionRes.data.session.user);
     }
     supa.auth.onAuthStateChange(function(event, session){
-      if(event === 'SIGNED_IN' && session) onAuthSuccess(session.user);
+      if(event === 'SIGNED_IN' && session){
+        // Só redireciona para dashboard no login inicial, não em token refresh
+        if(!currentUser){
+          onAuthSuccess(session.user);
+        } else {
+          // Token renovado silenciosamente — apenas atualiza o usuário sem navegar
+          currentUser = session.user;
+        }
+      }
       if(event === 'SIGNED_OUT'){
         currentUser = null;
-        document.getElementById('hdrUser').style.display = 'none';
       }
     });
   } catch(e) { console.error('Auth session check error:', e); }
