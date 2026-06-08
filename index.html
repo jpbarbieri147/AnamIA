@@ -1901,6 +1901,8 @@ async function authLogout() {
   document.getElementById('authOvl').style.display = 'flex';
   var _vr = document.getElementById('vResult'); if(_vr) _vr.style.display = 'none';
   var _ri3 = document.getElementById('recordInputState'); if(_ri3) _ri3.style.display='flex';
+  // Reseta flags de init para próximo login
+  _viewInited = {};
   showView('dashboard');
 }
 
@@ -2017,6 +2019,9 @@ function getAllFields(s){
 function isActive(k){ return activeKeys[k]===true; }
 
 // ── VIEWS ──
+// Estado de inicialização por view — evita recarregar ao trocar de aba
+var _viewInited = {};
+
 function showView(v){
   // Atualiza nav items
   ['dashboard','record','history','customize','osler','profile','agenda','prescricao'].forEach(function(id){
@@ -2043,12 +2048,14 @@ function showView(v){
   }
   if(v === 'agenda'){
     if(vAgenda){ vAgenda.style.display='flex'; vAgenda.classList.add('show'); }
+    // Agenda sempre recarrega pois dados mudam com frequência
     agendaLoad(); agendaLoadPacientes();
     return;
   }
   if(v === 'prescricao'){
     if(vPrescricao){ vPrescricao.style.display='flex'; vPrescricao.classList.add('show'); }
-    prescLoad();
+    // Prescrição só carrega na primeira vez; recarregar explicitamente com prescLoad()
+    if(!_viewInited['prescricao']){ prescLoad(); _viewInited['prescricao'] = true; }
     return;
   }
 
@@ -2057,6 +2064,7 @@ function showView(v){
   if(container){ container.style.display='flex'; container.classList.add('show'); }
 
   if(v === 'record'){
+    // Restaura o estado exato que estava — resultado ou formulário, sem reiniciar
     var vResult = document.getElementById('vResult');
     var vLoading = document.getElementById('vLoading');
     var recInput = document.getElementById('recordInputState');
@@ -2069,17 +2077,27 @@ function showView(v){
     }
     if(vLoading) vLoading.style.display='none';
   } else if(v === 'history'){
-    loadHistory();
-    // Always show list state when navigating to history
-    var hl = document.getElementById('histListState');
-    var hr = document.getElementById('histResultState');
-    if(hl) hl.style.display='flex';
-    if(hr) hr.style.display='none';
+    // Só carrega lista na primeira vez — preserva estado aberto (anamnese, lista, pasta)
+    if(!_viewInited['history']){
+      loadHistory();
+      _viewInited['history'] = true;
+    }
+    // Não força nenhum estado de display — mantém o que estava visível
   } else if(v === 'profile'){
-    profileLoad();
+    // Perfil só carrega na primeira vez
+    if(!_viewInited['profile']){ profileLoad(); _viewInited['profile'] = true; }
   } else if(v === 'osler'){
-    docLoadList();
+    // Osler só carrega na primeira vez
+    if(!_viewInited['osler']){ docLoadList(); _viewInited['osler'] = true; }
+  } else if(v === 'customize'){
+    // Personalização não precisa de init especial
   }
+}
+
+// Força recarga explícita de uma view (usar após salvar, criar, deletar)
+function reloadView(v){
+  _viewInited[v] = false;
+  showView(v);
 }
 
 // ── DASHBOARD ──
@@ -3781,14 +3799,14 @@ async function hModalConfirm(){
       });
       if(r.status === 409){ alert('Já existe uma pasta com esse nome.'); return; }
       if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao criar pasta.'); return; }
-      hModalClose(); loadHistory();
+      hModalClose(); reloadView('history');
     } else if(ctx.tipo === 'renomear_pasta'){
       var r2 = await fetch('/api/gerenciar', {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ access_token: token, acao: 'pacientes_update', id: ctx.id, nome: valor })
       });
       if(!r2.ok){ var e2=await r2.text(); console.error(e2); alert('Erro ao renomear.'); return; }
-      hModalClose(); loadHistory();
+      hModalClose(); reloadView('history');
     } else if(ctx.tipo === 'renomear_consulta'){
       var r3 = await fetch('/api/gerenciar', {
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -3816,7 +3834,7 @@ async function excluirPasta(id, nome, numConsultas){
       body: JSON.stringify({ access_token: token, acao: 'pacientes_delete', id: id })
     });
     if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao excluir pasta.'); return; }
-    loadHistory();
+    reloadView('history');
   } catch(e){ console.error('excluirPasta exception:', e); alert('Erro inesperado.'); }
 }
 
@@ -3971,7 +3989,7 @@ async function moverConfirm(){
     } else if(histState.view === 'inside'){
       abrirPasta(null, 'Sem pasta');
     } else {
-      loadHistory();
+      reloadView('history');
     }
   } catch(e){
     console.error('moverConfirm exception:', e);
