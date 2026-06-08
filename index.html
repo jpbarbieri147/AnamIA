@@ -12,32 +12,32 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 .ti{font-size:14px;line-height:1;vertical-align:-2px;}
 :root{
-  /* Brandbook AnamIA v2.0 — escala refinada */
-  --verde:     #0F6E56;
-  --verde-d:   #0A5A43;
+  /* Brandbook AnamIA v3.0 — Passo 1 */
+  --verde:     #3F5A3B;
+  --verde-d:   #31452D;
   --verde-m:   #4ECFA3;
-  --verde-l:   #E1F5EE;
-  --verde-ll:  #F0FAF6;
-  --verde-b:   #9FE1CB;
-  --verde-txt: #085041;
-  --preto:     #1A1814;
-  --pergaminho:#F7F5F0;
-  --cinza:     #6B6760;
-  --cinza-l:   #E6E2DA;
-  --cinza-ll:  #F2EFE9;
-  --cinza-warm:#8B877E;
-  --branco:    #FFFFFF;
+  --verde-l:   #E8EFE7;
+  --verde-ll:  #F2F6F1;
+  --verde-b:   #B4C9B1;
+  --verde-txt: #2A3D27;
+  --preto:     #1E1C18;
+  --pergaminho:#F7F4EE;
+  --cinza:     #6E6B63;
+  --cinza-l:   #E3DED5;
+  --cinza-ll:  #EDE9E2;
+  --cinza-warm:#8E8A82;
+  --branco:    #FAFAF8;
   --red:       #A32D2D;
   --red-l:     #FCEBEB;
   --amber:     #854F0B;
   --amber-l:   #FAEEDA;
   --blue:      #185FA5;
-  --r:         14px;
-  --rs:        10px;
-  --rl:        18px;
-  --sh-sm:     0 1px 2px rgba(26,24,20,.04), 0 1px 3px rgba(26,24,20,.06);
-  --sh-md:     0 2px 4px rgba(26,24,20,.04), 0 4px 12px rgba(26,24,20,.07);
-  --sh-lg:     0 4px 8px rgba(26,24,20,.05), 0 12px 32px rgba(26,24,20,.09);
+  --r:         20px;
+  --rs:        12px;
+  --rl:        24px;
+  --sh-sm:     0 1px 3px rgba(20,18,14,.03), 0 2px 6px rgba(20,18,14,.05);
+  --sh-md:     0 2px 6px rgba(20,18,14,.04), 0 6px 20px rgba(20,18,14,.07);
+  --sh-lg:     0 4px 12px rgba(20,18,14,.04), 0 16px 48px rgba(20,18,14,.09);
   --font-serif:'EB Garamond',Georgia,serif;
   --font-sans: 'Inter',system-ui,sans-serif;
 }
@@ -55,7 +55,7 @@ body{
   position:fixed;top:0;left:0;
   height:100vh;
   width:64px;
-  background:var(--verde);
+  background:#2D3D2A;
   display:flex;flex-direction:column;
   z-index:300;
   transition:width .25s cubic-bezier(.4,0,.2,1);
@@ -796,7 +796,7 @@ body.nav-open{padding-left:276px;}
   cursor:pointer;font-family:var(--font-sans);white-space:nowrap;
   transition:background .15s;
 }
-.save-bar-btn:hover{background:#0D6E50;}
+.save-bar-btn:hover{background:#31452D;}
 .save-bar-btn:disabled{opacity:.5;cursor:not-allowed;}
 .save-bar-done{font-size:12px;color:var(--verde);font-weight:500;}
 
@@ -930,7 +930,7 @@ body.nav-open{padding-left:276px;}
 .hsearch:focus{border-color:var(--verde);}
 .htools-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .hnewbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:background .15s;}
-.hnewbtn:hover{background:#0D6E50;}
+.hnewbtn:hover{background:#31452D;}
 .hsort{padding:8px 10px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:12px;font-family:var(--font-sans);color:var(--preto);background:var(--branco);cursor:pointer;outline:none;}
 .hsort:focus{border-color:var(--verde);}
 .hback{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:var(--verde);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);padding:4px 0;margin-bottom:.5rem;}
@@ -963,7 +963,7 @@ body.nav-open{padding-left:276px;}
 .mover-btn{padding:9px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);border:1px solid var(--cinza-l);background:var(--branco);color:var(--preto);transition:all .15s;}
 .mover-btn:hover{background:var(--pergaminho);}
 .mover-btn.primary{background:var(--verde);color:#fff;border-color:var(--verde);}
-.mover-btn.primary:hover{background:#0D6E50;}
+.mover-btn.primary:hover{background:#31452D;}
 .mover-btn:disabled{opacity:.5;cursor:not-allowed;}
 .hmodal-ovl{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,10,10,.4);z-index:9999;display:none;align-items:center;justify-content:center;}
 .hmodal-ovl.open{display:flex;}
@@ -975,7 +975,7 @@ body.nav-open{padding-left:276px;}
 .hmodal-btn{padding:9px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);border:1px solid var(--cinza-l);background:var(--branco);color:var(--preto);transition:all .15s;}
 .hmodal-btn:hover{background:var(--pergaminho);}
 .hmodal-btn.primary{background:var(--verde);color:#fff;border-color:var(--verde);}
-.hmodal-btn.primary:hover{background:#0D6E50;}
+.hmodal-btn.primary:hover{background:#31452D;}
 .cacts{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
 .cbtn{
   padding:7px 12px;border:1px solid var(--cinza-l);
@@ -985,7 +985,7 @@ body.nav-open{padding-left:276px;}
 }
 .cbtn:hover{background:var(--pergaminho);}
 .cbtn.sv{background:var(--verde);color:#fff;border-color:var(--verde);font-weight:600;}
-.cbtn.sv:hover{background:#0D6E50;}
+.cbtn.sv:hover{background:#31452D;}
 .csaved{font-size:11px;color:var(--verde);display:none;}
 .csaved.show{display:inline;}
 .csec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);margin-bottom:.5rem;overflow:hidden;}
@@ -1037,7 +1037,7 @@ body.nav-open{padding-left:276px;}
 .osler-input{flex:1;border:1px solid var(--cinza-l);border-radius:var(--rs);padding:8px 10px;font-size:12px;font-family:var(--font-sans);resize:none;outline:none;min-height:38px;max-height:100px;background:var(--branco);}
 .osler-input:focus{border-color:var(--verde);}
 .osler-send{width:36px;height:36px;border-radius:var(--rs);background:var(--verde);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-end;}
-.osler-send:hover{background:#0D6E50;}
+.osler-send:hover{background:#31452D;}
 .osler-send svg{width:16px;height:16px;fill:#fff;}
 .osler-disclaimer{font-size:10px;color:var(--cinza);font-style:italic;padding:6px 14px 10px;text-align:center;line-height:1.5;}
 /* ── OSLER MODE PILLS ── */
@@ -1074,7 +1074,7 @@ body.nav-open{padding-left:276px;}
 .mcan{padding:8px 16px;border:1px solid var(--cinza-l);border-radius:var(--rs);background:var(--branco);font-size:12px;cursor:pointer;font-family:var(--font-sans);color:var(--preto);}
 .mcan:hover{background:var(--pergaminho);}
 .mdl{padding:8px 18px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);}
-.mdl:hover{background:#0D6E50;}
+.mdl:hover{background:#31452D;}
 
 /* === AUTH OVERLAY === */
 .auth-ovl{position:fixed;inset:0;background:rgba(247,245,240,.97);z-index:99999;display:flex;align-items:center;justify-content:center;}
@@ -1082,7 +1082,7 @@ body.nav-open{padding-left:276px;}
 /* Logo mark (container verde arredondado) — brandbook */
 .logo-mark{
   width:36px;height:36px;border-radius:8px;
-  background:#0A5A43;
+  background:#31452D;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
 }
@@ -1108,7 +1108,7 @@ body.nav-open{padding-left:276px;}
 .auth-err.show{display:block;}
 .auth-ovl *{pointer-events:auto;}
 .auth-btn{width:100%;padding:11px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:all .15s;margin-top:.2rem;}
-.auth-btn:hover{background:#0D6E50;}
+.auth-btn:hover{background:#31452D;}
 .auth-btn:disabled{opacity:.6;cursor:not-allowed;}
 /* hdr-user legacy — substituído pelo nav-user */
 </style>
@@ -2910,16 +2910,16 @@ function buildHTML(secs,forPrint){
 
   var h = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Anamnese — " + (nomeMedico||'AnamIA') + "</title><style>";
   h += "body{font-family:Georgia,serif;font-size:11px;line-height:1.7;margin:2cm;color:#1A1814}";
-  h += ".cabecalho{border-bottom:2px solid #0A5A43;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;}";
+  h += ".cabecalho{border-bottom:2px solid #31452D;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;}";
   h += ".cab-left{}";
-  h += ".cab-nome{font-size:16px;font-weight:bold;color:#0A5A43;margin:0 0 2px;}";
-  h += ".cab-esp{font-size:11px;color:#0A5A43;margin:0 0 2px;}";
+  h += ".cab-nome{font-size:16px;font-weight:bold;color:#31452D;margin:0 0 2px;}";
+  h += ".cab-esp{font-size:11px;color:#31452D;margin:0 0 2px;}";
   h += ".cab-crm{font-size:10px;color:#555;margin:0;}";
   h += ".cab-right{text-align:right;font-size:10px;color:#555;line-height:1.6;}";
-  h += ".cab-logo{font-size:11px;font-weight:bold;color:#0A5A43;letter-spacing:.5px;margin-bottom:4px;}";
+  h += ".cab-logo{font-size:11px;font-weight:bold;color:#31452D;letter-spacing:.5px;margin-bottom:4px;}";
   h += ".doc-title{font-size:15px;font-weight:bold;color:#1A1814;margin:16px 0 2px;}";
   h += ".doc-meta{font-size:10px;color:#888;margin-bottom:12px;}";
-  h += "h2{font-size:12px;font-weight:bold;margin:14px 0 5px;border-bottom:1px solid #ccc;padding-bottom:2px;color:#0A5A43}";
+  h += "h2{font-size:12px;font-weight:bold;margin:14px 0 5px;border-bottom:1px solid #ccc;padding-bottom:2px;color:#31452D}";
   h += ".r{display:flex;gap:10px;margin:2px 0}.lb{min-width:150px;color:#555;font-size:10px}.vl{font-size:11px}";
   h += ".tx{font-size:11px;white-space:pre-wrap;background:#f9f7f2;border:1px solid #e2ddd6;border-radius:6px;padding:8px;margin:4px 0}";
   h += ".warn{background:#FFF3CD;border:1px solid #FAC775;padding:8px;font-size:10px;margin-top:20px;border-radius:6px}";
@@ -5634,7 +5634,7 @@ function pfGerarPdfDoc(dados,med){
     '<div style="margin-top:40px;text-align:right;font-size:11px;">'+
     '<div style="display:inline-block;border-top:1px solid #000;padding-top:4px;min-width:200px;text-align:center;">Assinatura do médico</div></div>'+
     '<div class="no-print" style="text-align:center;margin-top:20px;">'+
-    '<button onclick="window.print()" style="padding:8px 20px;background:#0F6E56;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Imprimir / Salvar PDF</button>'+
+    '<button onclick="window.print()" style="padding:8px 20px;background:#3F5A3B;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Imprimir / Salvar PDF</button>'+
     ' <button onclick="window.close()" style="padding:8px 16px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;margin-left:8px;">Fechar</button>'+
     '</div></body></html>';
   var win=window.open('','_blank','width=700,height=900');
