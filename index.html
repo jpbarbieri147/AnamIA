@@ -710,18 +710,20 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
   border-radius:20px;
   box-shadow:var(--sh-sm);
   overflow:hidden;
+  display:flex;flex-direction:column;
 }
 .vc-hdr{
   padding:14px 20px;
   border-bottom:1px solid var(--cinza-l);
   display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
 }
 .vc-hdr-title{
   font-size:12px;font-weight:600;
   letter-spacing:.6px;text-transform:uppercase;
   color:var(--cinza);
 }
-.vc-body{padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:.85rem;}
+.vc-body{padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:.85rem;flex:1;}
 
 /* Grid de cards */
 .vc-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
@@ -994,8 +996,8 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .hpanel{padding:1.5rem 1.75rem;overflow-y:auto;background:var(--pergaminho);}
 .hpanel h1{font-family:var(--font-serif);font-size:26px;font-weight:500;color:var(--preto);margin-bottom:.3rem;letter-spacing:-.3px;}
 .hintro{font-size:12px;color:var(--cinza);margin-bottom:1.5rem;line-height:1.6;}
-.hlist{display:flex;flex-direction:column;gap:.6rem;}
-.hcard{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:16px 18px;border:1px solid var(--cinza-l);border-radius:var(--r);background:var(--branco);cursor:pointer;transition:all .16s ease;box-shadow:var(--sh-sm);}
+.hlist{display:flex;flex-direction:column;gap:.75rem;padding:.25rem 0;}
+.hcard{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:16px 20px;border:1px solid var(--cinza-l);border-radius:20px;background:var(--branco);cursor:pointer;transition:all .16s ease;box-shadow:var(--sh-sm);}
 .hcard:hover{border-color:var(--verde-b);background:var(--verde-ll);box-shadow:var(--sh-md);}
 .hcard-main{flex:1;min-width:0;}
 .hcard-name{font-size:14px;font-weight:500;color:var(--preto);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1025,11 +1027,20 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .cid-code{font-weight:600;color:var(--verde);margin-right:6px;}
 .cid-desc{color:var(--preto);}
 .cid-hint{font-size:10px;color:var(--cinza);padding:8px 12px;text-align:center;}
-.htools{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem;}
-.hsearch{width:100%;padding:9px 12px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:var(--font-sans);color:var(--preto);outline:none;transition:border-color .15s;}
+.htools{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem;}
+.hsearch{
+  width:100%;padding:10px 14px;
+  border:1px solid var(--cinza-l);
+  border-radius:12px;
+  font-size:13px;font-family:var(--font-sans);
+  color:var(--preto);background:var(--branco);
+  outline:none;transition:border-color .15s,box-shadow .15s;
+  box-shadow:var(--sh-sm);
+}
+.hsearch:focus{border-color:var(--verde);box-shadow:0 0 0 3px var(--verde-ll);}
 .hsearch:focus{border-color:var(--verde);}
 .htools-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.hnewbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:background .15s;}
+.hnewbtn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:var(--verde);color:#fff;border:none;border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:all .15s;box-shadow:var(--sh-sm);}
 .hnewbtn:hover{background:#2A3F25;}
 .hsort{padding:8px 10px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:12px;font-family:var(--font-sans);color:var(--preto);background:var(--branco);cursor:pointer;outline:none;}
 .hsort:focus{border-color:var(--verde);}
@@ -1286,7 +1297,7 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 <!-- VIEW: NOVA CONSULTA -->
 <div class="view-container" id="panel-record">
   <!-- Estado: entrada (gravação/transcrição) -->
-  <div id="recordInputState">
+  <div id="recordInputState" style="display:flex;flex-direction:column;flex:1;min-height:0;">
     <div class="vh">
       <div>
         <div class="vh-title">Nova Consulta</div>
@@ -1299,12 +1310,12 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
         </div>
       </div>
     </div>
-    <div class="vb" id="recordPanelBody">
-      <div class="vc-grid-2">
+    <div class="vb" id="recordPanelBody" style="flex:1;">
+      <div class="vc-grid-2" style="align-items:stretch;flex:1;">
         <!-- Card: Gravação -->
         <div class="vc">
           <div class="vc-hdr"><span class="vc-hdr-title">Gravação</span></div>
-          <div class="vc-body" style="align-items:center;text-align:center;padding:2rem 1.5rem;">
+          <div class="vc-body" style="align-items:center;text-align:center;padding:2rem 1.5rem;flex:1;">
             <div class="reca" id="recArea" style="border:none;padding:0;background:transparent;">
               <button class="rbtn" id="recBtn" onclick="toggleRec()">
                 <svg id="micIco" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
@@ -1330,7 +1341,7 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
         <!-- Card: Colar transcrição -->
         <div class="vc">
           <div class="vc-hdr"><span class="vc-hdr-title">Colar transcrição</span></div>
-          <div class="vc-body" style="height:100%;">
+          <div class="vc-body" style="flex:1;display:flex;flex-direction:column;">
             <div style="font-size:12px;color:var(--cinza);line-height:1.6;">
               Cole aqui a transcrição da consulta no formato médico. Use os prefixos <strong>[MEDICO]</strong> e <strong>[PACIENTE]</strong> para identificar as falas.
             </div>
@@ -1390,12 +1401,8 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
       </div>
     </div>
     <div class="vb">
-      <div class="vc">
-        <div class="vc-body" style="padding:0;">
-          <div id="hList" class="hlist">
-            <div class="hloading">Carregando...</div>
-          </div>
-        </div>
+      <div id="hList" class="hlist">
+        <div class="hloading">Carregando...</div>
       </div>
     </div>
   </div>
@@ -3508,7 +3515,7 @@ async function loadHistory(){
     if(!res.ok){
       var errText = await res.text();
       console.error('Erro ao listar pastas:', res.status, errText);
-      box.innerHTML = '<div class="hempty">Erro ao carregar o histórico.</div>';
+      box.innerHTML = '<div class="hempty" style="padding:2rem;text-align:center;color:var(--cinza);">Erro ' + res.status + ' ao carregar o histórico.<br><small style=\'font-size:10px;opacity:.7;\'>' + (errText.slice(0,120)||'') + '</small><br><br><button onclick=\'loadHistory()\' style=\'margin-top:4px;padding:6px 14px;border:1px solid var(--cinza-l);border-radius:8px;background:var(--branco);cursor:pointer;font-size:12px;\'>Tentar novamente</button></div>';
       return;
     }
     var data = await res.json();
@@ -3517,7 +3524,7 @@ async function loadHistory(){
     renderFolders();
   } catch(e) {
     console.error('loadHistory exception:', e);
-    box.innerHTML = '<div class="hempty">Erro ao carregar o histórico.</div>';
+    box.innerHTML = '<div class="hempty" style="padding:2rem;text-align:center;color:var(--cinza);">Erro de conexão.<br><small style=\'font-size:10px;opacity:.7;\'>' + (e.message||'') + '</small><br><br><button onclick=\'loadHistory()\' style=\'margin-top:4px;padding:6px 14px;border:1px solid var(--cinza-l);border-radius:8px;background:var(--branco);cursor:pointer;font-size:12px;\'>Tentar novamente</button></div>';
   }
 }
 
@@ -3842,8 +3849,15 @@ async function abrirConsulta(id){
 
     resultData = c.anamnese;
     currentConsultaId = c.id;
-    // Show in history view — switch to result state
-    showView('history');
+    // Show history panel without reloading the list
+    var _hp = document.getElementById('panel-history');
+    if(_hp){ 
+      document.querySelectorAll('.view-container').forEach(function(el){ el.style.display='none'; el.classList.remove('show'); });
+      _hp.style.display='flex'; _hp.classList.add('show');
+    }
+    // Update nav active state
+    document.querySelectorAll('.tn-item').forEach(function(el){ el.classList.remove('active'); });
+    var _hn = document.getElementById('sb-history'); if(_hn) _hn.classList.add('active');
     renderResult(resultData);
     // Populate histResCont from resCont
     var resCont = document.getElementById('resCont');
