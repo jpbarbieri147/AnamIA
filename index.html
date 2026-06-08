@@ -401,28 +401,31 @@ body{
 .profile-save-btn:disabled{opacity:.5;cursor:not-allowed;}
 .profile-msg{font-size:11px;text-align:center;padding:6px 0;min-height:20px;color:var(--verde);}
 
-/* ── LAYOUT v2 — top nav + sidebar ── */
-body{padding-left:0;padding-top:56px;}
-.layout{display:flex;height:calc(100vh - 56px);}
+/* ── LAYOUT v2 — top nav horizontal flutuante ── */
+body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
+.layout{display:flex;height:calc(100vh - 76px);}
 
-/* ── TOP NAV ── */
+/* ── TOP NAV — flutuante com bordas arredondadas ── */
 .topnav{
-  position:fixed;top:0;left:0;right:0;
+  position:fixed;top:10px;left:12px;right:12px;
   height:56px;
   background:#283820;
   display:flex;align-items:center;
   z-index:400;
-  border-bottom:1px solid rgba(255,255,255,.07);
+  border-radius:16px;
+  box-shadow:0 4px 20px rgba(20,30,15,.25), 0 1px 4px rgba(20,30,15,.15);
 }
+/* Logo — sem borda direita */
 .topnav-logo{
   display:flex;align-items:center;gap:10px;
-  padding:0 20px;
+  padding:0 18px 0 16px;
   text-decoration:none;
-  border-right:1px solid rgba(255,255,255,.08);
   height:100%;
   cursor:pointer;
   flex-shrink:0;
+  border-radius:16px 0 0 16px;
 }
+.topnav-logo:hover{background:rgba(255,255,255,.05);}
 .topnav-logo-mark{
   width:32px;height:32px;
   background:rgba(255,255,255,.1);
@@ -438,47 +441,80 @@ body{padding-left:0;padding-top:56px;}
   white-space:nowrap;
 }
 .topnav-wordmark em{font-style:normal;color:var(--verde-m);}
-/* Nav items — center of topnav */
+
+/* Saudação — canto superior esquerdo fora da nav */
+.topnav-greeting{
+  position:fixed;top:78px;left:20px;
+  font-family:var(--font-serif);
+  font-size:15px;font-weight:400;
+  color:var(--verde-txt);
+  letter-spacing:-.1px;
+  z-index:300;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .3s;
+}
+.topnav-greeting.show{opacity:1;}
+
+/* Nav items — ícone em cima, label embaixo */
 .topnav-items{
-  display:flex;align-items:center;gap:2px;
-  padding:0 16px;
+  display:flex;align-items:center;gap:1px;
+  padding:0 8px;
   height:100%;
   flex:1;
 }
 .tn-item{
-  display:flex;align-items:center;gap:7px;
-  padding:0 14px;height:36px;
-  cursor:pointer;border-radius:var(--rs);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:0 12px;height:100%;min-width:64px;
+  cursor:pointer;border-radius:10px;
   background:none;border:none;
   font-family:var(--font-sans);
-  color:rgba(255,255,255,.65);
-  font-size:13px;font-weight:500;
+  color:rgba(255,255,255,.6);
+  font-size:10px;font-weight:500;
   transition:background .15s, color .15s;
   white-space:nowrap;
   position:relative;
+  letter-spacing:.1px;
 }
-.tn-item:hover{background:rgba(255,255,255,.08);color:#fff;}
-.tn-item.active{background:rgba(255,255,255,.14);color:#fff;}
-.tn-item-ico{width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.tn-item-ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.tn-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9);}
+.tn-item.active{background:rgba(255,255,255,.13);color:#fff;}
+.tn-item-ico{
+  width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.tn-item-ico svg{
+  width:18px;height:18px;
+  stroke:currentColor;fill:none;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+}
 .tn-badge{
-  font-size:9px;font-weight:600;
+  position:absolute;top:6px;right:6px;
+  font-size:8px;font-weight:700;
   color:#283820;background:var(--verde-m);
-  padding:1px 6px;border-radius:8px;
-  margin-left:2px;letter-spacing:.3px;
+  padding:1px 5px;border-radius:6px;
+  letter-spacing:.2px;
 }
-/* Right section */
+
+/* Separador vertical centralizado — só antes da seção do usuário */
+.topnav-sep{
+  width:1px;height:28px;
+  background:rgba(255,255,255,.15);
+  flex-shrink:0;
+  margin:0 4px;
+  align-self:center;
+}
+
+/* Right section — usuário */
 .topnav-right{
   display:flex;align-items:center;
   gap:4px;
-  padding:0 12px;
-  border-left:1px solid rgba(255,255,255,.08);
-  height:100%;
+  padding:0 10px;
   flex-shrink:0;
 }
 .topnav-user{
   display:flex;align-items:center;gap:9px;
-  padding:6px 10px;border-radius:var(--rs);
+  padding:6px 10px;border-radius:10px;
   cursor:pointer;
   transition:background .15s;
 }
@@ -491,12 +527,12 @@ body{padding-left:0;padding-top:56px;}
   font-size:12px;font-weight:600;color:#fff;
   flex-shrink:0;
 }
-.topnav-username{font-size:12px;font-weight:500;color:rgba(255,255,255,.85);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;}
+.topnav-username{font-size:12px;font-weight:500;color:rgba(255,255,255,.9);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;}
 .topnav-userrole{font-size:10px;color:rgba(255,255,255,.45);}
 .topnav-logout{
-  width:34px;height:34px;border-radius:var(--rs);
+  width:34px;height:34px;border-radius:10px;
   background:none;border:none;cursor:pointer;
-  color:rgba(255,255,255,.5);
+  color:rgba(255,255,255,.45);
   display:flex;align-items:center;justify-content:center;
   transition:background .15s, color .15s;
 }
@@ -1122,9 +1158,12 @@ body{padding-left:0;padding-top:56px;}
 </head>
 <body>
 
+<!-- Saudação flutuante -->
+<div class="topnav-greeting" id="topGreeting"></div>
+
 <!-- TOP NAV -->
 <nav class="topnav" id="topNav">
-  <!-- Logo -->
+  <!-- Logo — sem borda separadora -->
   <div class="topnav-logo" onclick="showView('dashboard')" title="Início">
     <div class="topnav-logo-mark">
       <svg width="20" height="20" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1135,7 +1174,7 @@ body{padding-left:0;padding-top:56px;}
     <span class="topnav-wordmark">Anam<em>IA</em></span>
   </div>
 
-  <!-- Nav items centrais -->
+  <!-- Nav items — ícone em cima, label embaixo -->
   <div class="topnav-items" id="topNavItems" style="display:none;">
     <button class="tn-item active" id="sb-dashboard" onclick="showView('dashboard')">
       <span class="tn-item-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
@@ -1167,6 +1206,9 @@ body{padding-left:0;padding-top:56px;}
       Personalização
     </button>
   </div>
+
+  <!-- Separador centralizado — só antes do usuário -->
+  <div class="topnav-sep" id="topNavSep" style="display:none;"></div>
 
   <!-- Usuário + logout -->
   <div class="topnav-right" id="topNavRight" style="display:none;">
@@ -1765,6 +1807,10 @@ function onAuthSuccess(user) {
   if(topRight) topRight.style.display = 'flex';
   var topItems = document.getElementById('topNavItems');
   if(topItems) topItems.style.display = 'flex';
+  var topSep = document.getElementById('topNavSep');
+  if(topSep) topSep.style.display = 'block';
+  var topGreeting = document.getElementById('topGreeting');
+  if(topGreeting) topGreeting.classList.add('show');
   var topName = document.getElementById('topNavName');
   if(topName) topName.textContent = name;
   var topAv = document.getElementById('topNavAvatar');
@@ -1785,6 +1831,10 @@ async function authLogout() {
   if(topRight) topRight.style.display = 'none';
   var topItems = document.getElementById('topNavItems');
   if(topItems) topItems.style.display = 'none';
+  var topSep = document.getElementById('topNavSep');
+  if(topSep) topSep.style.display = 'none';
+  var topGreeting = document.getElementById('topGreeting');
+  if(topGreeting) topGreeting.classList.remove('show');
   document.getElementById('authEmail').value = '';
   document.getElementById('authPwd').value = '';
   document.getElementById('authErr').classList.remove('show');
@@ -1970,8 +2020,11 @@ function dashSetGreeting(name) {
   var h = new Date().getHours();
   var saud = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
   var firstName = (name || '').split(' ')[0];
+  var text = saud + (firstName ? ', Dr. ' + firstName : '') + '.';
   var el = document.getElementById('dashGreeting');
-  if(el) el.textContent = saud + (firstName ? ', ' + firstName : '') + '.';
+  if(el) el.textContent = text;
+  var tg = document.getElementById('topGreeting');
+  if(tg) tg.textContent = text;
 }
 
 async function dashLoad() {
