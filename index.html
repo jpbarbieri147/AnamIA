@@ -438,11 +438,43 @@ body{padding-left:0;padding-top:56px;}
   white-space:nowrap;
 }
 .topnav-wordmark em{font-style:normal;color:var(--verde-m);}
+/* Nav items — center of topnav */
+.topnav-items{
+  display:flex;align-items:center;gap:2px;
+  padding:0 16px;
+  height:100%;
+  flex:1;
+}
+.tn-item{
+  display:flex;align-items:center;gap:7px;
+  padding:0 14px;height:36px;
+  cursor:pointer;border-radius:var(--rs);
+  background:none;border:none;
+  font-family:var(--font-sans);
+  color:rgba(255,255,255,.65);
+  font-size:13px;font-weight:500;
+  transition:background .15s, color .15s;
+  white-space:nowrap;
+  position:relative;
+}
+.tn-item:hover{background:rgba(255,255,255,.08);color:#fff;}
+.tn-item.active{background:rgba(255,255,255,.14);color:#fff;}
+.tn-item-ico{width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tn-item-ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.tn-badge{
+  font-size:9px;font-weight:600;
+  color:#283820;background:var(--verde-m);
+  padding:1px 6px;border-radius:8px;
+  margin-left:2px;letter-spacing:.3px;
+}
+/* Right section */
 .topnav-right{
-  margin-left:auto;
   display:flex;align-items:center;
   gap:4px;
   padding:0 12px;
+  border-left:1px solid rgba(255,255,255,.08);
+  height:100%;
+  flex-shrink:0;
 }
 .topnav-user{
   display:flex;align-items:center;gap:9px;
@@ -459,7 +491,7 @@ body{padding-left:0;padding-top:56px;}
   font-size:12px;font-weight:600;color:#fff;
   flex-shrink:0;
 }
-.topnav-username{font-size:12px;font-weight:500;color:rgba(255,255,255,.85);white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;}
+.topnav-username{font-size:12px;font-weight:500;color:rgba(255,255,255,.85);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;}
 .topnav-userrole{font-size:10px;color:rgba(255,255,255,.45);}
 .topnav-logout{
   width:34px;height:34px;border-radius:var(--rs);
@@ -470,58 +502,6 @@ body{padding-left:0;padding-top:56px;}
 }
 .topnav-logout:hover{background:rgba(255,255,255,.1);color:#fff;}
 .topnav-logout svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-
-/* ── SIDEBAR ── */
-.sidebar{
-  width:220px;flex-shrink:0;
-  background:#FAFAF8;
-  border-right:1px solid var(--cinza-l);
-  display:flex;flex-direction:column;
-  height:100%;
-  overflow:hidden;
-}
-.sidebar-section{
-  padding:8px 10px 4px;
-  font-size:10px;font-weight:600;color:var(--cinza-warm);
-  letter-spacing:.6px;text-transform:uppercase;
-}
-.sidebar-items{
-  flex:1;overflow-y:auto;overflow-x:hidden;
-  padding:6px 8px;
-  display:flex;flex-direction:column;gap:1px;
-}
-.sidebar-items::-webkit-scrollbar{width:0;}
-.sb-item{
-  display:flex;align-items:center;gap:10px;
-  padding:9px 10px;
-  cursor:pointer;border-radius:var(--rs);
-  background:none;border:none;
-  font-family:var(--font-sans);
-  color:var(--cinza);
-  text-align:left;
-  transition:background .15s, color .15s;
-  white-space:nowrap;
-  width:100%;
-  font-size:13px;font-weight:500;
-  position:relative;
-}
-.sb-item:hover{background:var(--cinza-ll);color:var(--preto);}
-.sb-item.active{background:var(--verde-l);color:var(--verde-txt);}
-.sb-item-ico{
-  width:30px;height:30px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  border-radius:8px;
-  transition:background .15s;
-}
-.sb-item.active .sb-item-ico{background:var(--verde-b);}
-.sb-item-ico svg{width:16px;height:16px;stroke:currentColor;fill:none;}
-.sb-item-ico svg[data-filled]{fill:currentColor;stroke:none;}
-.sb-badge{
-  font-size:9px;font-weight:600;
-  color:var(--verde-txt);background:var(--verde-b);
-  padding:1px 6px;border-radius:8px;
-  margin-left:auto;letter-spacing:.3px;
-}
 
 /* ── PAINEL LATERAL (conteúdo dos itens do nav) ── */
 .panel{
@@ -1144,15 +1124,51 @@ body{padding-left:0;padding-top:56px;}
 
 <!-- TOP NAV -->
 <nav class="topnav" id="topNav">
+  <!-- Logo -->
   <div class="topnav-logo" onclick="showView('dashboard')" title="Início">
     <div class="topnav-logo-mark">
       <svg width="20" height="20" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        </svg>
+        <path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
     </div>
     <span class="topnav-wordmark">Anam<em>IA</em></span>
   </div>
+
+  <!-- Nav items centrais -->
+  <div class="topnav-items" id="topNavItems" style="display:none;">
+    <button class="tn-item active" id="sb-dashboard" onclick="showView('dashboard')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+      Início
+    </button>
+    <button class="tn-item" id="sb-record" onclick="showView('record')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></span>
+      Nova Consulta
+      <span class="tn-badge">Beta</span>
+    </button>
+    <button class="tn-item" id="sb-history" onclick="showView('history')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg></span>
+      Histórico
+    </button>
+    <button class="tn-item" id="sb-prescricao" onclick="showView('prescricao')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></span>
+      Prescrição
+    </button>
+    <button class="tn-item" id="sb-agenda" onclick="showView('agenda')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+      Agenda
+    </button>
+    <button class="tn-item" id="sb-osler" onclick="showView('osler')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 2a7 7 0 015 11.9V16a1 1 0 01-1 1H8a1 1 0 01-1-1v-2.1A7 7 0 0112 2z"/></svg></span>
+      Osler
+    </button>
+    <button class="tn-item" id="sb-customize" onclick="showView('customize')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2.5"/><circle cx="16" cy="12" r="2.5"/><circle cx="10" cy="18" r="2.5"/></svg></span>
+      Personalização
+    </button>
+  </div>
+
+  <!-- Usuário + logout -->
   <div class="topnav-right" id="topNavRight" style="display:none;">
     <div class="topnav-user" onclick="showView('profile')" title="Perfil" id="topNavUser">
       <div class="topnav-avatar" id="topNavAvatar">?</div>
@@ -1169,55 +1185,6 @@ body{padding-left:0;padding-top:56px;}
 
 
 <div class="layout">
-<!-- SIDEBAR -->
-<nav class="sidebar" id="sideNav">
-  <div class="sidebar-items">
-    <button class="sb-item active" id="sb-dashboard" onclick="showView('dashboard')">
-      <span class="sb-item-ico">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      </span>
-      Início
-    </button>
-    <button class="sb-item" id="sb-record" onclick="showView('record')">
-      <span class="sb-item-ico">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
-      </span>
-      Nova Consulta
-      <span class="sb-badge">Beta</span>
-    </button>
-    <button class="sb-item" id="sb-history" onclick="showView('history')">
-      <span class="sb-item-ico">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
-      </span>
-      Histórico
-    </button>
-    <button class="sb-item" id="sb-prescricao" onclick="showView('prescricao')">
-      <span class="sb-item-ico">
-        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
-      </span>
-      Prescrição
-    </button>
-    <button class="sb-item" id="sb-agenda" onclick="showView('agenda')">
-      <span class="sb-item-ico">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      </span>
-      Agenda
-    </button>
-    <button class="sb-item" id="sb-osler" onclick="showView('osler')">
-      <span class="sb-item-ico">
-        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 2a7 7 0 015 11.9V16a1 1 0 01-1 1H8a1 1 0 01-1-1v-2.1A7 7 0 0112 2z"/></svg>
-      </span>
-      Osler
-    </button>
-    <button class="sb-item" id="sb-customize" onclick="showView('customize')">
-      <span class="sb-item-ico">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2.5"/><circle cx="16" cy="12" r="2.5"/><circle cx="10" cy="18" r="2.5"/></svg>
-      </span>
-      Personalização
-    </button>
-  </div>
-</nav>
-
 
 <!-- PAINEL: NOVA CONSULTA -->
 <aside class="panel" id="panel-record">
@@ -1796,6 +1763,8 @@ function onAuthSuccess(user) {
   // Atualiza topnav
   var topRight = document.getElementById('topNavRight');
   if(topRight) topRight.style.display = 'flex';
+  var topItems = document.getElementById('topNavItems');
+  if(topItems) topItems.style.display = 'flex';
   var topName = document.getElementById('topNavName');
   if(topName) topName.textContent = name;
   var topAv = document.getElementById('topNavAvatar');
@@ -1814,6 +1783,8 @@ async function authLogout() {
   resultData = {};
   var topRight = document.getElementById('topNavRight');
   if(topRight) topRight.style.display = 'none';
+  var topItems = document.getElementById('topNavItems');
+  if(topItems) topItems.style.display = 'none';
   document.getElementById('authEmail').value = '';
   document.getElementById('authPwd').value = '';
   document.getElementById('authErr').classList.remove('show');
