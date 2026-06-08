@@ -58,10 +58,10 @@ body{
 .dash-greeting h1{font-family:var(--font-serif);font-size:32px;font-weight:500;color:var(--preto);letter-spacing:-.4px;line-height:1.2;}
 .dash-greeting p{font-size:13px;color:var(--cinza);margin-top:4px;}
 .dash-modules{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2rem;}
-.dash-mod{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);padding:18px;cursor:pointer;transition:all .18s ease;box-shadow:var(--sh-sm);}
+.dash-mod{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);padding:22px 18px;cursor:pointer;transition:all .18s ease;box-shadow:var(--sh-sm);display:flex;flex-direction:column;align-items:center;text-align:center;}
 .dash-mod:hover{border-color:var(--verde-b);box-shadow:var(--sh-md);transform:translateY(-1px);}
-.dash-mod-ico{width:40px;height:40px;border-radius:10px;background:var(--verde-l);display:flex;align-items:center;justify-content:center;margin-bottom:12px;color:var(--verde);}
-.dash-mod-ico svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.dash-mod-ico{width:44px;height:44px;border-radius:12px;background:var(--verde-l);display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:var(--verde);}
+.dash-mod-ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
 .dash-mod-title{font-size:14px;font-weight:600;color:var(--preto);margin-bottom:4px;}
 .dash-mod-desc{font-size:11px;color:var(--cinza);line-height:1.5;}
 .dash-widgets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
@@ -405,17 +405,16 @@ body{
 body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .layout{display:flex;height:calc(100vh - 76px);}
 
-/* ── TOP NAV — flutuante centralizado, comprimento automático ── */
+/* ── TOP NAV — flutuante, alinhado com dash-body ── */
 .topnav{
   position:fixed;top:10px;
-  left:50%;transform:translateX(-50%);
+  left:2.5rem;right:2.5rem;
   height:56px;
   background:#283820;
-  display:inline-flex;align-items:center;
+  display:flex;align-items:center;
   z-index:400;
   border-radius:16px;
   box-shadow:0 4px 20px rgba(20,30,15,.25), 0 1px 4px rgba(20,30,15,.15);
-  white-space:nowrap;
 }
 /* Logo — sem borda direita */
 .topnav-logo{
@@ -447,9 +446,10 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 
 /* Nav items — ícone em cima, label embaixo */
 .topnav-items{
-  display:flex;align-items:center;gap:1px;
+  display:flex;align-items:center;justify-content:center;gap:1px;
   padding:0 8px;
   height:100%;
+  flex:1;
 }
 .tn-item{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
