@@ -2950,9 +2950,7 @@ function renderResult(d){
   document.getElementById("vLoading").style.display="none";
   var _riX=document.getElementById("recordInputState");if(_riX)_riX.style.display="none";
   document.getElementById("vResult").style.display="flex";
-  // Ensure record view-container is visible
-  var _pr=document.getElementById("panel-record");
-  if(_pr && _pr.style.display==="none"){ showView("record"); }
+  // Não redireciona automaticamente — quem chama renderResult decide qual view mostrar
   document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR");
   var c=document.getElementById("resCont"); c.innerHTML="";
 
