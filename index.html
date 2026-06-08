@@ -1378,7 +1378,7 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
         <button class="bts" id="editBtn" onclick="toggleEdit()"><i class="ti ti-pencil"></i> Editar</button>
         <button class="bts" onclick="openExport()"><i class="ti ti-download"></i> Baixar</button>
         <button class="btp" onclick="doPrint()"><i class="ti ti-printer"></i> Imprimir</button>
-        <button class="bts" onclick="showView('record');document.getElementById('recordInputState').style.display='flex';" style="color:var(--cinza);">
+        <button class="bts" onclick="novaConsulta();" style="color:var(--cinza);">
           <i class="ti ti-arrow-left"></i> Nova
         </button>
       </div>
@@ -2022,6 +2022,19 @@ function isActive(k){ return activeKeys[k]===true; }
 // Estado de inicialização por view — evita recarregar ao trocar de aba
 var _viewInited = {};
 
+function novaConsulta(){
+  // Limpa resultado atual e volta ao formulário
+  resultData = {};
+  currentConsultaId = null;
+  var resCont = document.getElementById('resCont');
+  if(resCont) resCont.innerHTML = '';
+  var vResult = document.getElementById('vResult');
+  if(vResult) vResult.style.display = 'none';
+  var recInput = document.getElementById('recordInputState');
+  if(recInput) recInput.style.display = 'flex';
+  showView('record');
+}
+
 function showView(v){
   // Atualiza nav items
   ['dashboard','record','history','customize','osler','profile','agenda','prescricao'].forEach(function(id){
@@ -2064,11 +2077,13 @@ function showView(v){
   if(container){ container.style.display='flex'; container.classList.add('show'); }
 
   if(v === 'record'){
-    // Restaura o estado exato que estava — resultado ou formulário, sem reiniciar
     var vResult = document.getElementById('vResult');
     var vLoading = document.getElementById('vLoading');
     var recInput = document.getElementById('recordInputState');
-    if(Object.keys(resultData).length > 0){
+    var resCont = document.getElementById('resCont');
+    // Só mostra resultado se resCont tiver conteúdo renderizado (não vindo do histórico)
+    var hasRenderedResult = resCont && resCont.children.length > 0;
+    if(hasRenderedResult){
       if(vResult){ vResult.style.display='flex'; }
       if(recInput) recInput.style.display='none';
     } else {
