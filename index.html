@@ -2147,15 +2147,20 @@ async function dashLoadAgenda() {
     var dateLabel = today.toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'});
     dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
 
-    var { data, error } = await supa
-      .from('agendamentos')
-      .select('horario, paciente_nome, tipo_consulta, status')
-      .eq('medico_id', currentUser.id)
-      .eq('data', todayStr)
-      .order('horario', {ascending: true})
-      .limit(20);
+    var token = await getToken();
+    var apiRes = await fetch('/api/gerenciar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'agenda_list', ano: parseInt(yyyy), mes: parseInt(mm) })
+    });
+    var apiData = apiRes.ok ? await apiRes.json() : {};
+    var allAgds = apiData.agendamentos || [];
+    // Filtra só os do dia de hoje
+    var data = allAgds.filter(function(a){ return a.data === todayStr; });
+    data.sort(function(a,b){ return (a.hora||'') > (b.hora||'') ? 1 : -1; });
+    var error = null;
 
-    if(error || !data || data.length === 0) {
+    if(!data || data.length === 0) {
       el.innerHTML = '<div class="dash-agenda-date">'+dateLabel+'</div>'
         + '<div class="dash-empty" style="padding:1.5rem 0;text-align:center;color:var(--cinza);font-size:12px;">Nenhum agendamento para hoje.</div>';
       return;
@@ -2174,7 +2179,7 @@ async function dashLoadAgenda() {
     var shown = data.slice(0, 6);
     var html = '<div class="dash-agenda-date">'+dateLabel+'</div>';
     shown.forEach(function(ag) {
-      var hora = (ag.horario || '').slice(0,5);
+      var hora = (ag.hora || '').slice(0,5);
       var cfg = statusCfg[ag.status] || { cls:'aconfirmar', txt: ag.status || 'Agendado' };
       html += '<div class="dash-ag-item">'
         + '<div class="dash-ag-time">'+hora+'</div>'
@@ -2206,8 +2211,15 @@ async function dashLoadResumo() {
     var todayStr = yyyy+'-'+mm+'-'+dd;
 
     // Query: agendamentos do dia
-    var agRes = await supa.from('agendamentos').select('id,status').eq('medico_id',currentUser.id).eq('data',todayStr);
-    var agds = agRes.data || [];
+    // Reutiliza o mesmo endpoint do backend para consistência com RLS
+    var token2 = await getToken();
+    var agApiRes = await fetch('/api/gerenciar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token2, acao: 'agenda_list', ano: parseInt(yyyy), mes: parseInt(mm) })
+    });
+    var agApiData = agApiRes.ok ? await agApiRes.json() : {};
+    var agds = (agApiData.agendamentos || []).filter(function(a){ return a.data === todayStr; });
 
     var agendado   = agds.filter(function(a){ return a.status==='agendado'; }).length;
     var confirmado = agds.filter(function(a){ return a.status==='confirmado'; }).length;
