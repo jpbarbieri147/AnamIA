@@ -3192,6 +3192,15 @@ function renderResult(d, targetContainer){
         + '<textarea class="sdef-input" data-key="conduta_def" placeholder="Descreva a conduta definitiva do médico..." style="min-height:80px;">' + escapeHTML(d["conduta_def"] || "") + '</textarea></div>';
     }
     s16body += '</div>';
+    // Botão Prescrever — aparece abaixo da conduta definitiva
+    if(isActive("conduta_def")){
+      s16body += '<div style="padding:12px 16px 16px;border-top:1px solid var(--verde-b);background:var(--verde-ll);">'
+        + '<button type="button" onclick="prescricaoFromAnamnese()" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:var(--verde);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);">'
+        + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>'
+        + 'Prescrever</button>'
+        + '<span id="prescFromAnamMsg" style="margin-left:10px;font-size:11px;color:var(--cinza);"></span>'
+        + '</div>';
+    }
     s16.innerHTML = s16body;
     c.appendChild(s16);
   }
@@ -6194,6 +6203,99 @@ async function pfSalvarNovoPac(){
   }catch(e){
     if(msg){msg.textContent='Erro: '+e.message;msg.style.color='var(--red)';}
   }
+}
+
+// ── PRESCREVER A PARTIR DA ANAMNESE ──
+async function prescricaoFromAnamnese(){
+  var msg = document.getElementById('prescFromAnamMsg');
+  if(msg){ msg.textContent = 'Extraindo medicamentos...'; msg.style.color = 'var(--cinza)'; }
+
+  // Coleta texto da conduta
+  var condutaDef = '';
+  var condutaEl = document.querySelector('.sdef-input[data-key="conduta_def"]');
+  if(condutaEl) condutaDef = condutaEl.value.trim();
+  var condutaTer = (resultData && resultData.conduta) ? resultData.conduta : '';
+  var textoConduta = [condutaDef, condutaTer].filter(Boolean).join('\n\n');
+
+  if(!textoConduta){
+    if(msg){ msg.textContent = 'Preencha a conduta definitiva primeiro.'; msg.style.color = 'var(--red)'; }
+    return;
+  }
+
+  // Nome do paciente da anamnese atual
+  var pacNome = (resultData && resultData.id_nome) ? resultData.id_nome.trim() : '';
+
+  try {
+    // Chama Claude para extrair fármacos
+    var apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'Você é um assistente médico. Extraia SOMENTE os medicamentos mencionados na conduta. Responda EXCLUSIVAMENTE em JSON válido, sem texto adicional, sem markdown. Formato: {"medicamentos":[{"substancia":"NOME EM MAIÚSCULAS","dose":"dose e forma farmacêutica","posologia":"como usar","via":"oral/im/ev etc"}]}. Se não houver medicamentos, retorne {"medicamentos":[]}.',
+        messages: [{ role: 'user', content: 'Conduta médica:\n\n' + textoConduta }]
+      })
+    });
+    var apiData = await apiRes.json();
+    var raw = (apiData.content && apiData.content[0]) ? apiData.content[0].text : '{}';
+    var clean = raw.replace(/```json|```/g,'').trim();
+    var parsed = JSON.parse(clean);
+    var meds = parsed.medicamentos || [];
+
+    if(meds.length === 0){
+      if(msg){ msg.textContent = 'Nenhum medicamento encontrado na conduta.'; msg.style.color = 'var(--amber)'; }
+      return;
+    }
+
+    if(msg){ msg.textContent = meds.length + ' medicamento(s) identificado(s). Abrindo prescrição...'; msg.style.color = 'var(--verde)'; }
+
+    // Navega para prescrição
+    showView('prescricao');
+
+    // Aguarda render e pré-preenche
+    setTimeout(function(){
+      prescricaoPreencherDaAnamnese(meds, pacNome);
+    }, 600);
+
+  } catch(e) {
+    console.error('prescricaoFromAnamnese error:', e);
+    if(msg){ msg.textContent = 'Erro: ' + e.message; msg.style.color = 'var(--red)'; }
+  }
+}
+
+function prescricaoPreencherDaAnamnese(meds, pacNome){
+  // 1. Abre nova prescrição
+  prescNovaClick();
+
+  setTimeout(function(){
+    // 2. Pré-preenche busca do paciente
+    if(pacNome){
+      var pacInp = document.getElementById('pfPacSearch');
+      if(pacInp){
+        pacInp.value = pacNome;
+        pfPacBuscar(pacNome);
+      }
+    }
+
+    // 3. Remove o medicamento vazio inicial e adiciona os extraídos
+    // pfMedCounter já tem 1 card criado pelo prescNovaClick
+    // Preenche o primeiro e adiciona os restantes
+    meds.forEach(function(med, i){
+      if(i > 0) pfAddMed();
+      setTimeout(function(){
+        // ID do card: pfMed_(pfMedCounter - meds.length + i + 1)
+        var base = 'pfMed_' + (pfMedCounter - meds.length + i + 1);
+        var set = function(sfx, val){
+          var el = document.getElementById(base + sfx);
+          if(el && val) el.value = val;
+        };
+        set('_sub',  med.substancia || '');
+        set('_dose', [med.dose, med.via].filter(Boolean).join(' · ') || '');
+        set('_pos',  med.posologia || '');
+      }, i * 100);
+    });
+  }, 700);
 }
 
 // ── INIT ──
