@@ -89,6 +89,8 @@ body{
 .dash-ag-badge.confirmado{background:var(--verde-l);color:var(--verde-txt);}
 .dash-ag-badge.aconfirmar{background:var(--amber-l);color:var(--amber);}
 .dash-ag-badge.cancelado{background:var(--cinza-ll);color:var(--cinza);}
+.dash-ag-badge.compareceu{background:#E6EDE4;color:#2A3F25;}
+.dash-ag-badge.faltou{background:var(--red-l);color:var(--red);}
 .dash-ag-more{font-size:11px;color:var(--cinza);padding-top:8px;cursor:pointer;text-align:center;}
 .dash-ag-more:hover{color:var(--verde);}
 /* Resumo do dia */
@@ -2151,31 +2153,40 @@ async function dashLoadAgenda() {
       .eq('medico_id', currentUser.id)
       .eq('data', todayStr)
       .order('horario', {ascending: true})
-      .limit(7);
+      .limit(20);
 
     if(error || !data || data.length === 0) {
-      el.innerHTML = '<div class="dash-agenda-date">'+dateLabel+'</div><div class="dash-empty">Nenhum agendamento para hoje.</div>';
+      el.innerHTML = '<div class="dash-agenda-date">'+dateLabel+'</div>'
+        + '<div class="dash-empty" style="padding:1.5rem 0;text-align:center;color:var(--cinza);font-size:12px;">Nenhum agendamento para hoje.</div>';
       return;
     }
 
+    // statusMap completo com todos os 5 status
+    var statusCfg = {
+      agendado:   { cls:'aconfirmar', txt:'Agendado' },
+      confirmado: { cls:'confirmado', txt:'Confirmado' },
+      compareceu: { cls:'compareceu', txt:'Compareceu' },
+      faltou:     { cls:'faltou',     txt:'Faltou' },
+      cancelado:  { cls:'cancelado',  txt:'Cancelado' },
+      a_confirmar:{ cls:'aconfirmar', txt:'A confirmar' }
+    };
+
+    var shown = data.slice(0, 6);
     var html = '<div class="dash-agenda-date">'+dateLabel+'</div>';
-    var shown = data.slice(0,5);
     shown.forEach(function(ag) {
       var hora = (ag.horario || '').slice(0,5);
-      var statusMap = {confirmado:'confirmado', a_confirmar:'aconfirmar', cancelado:'cancelado'};
-      var badgeCls = statusMap[ag.status] || 'confirmado';
-      var badgeTxt = ag.status === 'a_confirmar' ? 'A confirmar' : ag.status === 'cancelado' ? 'Cancelado' : 'Confirmado';
+      var cfg = statusCfg[ag.status] || { cls:'aconfirmar', txt: ag.status || 'Agendado' };
       html += '<div class="dash-ag-item">'
         + '<div class="dash-ag-time">'+hora+'</div>'
         + '<div class="dash-ag-info">'
         +   '<div class="dash-ag-name">'+(ag.paciente_nome||'—')+'</div>'
         +   '<div class="dash-ag-tipo">'+(ag.tipo_consulta||'Consulta')+'</div>'
         + '</div>'
-        + '<div class="dash-ag-badge '+badgeCls+'">'+badgeTxt+'</div>'
+        + '<div class="dash-ag-badge '+cfg.cls+'">'+cfg.txt+'</div>'
         + '</div>';
     });
-    if(data.length > 5) {
-      html += '<div class="dash-ag-more" onclick="showView(&quot;agenda&quot;)">+ '+(data.length-5)+' compromisso(s) &#9662;</div>';
+    if(data.length > 6) {
+      html += '<div class="dash-ag-more" onclick="showView(&quot;agenda&quot;)">+ '+(data.length-6)+' compromisso'+(data.length-6>1?'s':'')+' &#9662;</div>';
     }
     el.innerHTML = html;
   } catch(e) {
@@ -2194,16 +2205,9 @@ async function dashLoadResumo() {
     var dd = String(today.getDate()).padStart(2,'0');
     var todayStr = yyyy+'-'+mm+'-'+dd;
 
-    // Três queries paralelas: agendamentos + prontuários + prescrições
-    var [agRes, consRes, prescRes] = await Promise.all([
-      supa.from('agendamentos').select('id,status').eq('medico_id',currentUser.id).eq('data',todayStr),
-      supa.from('consultas').select('id').eq('medico_id',currentUser.id).gte('created_at',todayStr+'T00:00:00').lte('created_at',todayStr+'T23:59:59'),
-      supa.from('prescricoes').select('id').eq('medico_id',currentUser.id).gte('created_at',todayStr+'T00:00:00').lte('created_at',todayStr+'T23:59:59')
-    ]);
-
-    var agds     = agRes.data || [];
-    var pronts   = consRes.data ? consRes.data.length : 0;
-    var prescs   = prescRes.data ? prescRes.data.length : 0;
+    // Query: agendamentos do dia
+    var agRes = await supa.from('agendamentos').select('id,status').eq('medico_id',currentUser.id).eq('data',todayStr);
+    var agds = agRes.data || [];
 
     var agendado   = agds.filter(function(a){ return a.status==='agendado'; }).length;
     var confirmado = agds.filter(function(a){ return a.status==='confirmado'; }).length;
@@ -2224,8 +2228,6 @@ async function dashLoadResumo() {
       + stat(compareceu, 'Compareceu',   'var(--verde)')
       + stat(faltou,     'Faltou',       'var(--amber)')
       + stat(cancelado,  'Cancelou',     'var(--red)')
-      + stat(pronts,     'Prontuários',  'var(--blue)')
-      + stat(prescs,     'Prescrições',  'var(--blue)')
       + '</div>';
 
     el.innerHTML = html;
@@ -2252,27 +2254,40 @@ async function dashLoadRecentes() {
       return;
     }
 
+    // Paleta de avatares — alterna entre 5 tons de verde musgo
+    var avatarColors = [
+      {bg:'#2A3F25',fg:'#F7F4EE'},
+      {bg:'#3A5530',fg:'#F7F4EE'},
+      {bg:'#4A6546',fg:'#F7F4EE'},
+      {bg:'#E6EDE4',fg:'#2A3F25'},
+      {bg:'#B4C9B1',fg:'#2A3F25'}
+    ];
+
     var html = '';
-    data.forEach(function(c) {
+    data.forEach(function(c, i) {
       var nome = c.paciente_nome || 'Paciente';
-      var initials = nome.split(' ').slice(0,2).map(function(w){ return w[0]||''; }).join('').toUpperCase();
+      var words = nome.trim().split(/\s+/);
+      var initials = words.length >= 2
+        ? (words[0][0] + words[words.length-1][0]).toUpperCase()
+        : words[0].slice(0,2).toUpperCase();
+      var av = avatarColors[i % avatarColors.length];
       var dt = new Date(c.created_at);
       var now = new Date();
-      var diffMs = now - dt;
-      var diffMin = Math.floor(diffMs/60000);
+      var diffMin = Math.floor((now - dt) / 60000);
       var timeStr;
-      if(diffMin < 60) timeStr = 'Há '+diffMin+' min';
+      if(diffMin < 1) timeStr = 'Agora';
+      else if(diffMin < 60) timeStr = 'Hoje, '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
       else if(diffMin < 1440) timeStr = 'Hoje, '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
       else timeStr = dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
-      var pasta = c.pasta || 'Consulta';
+      var pasta = c.pasta || c.tipo_consulta || 'Consulta';
 
       html += '<div class="dash-rec-item" onclick="loadConsultaById(&quot;'+c.id+'&quot;)">'
-        + '<div class="dash-rec-avatar">'+initials+'</div>'
+        + '<div class="dash-rec-avatar" style="background:'+av.bg+';color:'+av.fg+';">'+initials+'</div>'
         + '<div class="dash-rec-info">'
         +   '<div class="dash-rec-name">'+escapeHTML(nome)+'</div>'
         +   '<div class="dash-rec-meta">'+timeStr+'</div>'
         + '</div>'
-        + '<div class="dash-rec-badge">'+escapeHTML(pasta)+'</div>'
+        + '<div class="dash-rec-badge">Prontuário gerado</div>'
         + '</div>';
     });
     el.innerHTML = html;
@@ -3492,6 +3507,7 @@ async function executarSave() {
     if(meta) meta.textContent += '  ·  ✓ Salvo';
     pendingSave = null;
     dashLoadResumo();
+    dashLoadRecentes();
   } catch(e){
     console.error('executarSave exception:', e);
     alert('Erro inesperado ao salvar.');
@@ -4569,6 +4585,7 @@ async function agendaUpdateStatus(id, novoStatus) {
     }
     // Atualiza resumo do dashboard em background
     dashLoadResumo();
+    dashLoadAgenda();
   } catch(e){ console.error('agendaUpdateStatus error:', e); }
 }
 
@@ -4674,6 +4691,7 @@ async function agendaSave() {
     await agendaLoad();
     if(adpCurrentDate) adpOpen(adpCurrentDate);
     dashLoadResumo();
+    dashLoadAgenda();
   } catch(e){ console.error('agendaSave error:', e); alert('Erro inesperado.'); }
   finally { btn.disabled = false; btn.textContent = amEditId ? 'Salvar alterações' : 'Salvar agendamento'; }
 }
