@@ -1,7 +1,26 @@
 // api/prescricao.js — Gerenciamento de locais de atendimento e prescrições
-// Ações: local_save, local_list, local_delete, prescricao_save, prescricao_list, prescricao_get
+// Ações: local_save, local_list, local_delete, prescricao_save, prescricao_list, prescricao_get, paciente_save, anvisa_buscar
+
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 export const config = { maxDuration: 30 };
+
+// Base CMED — carregada uma vez na inicialização
+let CMED_BASE = null;
+function getCmedBase() {
+  if (!CMED_BASE) {
+    try {
+      const __dir = dirname(fileURLToPath(import.meta.url));
+      CMED_BASE = JSON.parse(readFileSync(join(__dir, 'cmed.json'), 'utf-8'));
+    } catch(e) {
+      console.error('Erro ao carregar cmed.json:', e.message);
+      CMED_BASE = [];
+    }
+  }
+  return CMED_BASE;
+}
 
 const SUPA_URL = process.env.SUPABASE_URL;
 const SUPA_KEY = process.env.SUPABASE_SECRET_KEY;
@@ -29,33 +48,6 @@ async function supaFetch(path, method = 'GET', body = null, extra = {}) {
   const r = await fetch(`${SUPA_URL}/rest/v1/${path}`, opts);
   const text = await r.text();
   return { ok: r.ok, status: r.status, data: text ? JSON.parse(text) : null };
-}
-
-function pfFormatFda(results, q) {
-  const seen = new Set();
-  const items = [];
-  for (const r of results) {
-    const substances = r.openfda?.substance_name || [];
-    const substList = Array.isArray(substances) ? substances : [substances];
-    const brandNames = r.openfda?.brand_name || [];
-    const brand = Array.isArray(brandNames) ? brandNames[0] : (brandNames || '');
-    for (const sub of substList) {
-      if (!sub) continue;
-      const key = sub.toLowerCase();
-      if (!key.includes(q.toLowerCase().substring(0, 3))) continue;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      items.push({
-        substancia: sub,
-        nomeProduto: brand || '',
-        empresa: r.openfda?.manufacturer_name?.[0] || '',
-        apresentacao: ''
-      });
-      if (items.length >= 10) break;
-    }
-    if (items.length >= 10) break;
-  }
-  return items;
 }
 
 export default async function handler(req, res) {
@@ -236,35 +228,26 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, data: result.data });
     }
 
-    // ── ANVISA_BUSCAR — busca por substância via Open FDA (ANVISA bloqueia servidores) ──
+    // ── ANVISA_BUSCAR — base CMED/ANVISA local (2.242 substâncias, PT-BR) ──
     if (acao === 'anvisa_buscar') {
       const { q } = payload;
-      if (!q || q.length < 3) return res.status(400).json({ error: 'Query muito curta' });
+      if (!q || q.length < 2) return res.status(400).json({ error: 'Query muito curta' });
 
-      // OpenFDA Drug Label API — gratuita, sem CORS, dados de medicamentos
-      const enc = encodeURIComponent(q);
-      const url = `https://api.fda.gov/drug/label.json?search=active_ingredient:"${enc}"&limit=15`;
+      const normalize = s => s.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-      const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      const termo = normalize(q);
+      const base = getCmedBase();
 
-      if (r.status === 404) {
-        // Nenhum resultado
-        return res.status(200).json({ ok: true, data: [] });
-      }
+      const matches = base
+        .filter(g => g.n.includes(termo))
+        .slice(0, 12)
+        .map(g => ({
+          substancia: g.s,
+          apresentacoes: g.i   // [{a: "500mg cap dura", t: "Gen"}, ...]
+        }));
 
-      if (!r.ok) {
-        // Tentar busca mais ampla
-        const r2 = await fetch(
-          `https://api.fda.gov/drug/label.json?search=openfda.substance_name:"${enc}"&limit=10`,
-          { headers: { 'Accept': 'application/json' } }
-        );
-        if (!r2.ok) return res.status(200).json({ ok: true, data: [] });
-        const d2 = await r2.json();
-        return res.status(200).json({ ok: true, data: pfFormatFda(d2.results || [], q) });
-      }
-
-      const data = await r.json();
-      return res.status(200).json({ ok: true, data: pfFormatFda(data.results || [], q) });
+      return res.status(200).json({ ok: true, data: matches });
     }
 
     return res.status(400).json({ error: 'Ação inválida: ' + acao });
