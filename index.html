@@ -948,8 +948,8 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 }
 .fv.empty{color:var(--cinza);font-style:italic;}
 .fv[contenteditable="true"]{
-  background:var(--branco);border-color:var(--verde);
-  outline:none;box-shadow:0 0 0 2px var(--verde-l);
+  outline:none;
+  cursor:text;
 }
 
 /* ── NARRATIVE BOX ── */
@@ -4106,11 +4106,34 @@ async function abrirConsulta(id){
       var histResCont = document.getElementById('histResCont');
       if(histResCont){
         // Ativa edição inline em todos os campos .fv
+        var EMPTY_VALS = ['Não investigado','Não examinado','Não informado','nao investigado',''];
         histResCont.querySelectorAll('.fv').forEach(function(el){
           el.contentEditable = 'true';
           el.style.outline = 'none';
-          el.addEventListener('focus', function(){ this.style.outline = '1.5px dashed var(--verde-m)'; });
-          el.addEventListener('blur',  function(){ this.style.outline = 'none'; var k=this.dataset.key; if(k&&resultData) resultData[k]=this.textContent.trim(); });
+          // Ao focar: se for placeholder, limpa o texto para digitar
+          el.addEventListener('focus', function(){
+            var txt = this.textContent.trim();
+            if(EMPTY_VALS.indexOf(txt) !== -1){
+              this._wasEmpty = true;
+              this.textContent = '';
+              this.classList.remove('empty');
+            } else {
+              this._wasEmpty = false;
+            }
+          });
+          // Ao desfocar: se ficou vazio, restaura placeholder
+          el.addEventListener('blur', function(){
+            var txt = this.textContent.trim();
+            var k = this.dataset.key;
+            if(!txt){
+              this.textContent = 'Não investigado';
+              this.classList.add('empty');
+              if(k && resultData) resultData[k] = '';
+            } else {
+              this.classList.remove('empty');
+              if(k && resultData) resultData[k] = txt;
+            }
+          });
         });
         // Listener para mostrar botão de salvar ao editar qualquer campo
         histResCont.addEventListener('input', histMarcaAlterado, { once: false });
