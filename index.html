@@ -68,7 +68,7 @@ body{
 .dash-mod-ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
 .dash-mod-title{font-size:14px;font-weight:600;color:var(--preto);margin-bottom:4px;}
 .dash-mod-desc{font-size:11px;color:var(--cinza);line-height:1.5;}
-.dash-widgets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.dash-widgets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
 .dash-widget{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);box-shadow:var(--sh-sm);display:flex;flex-direction:column;overflow:hidden;}
 .dash-widget-hdr{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cinza-l);flex-shrink:0;}
 .dash-widget-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--preto);}
@@ -1713,8 +1713,8 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
         </div>
       </div>
 
-      <!-- Widgets -->
-      <div class="dash-widgets">
+      <!-- Widgets — linha 1: Agenda + Recentes -->
+      <div class="dash-widgets" style="grid-template-columns:1fr 1fr;">
 
         <!-- Agenda do dia -->
         <div class="dash-widget">
@@ -1730,19 +1730,6 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
           </div>
         </div>
 
-        <!-- Resumo do dia -->
-        <div class="dash-widget">
-          <div class="dash-widget-hdr">
-            <div class="dash-widget-title">
-              <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              Resumo do dia
-            </div>
-          </div>
-          <div class="dash-widget-body" id="dashResumoBody">
-            <div class="dash-empty">Carregando...</div>
-          </div>
-        </div>
-
         <!-- Atendimentos recentes -->
         <div class="dash-widget">
           <div class="dash-widget-hdr">
@@ -1753,6 +1740,37 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
             <a class="dash-widget-link" onclick="showView('history')">Ver todos →</a>
           </div>
           <div class="dash-widget-body" id="dashRecentesBody">
+            <div class="dash-empty">Carregando...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Widgets — linha 2: Status + Tipo -->
+      <div class="dash-widgets" style="grid-template-columns:1fr 1fr;margin-top:0;">
+
+        <!-- Status do dia -->
+        <div class="dash-widget">
+          <div class="dash-widget-hdr">
+            <div class="dash-widget-title">
+              <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Status
+            </div>
+          </div>
+          <div class="dash-widget-body" id="dashStatusBody">
+            <div class="dash-empty">Carregando...</div>
+          </div>
+        </div>
+
+        <!-- Tipo de consulta -->
+        <div class="dash-widget">
+          <div class="dash-widget-hdr">
+            <div class="dash-widget-title">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Tipo de consulta
+            </div>
+          </div>
+          <div class="dash-widget-body" id="dashTipoBody">
             <div class="dash-empty">Carregando...</div>
           </div>
         </div>
@@ -2131,6 +2149,11 @@ function dashSetGreeting(name) {
 async function dashLoad() {
   if(!supa || !currentUser) return;
   dashSetGreeting(document.getElementById('topNavName') ? document.getElementById('topNavName').textContent : '');
+  // Mostra loading nos novos widgets
+  var elS = document.getElementById('dashStatusBody');
+  var elT = document.getElementById('dashTipoBody');
+  if(elS) elS.innerHTML = '<div class="dash-empty">Carregando...</div>';
+  if(elT) elT.innerHTML = '<div class="dash-empty">Carregando...</div>';
   await Promise.all([dashLoadAgenda(), dashLoadResumo(), dashLoadRecentes()]);
 }
 
@@ -2243,24 +2266,30 @@ async function dashLoadResumo() {
         +'</div>';
     }
 
-    var html = '<div style="margin-bottom:.75rem;">'
-      + '<div style="font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--cinza-warm);margin-bottom:.5rem;">Status</div>'
-      + '<div class="dash-resumo-grid" style="grid-template-columns:1fr 1fr;">'
-      + stat(agendado,   'Agendado')
-      + stat(confirmado, 'Confirmado',   'var(--verde-m)')
-      + stat(compareceu, 'Compareceu',   'var(--verde)')
-      + stat(faltou,     'Faltou',       'var(--amber)')
-      + stat(cancelado,  'Cancelou',     'var(--red)')
-      + '</div></div>'
-      + '<div>'
-      + '<div style="font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--cinza-warm);margin-bottom:.5rem;">Tipo</div>'
-      + '<div class="dash-resumo-grid" style="grid-template-columns:1fr 1fr 1fr;">'
-      + stat(primeira,   'Primeira')
-      + stat(retorno,    'Retorno')
-      + stat(urgencia,   'Urgência',     'var(--amber)')
-      + '</div></div>';
+    // Widget Status
+    var elStatus = document.getElementById('dashStatusBody');
+    if(elStatus){
+      elStatus.innerHTML = '<div class="dash-resumo-grid" style="grid-template-columns:1fr 1fr;">'
+        + stat(agendado,   'Agendado')
+        + stat(confirmado, 'Confirmado',   'var(--verde-m)')
+        + stat(compareceu, 'Compareceu',   'var(--verde)')
+        + stat(faltou,     'Faltou',       'var(--amber)')
+        + stat(cancelado,  'Cancelou',     'var(--red)')
+        + '</div>';
+    }
 
-    el.innerHTML = html;
+    // Widget Tipo
+    var elTipo = document.getElementById('dashTipoBody');
+    if(elTipo){
+      elTipo.innerHTML = '<div class="dash-resumo-grid" style="grid-template-columns:1fr 1fr 1fr;">'
+        + stat(primeira,  'Primeira')
+        + stat(retorno,   'Retorno')
+        + stat(urgencia,  'Urgência',  'var(--amber)')
+        + '</div>';
+    }
+
+    // Mantém compatibilidade com dashResumoBody (pode ser removido futuramente)
+    el.innerHTML = '';
   } catch(e) {
     console.error('dashLoadResumo error:', e);
     el.innerHTML = '<div class="dash-empty">Erro ao carregar resumo.</div>';
