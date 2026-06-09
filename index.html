@@ -6206,62 +6206,286 @@ async function pfGerarPdf(){
   finally{ btn.disabled=false; btn.innerHTML='<i class="ti ti-file-download" aria-hidden="true"></i> Gerar receita'; }
 }
 
-function pfGerarPdfDoc(dados,med){
-  var tipo=dados.tipo, pac=dados.paciente||{}, local=pfLocal||{};
-  var idadePac='';
-  if(pac.data_nascimento){
-    var nasc=new Date(pac.data_nascimento),hoje=new Date();
-    var idade=hoje.getFullYear()-nasc.getFullYear();
-    if(hoje.getMonth()<nasc.getMonth()||(hoje.getMonth()===nasc.getMonth()&&hoje.getDate()<nasc.getDate())) idade--;
-    idadePac=idade+' anos';
+function pfGerarPdfDoc(dados, med) {
+  var tipo = dados.tipo, pac = dados.paciente || {}, local = pfLocal || {};
+
+  // ── utilidades ──
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
-  var dataEmissao=new Date().toLocaleDateString('pt-BR');
-  var endLocal=[local.logradouro,local.numero,local.bairro,local.cidade+' - '+local.uf].filter(Boolean).join(', ');
-  var isEspecial=tipo==='especial_b', isAnti=tipo==='antimicrobiano';
-  var tipoLabel=isEspecial?'RECEITUÁRIO DE CONTROLE ESPECIAL':(isAnti?'Antimicrobiano':'Receita Simples');
-  var vias=(isEspecial||isAnti)?'<div style="text-align:right;font-size:11px;margin-bottom:8px;">1ª Via Farmácia &nbsp;|&nbsp; 2ª Via Paciente</div>':'';
-  var cpfMedHtml=(local.exibir_cpf_medico!==false&&med.cpf)?'<br>CPF: '+escapeHTML(med.cpf):'';
-  var itensTxt=dados.itens.map(function(m,i){
-    var nome=m.nomeComercial?m.substancia+' ('+m.nomeComercial+')':m.substancia;
-    if(m.dose) nome+=' '+m.dose;
-    var pts=''; for(var p=0;p<Math.max(0,58-nome.length);p++) pts+='-';
-    return '<tr><td style="padding:6px 0;font-weight:500;">'+(i+1)+'. '+escapeHTML(nome)+' '+pts+' '+(i+1)+'</td></tr>'+
-      (m.posologia?'<tr><td style="padding:0 0 6px 16px;color:#333;">'+escapeHTML(m.posologia)+(m.duracao?' por '+escapeHTML(m.duracao):'')+'</td></tr>':'')+
-      (m.quantidade?'<tr><td style="padding:0 0 6px 16px;color:#555;font-size:11px;">Qtd: '+escapeHTML(m.quantidade)+'</td></tr>':'');
-  }).join('');
-  var blocos=(isAnti||isEspecial)?
-    '<table style="width:100%;font-size:11px;border-top:1px solid #ccc;margin-top:16px;">'+
-    '<tr><td style="padding:8px 0 4px;font-weight:600;">IDENTIFICAÇÃO DO COMPRADOR</td></tr>'+
-    '<tr><td>Nome: ________________________________ RG: _____________ Data: ___/___/___</td></tr>'+
-    '<tr><td style="padding-bottom:8px;">Endereço: _________________________________</td></tr>'+
-    '<tr><td style="padding-top:8px;font-weight:600;">IDENTIFICAÇÃO DO FORNECEDOR</td></tr>'+
-    '<tr><td>Nome: ________________________________ Telefone: ___________________</td></tr>'+
-    '<tr><td style="padding-bottom:8px;">Assinatura do Farmacêutico: _________________________ Data: ___/___/___</td></tr>'+
-    '</table>':'';
-  var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+tipoLabel+'</title>'+
-    '<style>body{font-family:Arial,sans-serif;font-size:12px;margin:0;padding:24px;color:#000;}'+
-    '@media print{body{padding:12px;}.no-print{display:none;}}table{width:100%;border-collapse:collapse;}</style>'+
-    '</head><body>'+vias+
-    '<table><tr>'+
-    '<td style="vertical-align:top;width:65%;"><strong>Dr(a). '+escapeHTML(med.nome||'')+'</strong>'+cpfMedHtml+
-    '<br>CRM: '+escapeHTML((med.crm||'')+(med.uf_crm?' - '+med.uf_crm:''))+'<br>'+escapeHTML(med.especialidade||'')+'</td>'+
-    '<td style="vertical-align:top;text-align:right;font-size:11px;">Data: '+dataEmissao+'<br>'+escapeHTML(endLocal)+'</td>'+
-    '</tr></table><hr style="margin:8px 0;">'+
-    '<div style="font-size:11px;margin-bottom:10px;"><strong>Paciente:</strong> '+
-    (pac.cpf?escapeHTML(pac.cpf)+' - ':'')+escapeHTML(pac.nome||'')+
-    (pac.sexo?' &nbsp;|&nbsp; '+escapeHTML(pac.sexo):'')+(idadePac?' &nbsp;|&nbsp; '+idadePac:'')+'</div>'+
-    '<h2 style="font-size:13px;text-align:center;text-transform:uppercase;margin:8px 0;">'+tipoLabel+'</h2>'+
-    '<table>'+itensTxt+'</table>'+
-    (dados.observacoes?'<div style="margin-top:10px;font-size:11px;border-top:1px solid #eee;padding-top:8px;">'+escapeHTML(dados.observacoes)+'</div>':'')+
-    blocos+
-    '<div style="margin-top:40px;text-align:right;font-size:11px;">'+
-    '<div style="display:inline-block;border-top:1px solid #000;padding-top:4px;min-width:200px;text-align:center;">Assinatura do médico</div></div>'+
-    '<div class="no-print" style="text-align:center;margin-top:20px;">'+
-    '<button onclick="window.print()" style="padding:8px 20px;background:#3A5530;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Imprimir / Salvar PDF</button>'+
-    ' <button onclick="window.close()" style="padding:8px 16px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;margin-left:8px;">Fechar</button>'+
-    '</div></body></html>';
-  var win=window.open('','_blank','width=700,height=900');
-  if(win){ win.document.write(html); win.document.close(); }
+  function idade(nasc) {
+    if (!nasc) return '';
+    var d = new Date(nasc), h = new Date();
+    var a = h.getFullYear() - d.getFullYear();
+    if (h.getMonth() < d.getMonth() || (h.getMonth() === d.getMonth() && h.getDate() < d.getDate())) a--;
+    return a + ' anos';
+  }
+  var dataEmissao = new Date().toLocaleDateString('pt-BR');
+  var endLocal = [local.logradouro, local.numero, local.bairro,
+    (local.cidade || '') + (local.uf ? ' - ' + local.uf : '')].filter(Boolean).join(', ');
+  var nomeMed = esc(med.nome || '');
+  var crmMed  = esc((med.crm || '') + (med.uf_crm ? ' - ' + med.uf_crm : ''));
+  var cpfMed  = (local.exibir_cpf_medico !== false && med.cpf) ? esc(med.cpf) : '';
+  var espMed  = esc(med.especialidade || '');
+  var nomePac = esc(pac.nome || '');
+  var cpfPac  = pac.cpf ? esc(pac.cpf) : '';
+  var sexoPac = esc(pac.sexo || '');
+  var idadePac = idade(pac.data_nascimento);
+  var endPac  = (local.exibir_endereco_paciente && pac.endereco) ? esc(pac.endereco) : '';
+
+  // ── itens ──
+  function renderItens(fontSz) {
+    return dados.itens.map(function(m, i) {
+      var nome = esc(m.substancia);
+      if (m.nomeComercial) nome += ' (' + esc(m.nomeComercial) + ')';
+      if (m.dose) nome += ' ' + esc(m.dose);
+      var dashes = '';
+      var dashCount = Math.max(0, 60 - (m.substancia + (m.dose||'')).length);
+      for (var p = 0; p < dashCount; p++) dashes += '-';
+      var pos = m.posologia ? esc(m.posologia) + (m.duracao ? ' por ' + esc(m.duracao) : '') : '';
+      var qtd = m.quantidade ? 'Qtd: ' + esc(m.quantidade) : '';
+      return '<tr><td style="padding:5px 0 2px;font-size:' + fontSz + 'px;font-weight:600;">' +
+        (i+1) + '. ' + nome + ' ' + dashes + ' ' + (i+1) +
+        '</td></tr>' +
+        (pos ? '<tr><td style="padding:0 0 2px 14px;font-size:' + (fontSz-1) + 'px;">' + pos + '</td></tr>' : '') +
+        (qtd ? '<tr><td style="padding:0 0 4px 14px;font-size:' + (fontSz-2) + 'px;color:#555;">' + qtd + '</td></tr>' : '');
+    }).join('');
+  }
+
+  // ── estilos comuns ──
+  var baseStyle = [
+    'body{font-family:Arial,Helvetica,sans-serif;font-size:12px;margin:0;color:#000;background:#fff;}',
+    'h1{font-size:13px;text-transform:uppercase;text-align:center;letter-spacing:1px;margin:6px 0;}',
+    '.box{border:1px solid #000;padding:6px 8px;margin:6px 0;font-size:11px;}',
+    '.row{display:flex;gap:8px;margin:3px 0;}',
+    '.lbl{font-weight:700;white-space:nowrap;}',
+    '.sig{border-top:1px solid #000;text-align:center;font-size:10px;padding-top:3px;width:200px;display:inline-block;}',
+    'table{width:100%;border-collapse:collapse;}',
+    '@media print{.no-print{display:none;}@page{margin:14mm 12mm;}}',
+    '.via-badge{font-size:10px;border:1px solid #000;padding:1px 6px;font-weight:700;}',
+    '.section-title{font-size:10px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #000;padding-bottom:2px;margin:8px 0 4px;}',
+    '.field-line{border-bottom:1px solid #555;min-width:120px;display:inline-block;height:12px;margin:0 4px;}',
+    '.no-print{text-align:center;margin-top:18px;}'
+  ].join('');
+
+  // ── botões de ação ──
+  var actionBtns = '<div class="no-print">' +
+    '<button onclick="window.print()" style="padding:8px 22px;background:#2d5a27;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-right:8px;">🖨️ Imprimir / Salvar PDF</button>' +
+    '<button onclick="window.close()" style="padding:8px 16px;border:1px solid #bbb;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;">Fechar</button>' +
+    '</div>';
+
+  var html = '';
+
+  // ════════════════════════════════════════════════
+  // RECEITA SIMPLES
+  // ════════════════════════════════════════════════
+  if (tipo === 'simples') {
+    html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Receita Simples</title>' +
+      '<style>' + baseStyle + '</style></head><body style="padding:20px 28px;">' +
+
+      // cabeçalho médico
+      '<table><tr>' +
+      '<td style="vertical-align:top;width:60%;">' +
+        (local.logo_url ? '<img src="' + esc(local.logo_url) + '" style="height:44px;margin-bottom:4px;display:block;">' : '') +
+        '<div style="font-size:13px;font-weight:700;">' + nomeMed + '</div>' +
+        (espMed ? '<div style="font-size:11px;">' + espMed + '</div>' : '') +
+        '<div style="font-size:11px;">CRM: ' + crmMed + '</div>' +
+        (cpfMed ? '<div style="font-size:11px;">CPF: ' + cpfMed + '</div>' : '') +
+      '</td>' +
+      '<td style="vertical-align:top;text-align:right;font-size:11px;">' +
+        '<div>' + esc(local.nome) + '</div>' +
+        '<div>' + esc(endLocal) + '</div>' +
+        (local.telefone ? '<div>Tel: ' + esc(local.telefone) + '</div>' : '') +
+        '<div style="margin-top:4px;font-weight:700;">Data: ' + dataEmissao + '</div>' +
+      '</td>' +
+      '</tr></table>' +
+      '<hr style="border:none;border-top:2px solid #000;margin:8px 0;">' +
+
+      // paciente
+      '<div class="box">' +
+        '<span class="lbl">Paciente: </span>' + nomePac +
+        (cpfPac ? ' &nbsp;|&nbsp; <span class="lbl">CPF:</span> ' + cpfPac : '') +
+        (sexoPac ? ' &nbsp;|&nbsp; ' + sexoPac : '') +
+        (idadePac ? ' &nbsp;|&nbsp; ' + idadePac : '') +
+        (endPac ? '<br><span class="lbl">End:</span> ' + endPac : '') +
+      '</div>' +
+
+      // título
+      '<h1>Receituário Médico</h1>' +
+      '<hr style="border:none;border-top:1px solid #000;margin:4px 0 10px;">' +
+
+      // itens
+      '<table>' + renderItens(12) + '</table>' +
+
+      // observações
+      (dados.observacoes ? '<div style="margin-top:10px;font-size:11px;border-top:1px solid #ddd;padding-top:6px;">' + esc(dados.observacoes) + '</div>' : '') +
+
+      // assinatura
+      '<div style="margin-top:48px;text-align:right;">' +
+        '<span class="sig">Assinatura e Carimbo do Médico</span>' +
+      '</div>' +
+
+      actionBtns + '</body></html>';
+  }
+
+  // ════════════════════════════════════════════════
+  // ANTIMICROBIANO (2 vias)
+  // ════════════════════════════════════════════════
+  else if (tipo === 'antimicrobiano') {
+    function viaAnti(nVia) {
+      return '<div style="padding:20px 28px;' + (nVia === 1 ? 'border-bottom:2px dashed #999;margin-bottom:12px;padding-bottom:28px;' : '') + '">' +
+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">' +
+          '<div style="font-size:10px;font-style:italic;">Receituário de Controle de Antimicrobianos — Lei 9.782/99</div>' +
+          '<span class="via-badge">' + nVia + 'ª VIA ' + (nVia===1?'FARMÁCIA':'PACIENTE') + '</span>' +
+        '</div>' +
+
+        '<table><tr>' +
+        '<td style="vertical-align:top;width:60%;">' +
+          (local.logo_url ? '<img src="' + esc(local.logo_url) + '" style="height:40px;margin-bottom:4px;display:block;">' : '') +
+          '<div style="font-size:13px;font-weight:700;">' + nomeMed + '</div>' +
+          (espMed ? '<div style="font-size:11px;">' + espMed + '</div>' : '') +
+          '<div style="font-size:11px;">CRM: ' + crmMed + '</div>' +
+          (cpfMed ? '<div style="font-size:11px;">CPF: ' + cpfMed + '</div>' : '') +
+        '</td>' +
+        '<td style="vertical-align:top;text-align:right;font-size:11px;">' +
+          '<div>' + esc(local.nome) + '</div>' +
+          '<div>' + esc(endLocal) + '</div>' +
+          (local.telefone ? '<div>Tel: ' + esc(local.telefone) + '</div>' : '') +
+          '<div style="margin-top:4px;font-weight:700;">Data: ' + dataEmissao + '</div>' +
+        '</td>' +
+        '</tr></table>' +
+        '<hr style="border:none;border-top:2px solid #000;margin:6px 0;">' +
+
+        '<div class="box">' +
+          '<span class="lbl">Paciente: </span>' + nomePac +
+          (cpfPac ? ' &nbsp;|&nbsp; <span class="lbl">CPF:</span> ' + cpfPac : '') +
+          (sexoPac ? ' &nbsp;|&nbsp; ' + sexoPac : '') +
+          (idadePac ? ' &nbsp;|&nbsp; ' + idadePac : '') +
+          (endPac ? '<br><span class="lbl">End:</span> ' + endPac : '') +
+        '</div>' +
+
+        '<h1>Receituário de Antimicrobiano</h1>' +
+        '<hr style="border:none;border-top:1px solid #000;margin:4px 0 8px;">' +
+        '<table>' + renderItens(11) + '</table>' +
+        (dados.observacoes ? '<div style="margin-top:8px;font-size:11px;">' + esc(dados.observacoes) + '</div>' : '') +
+
+        '<div style="margin-top:32px;text-align:right;">' +
+          '<span class="sig">Assinatura e Carimbo do Médico</span>' +
+        '</div>' +
+
+        // identificação do comprador (só 1ª via)
+        (nVia === 1 ? '' +
+          '<div class="section-title" style="margin-top:12px;">Identificação do Comprador</div>' +
+          '<div style="font-size:11px;line-height:2.2;">' +
+            'Nome: <span class="field-line" style="min-width:200px;"></span>' +
+            ' RG: <span class="field-line" style="min-width:80px;"></span>' +
+            ' Data: <span class="field-line" style="min-width:80px;"></span><br>' +
+            'Endereço: <span class="field-line" style="min-width:260px;"></span>' +
+          '</div>' +
+          '<div class="section-title" style="margin-top:8px;">Identificação do Fornecedor</div>' +
+          '<div style="font-size:11px;line-height:2.2;">' +
+            'Farmacêutico Responsável: <span class="field-line" style="min-width:180px;"></span>' +
+            ' CRF/UF: <span class="field-line" style="min-width:80px;"></span><br>' +
+            'Assinatura: <span class="field-line" style="min-width:180px;"></span>' +
+            ' Data: <span class="field-line" style="min-width:80px;"></span>' +
+          '</div>'
+        : '') +
+
+      '</div>';
+    }
+
+    html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Antimicrobiano</title>' +
+      '<style>' + baseStyle + '</style></head><body>' +
+      viaAnti(1) + viaAnti(2) +
+      actionBtns + '</body></html>';
+  }
+
+  // ════════════════════════════════════════════════
+  // CONTROLE ESPECIAL — TIPO B (2 vias)
+  // ════════════════════════════════════════════════
+  else if (tipo === 'especial_b') {
+    var numEspecial = (pfRascId || '______');
+
+    function viaEspecial(nVia) {
+      return '<div style="padding:20px 28px;' + (nVia === 1 ? 'border-bottom:2px dashed #999;margin-bottom:12px;padding-bottom:28px;' : '') + '">' +
+
+        '<h1 style="margin:0 0 6px;">Receituário de Controle Especial</h1>' +
+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+          '<div style="font-size:10px;">N.º <strong>' + esc(String(numEspecial)) + '</strong></div>' +
+          '<span class="via-badge">' + nVia + 'ª VIA ' + (nVia===1?'FARMÁCIA':'PACIENTE') + '</span>' +
+        '</div>' +
+
+        // paciente (topo, como no modelo CFM)
+        '<div class="box" style="margin-bottom:8px;">' +
+          '<div class="row"><span class="lbl">Paciente:</span> ' + nomePac +
+            (cpfPac ? '&nbsp;&nbsp;<span class="lbl">CPF:</span> ' + cpfPac : '') + '</div>' +
+          '<div class="row">' +
+            (endPac ? '<span class="lbl">Endereço:</span> ' + endPac + '&nbsp;&nbsp;' : '') +
+            (sexoPac ? '<span class="lbl">Sexo:</span> ' + sexoPac + '&nbsp;&nbsp;' : '') +
+            (idadePac ? '<span class="lbl">Idade:</span> ' + idadePac : '') +
+          '</div>' +
+          '<div class="row"><span class="lbl">UF:</span> ' + esc(local.uf || '') + '</div>' +
+        '</div>' +
+
+        // emitente
+        '<div class="box">' +
+          '<div class="section-title" style="margin-top:0;">Identificação do Emitente</div>' +
+          (local.logo_url ? '<img src="' + esc(local.logo_url) + '" style="height:36px;margin-bottom:4px;display:block;">' : '') +
+          '<div style="font-size:12px;font-weight:700;">Dr(a). ' + nomeMed + '</div>' +
+          (espMed ? '<div style="font-size:11px;">' + espMed + '</div>' : '') +
+          '<div style="font-size:11px;">' + esc(local.nome) + '</div>' +
+          '<div style="font-size:11px;">' + esc(endLocal) + '</div>' +
+          (local.telefone ? '<div style="font-size:11px;">Tel: ' + esc(local.telefone) + '</div>' : '') +
+          '<div style="font-size:11px;margin-top:4px;">' +
+            (cpfMed ? 'CPF: ' + cpfMed + '&nbsp;&nbsp;' : '') +
+            'CRM: ' + crmMed +
+          '</div>' +
+          '<div style="font-size:11px;margin-top:4px;font-weight:700;">Data de Emissão: ' + dataEmissao + '</div>' +
+        '</div>' +
+
+        // medicamentos
+        '<hr style="border:none;border-top:1px solid #000;margin:8px 0;">' +
+        '<table>' + renderItens(11) + '</table>' +
+        (dados.observacoes ? '<div style="margin-top:8px;font-size:11px;">' + esc(dados.observacoes) + '</div>' : '') +
+
+        '<div style="margin-top:32px;text-align:right;">' +
+          '<span class="sig">Assinatura do Médico</span>' +
+        '</div>' +
+
+        // identificação do comprador
+        '<div class="section-title" style="margin-top:12px;">Identificação do Comprador</div>' +
+        '<div style="font-size:11px;line-height:2.2;">' +
+          'DATA <span class="field-line" style="min-width:100px;"></span><br>' +
+          'Nome: <span class="field-line" style="min-width:200px;"></span>' +
+          ' RG: <span class="field-line" style="min-width:80px;"></span><br>' +
+          'Endereço: <span class="field-line" style="min-width:260px;"></span>' +
+        '</div>' +
+
+        '<div class="section-title" style="margin-top:8px;">Identificação do Fornecedor</div>' +
+        '<div style="font-size:11px;line-height:2.2;">' +
+          'End: <span class="field-line" style="min-width:200px;"></span>' +
+          ' Cidade: <span class="field-line" style="min-width:100px;"></span>' +
+          ' UF: <span class="field-line" style="min-width:30px;"></span><br>' +
+          'Assinatura do Farmacêutico: <span class="field-line" style="min-width:140px;"></span><br>' +
+          'Ident: <span class="field-line" style="min-width:80px;"></span>' +
+          ' Órg. Emissor: <span class="field-line" style="min-width:80px;"></span>' +
+          ' Telefone: <span class="field-line" style="min-width:100px;"></span><br>' +
+          'Nome: <span class="field-line" style="min-width:200px;"></span>' +
+        '</div>' +
+
+      '</div>';
+    }
+
+    html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Receituário de Controle Especial</title>' +
+      '<style>' + baseStyle + '</style></head><body>' +
+      viaEspecial(1) + viaEspecial(2) +
+      actionBtns + '</body></html>';
+  }
+
+  var win = window.open('', '_blank', 'width=760,height=960');
+  if (win) { win.document.write(html); win.document.close(); }
 }
 
 // ── NOVO PACIENTE INLINE ──
