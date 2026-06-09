@@ -2181,13 +2181,19 @@ async function dashLoadAgenda() {
     shown.forEach(function(ag) {
       var hora = (ag.hora || '').slice(0,5);
       var cfg = statusCfg[ag.status] || { cls:'aconfirmar', txt: ag.status || 'Agendado' };
+      var tipoTxt = ag.tipo === 'primeira' ? 'Primeira consulta'
+        : ag.tipo === 'retorno' ? 'Retorno'
+        : ag.tipo === 'urgencia' ? 'Urgência'
+        : (ag.tipo_consulta || '');
       html += '<div class="dash-ag-item">'
         + '<div class="dash-ag-time">'+hora+'</div>'
         + '<div class="dash-ag-info">'
         +   '<div class="dash-ag-name">'+(ag.paciente_nome||'—')+'</div>'
-        +   '<div class="dash-ag-tipo">'+(ag.tipo_consulta||'Consulta')+'</div>'
+        +   '<div class="dash-ag-tipo">'+(tipoTxt||'Consulta')+'</div>'
         + '</div>'
-        + '<div class="dash-ag-badge '+cfg.cls+'">'+cfg.txt+'</div>'
+        + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">'
+        +   '<div class="dash-ag-badge '+cfg.cls+'">'+cfg.txt+'</div>'
+        + '</div>'
         + '</div>';
     });
     if(data.length > 6) {
@@ -2226,6 +2232,9 @@ async function dashLoadResumo() {
     var compareceu = agds.filter(function(a){ return a.status==='compareceu'; }).length;
     var faltou     = agds.filter(function(a){ return a.status==='faltou'; }).length;
     var cancelado  = agds.filter(function(a){ return a.status==='cancelado'; }).length;
+    var primeira   = agds.filter(function(a){ return a.tipo==='primeira'; }).length;
+    var retorno    = agds.filter(function(a){ return a.tipo==='retorno'; }).length;
+    var urgencia   = agds.filter(function(a){ return a.tipo==='urgencia'; }).length;
 
     function stat(num, label, color){
       return '<div class="dash-stat" style="'+(color?'border-left:3px solid '+color+';':'')+'">'
@@ -2234,13 +2243,22 @@ async function dashLoadResumo() {
         +'</div>';
     }
 
-    var html = '<div class="dash-resumo-grid" style="grid-template-columns:1fr 1fr;">'
+    var html = '<div style="margin-bottom:.75rem;">'
+      + '<div style="font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--cinza-warm);margin-bottom:.5rem;">Status</div>'
+      + '<div class="dash-resumo-grid" style="grid-template-columns:1fr 1fr;">'
       + stat(agendado,   'Agendado')
       + stat(confirmado, 'Confirmado',   'var(--verde-m)')
       + stat(compareceu, 'Compareceu',   'var(--verde)')
       + stat(faltou,     'Faltou',       'var(--amber)')
       + stat(cancelado,  'Cancelou',     'var(--red)')
-      + '</div>';
+      + '</div></div>'
+      + '<div>'
+      + '<div style="font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--cinza-warm);margin-bottom:.5rem;">Tipo</div>'
+      + '<div class="dash-resumo-grid" style="grid-template-columns:1fr 1fr 1fr;">'
+      + stat(primeira,   'Primeira')
+      + stat(retorno,    'Retorno')
+      + stat(urgencia,   'Urgência',     'var(--amber)')
+      + '</div></div>';
 
     el.innerHTML = html;
   } catch(e) {
@@ -2268,13 +2286,9 @@ async function dashLoadRecentes() {
       return;
     }
 
-    // Paleta de avatares — alterna entre 5 tons de verde musgo
+    // Avatar — cor única, verde musgo profundo
     var avatarColors = [
-      {bg:'#2A3F25',fg:'#F7F4EE'},
-      {bg:'#3A5530',fg:'#F7F4EE'},
-      {bg:'#4A6546',fg:'#F7F4EE'},
-      {bg:'#E6EDE4',fg:'#2A3F25'},
-      {bg:'#B4C9B1',fg:'#2A3F25'}
+      {bg:'#3A5530',fg:'#F7F4EE'}
     ];
 
     var html = '';
@@ -2306,7 +2320,7 @@ async function dashLoadRecentes() {
         +   '<div class="dash-rec-name">'+escapeHTML(nome)+'</div>'
         +   '<div class="dash-rec-meta">'+timeStr+'</div>'
         + '</div>'
-        + '<div class="dash-rec-badge">Prontuário gerado</div>'
+
         + '</div>';
     });
     el.innerHTML = html;
