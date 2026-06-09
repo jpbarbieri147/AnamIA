@@ -2229,9 +2229,10 @@ async function dashLoadAgenda() {
 }
 
 async function dashLoadResumo() {
-  var el = document.getElementById('dashResumoBody');
-  if(!el) return;
-  el.innerHTML = '<div class="dash-empty">Carregando...</div>';
+  // Targets os dois novos widgets separados
+  var elStatus = document.getElementById('dashStatusBody');
+  var elTipo   = document.getElementById('dashTipoBody');
+  if(!elStatus && !elTipo) return;
   try {
     var today = new Date();
     var yyyy = today.getFullYear();
@@ -2288,8 +2289,7 @@ async function dashLoadResumo() {
         + '</div>';
     }
 
-    // Mantém compatibilidade com dashResumoBody (pode ser removido futuramente)
-    el.innerHTML = '';
+
   } catch(e) {
     console.error('dashLoadResumo error:', e);
     el.innerHTML = '<div class="dash-empty">Erro ao carregar resumo.</div>';
