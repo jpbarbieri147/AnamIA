@@ -221,7 +221,7 @@ body{
 .pf-med-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--cinza);font-size:16px;padding:2px 6px;border-radius:4px;}
 .pf-med-del:hover{background:var(--cinza-l);color:var(--red);}
 .pf-ac-wrap{position:relative;}
-.pf-ac-drop{position:absolute;top:100%;left:0;right:0;background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:var(--sh-md);z-index:200;max-height:220px;overflow-y:auto;display:none;}
+.pf-ac-drop{position:absolute;top:100%;left:0;right:0;background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:var(--sh-md);z-index:200;max-height:320px;overflow-y:auto;display:none;}
 .pf-ac-drop.open{display:block;}
 .pf-ac-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--cinza-l);font-size:12px;}
 .pf-ac-item:last-child{border-bottom:none;}
@@ -5842,10 +5842,14 @@ function pfPacBuscar(q){
   pfPacTimer=setTimeout(async function(){
     try{
       var token=await getToken();
-      var enc=encodeURIComponent(q.toLowerCase());
-      var r=await fetch(SUPA_URL+'/rest/v1/pacientes?nome_normalizado=ilike.*'+enc+'*&limit=8',
-        {headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}});
-      var arr=await r.json();
+      var r=await fetch('/api/gerenciar',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({access_token:token,acao:'pacientes_list',q:q})
+      });
+      var rd=await r.json();
+      var arr=(rd.pacientes||[]).filter(function(p){
+        return p.nome && p.nome.toLowerCase().includes(q.toLowerCase());
+      }).slice(0,8);
       if(!drop) return;
       if(!arr||arr.length===0){
         drop.innerHTML='<div class="pf-ac-loading">Nenhum paciente encontrado</div>';
