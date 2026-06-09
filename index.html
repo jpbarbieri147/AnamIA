@@ -2059,6 +2059,8 @@ function novaConsulta(){
 }
 
 function showView(v){
+  // Fecha painel de agendamento ao navegar entre views
+  if(typeof adpClose === 'function') adpClose();
   // Atualiza nav items
   ['dashboard','record','history','customize','osler','profile','agenda','prescricao'].forEach(function(id){
     var el = document.getElementById('sb-'+id);
