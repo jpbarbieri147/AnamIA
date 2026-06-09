@@ -3609,12 +3609,17 @@ async function salvarAlteracoesConsulta(){
     // Coleta dados atuais do DOM do histResCont
     var data = Object.assign({}, resultData);
 
-    // Campos editáveis: todos os inputs/textareas dentro de histResCont
+    // Campos editáveis: inputs/textareas (data-key + value) e divs .fv (data-key + textContent)
     var histResCont = document.getElementById('histResCont');
     if(histResCont){
       histResCont.querySelectorAll('[data-key]').forEach(function(el){
         var k = el.getAttribute('data-key');
-        if(k && el.value !== undefined) data[k] = el.value;
+        if(!k) return;
+        if(el.value !== undefined && el.tagName !== 'DIV'){ // input / textarea
+          data[k] = el.value;
+        } else { // div.fv com contenteditable
+          data[k] = el.textContent.trim();
+        }
       });
     }
 
@@ -4094,12 +4099,21 @@ async function abrirConsulta(id){
     setTimeout(function(){ anexosInit(); }, 100);
     pendingSave = null;
 
-    // Esconde botão de salvar e registra listeners de alteração
+    // Esconde botão de salvar, ativa edição e registra listeners de alteração
     var saveBtn = document.getElementById('histSaveBtn');
     if(saveBtn) saveBtn.style.display = 'none';
     setTimeout(function(){
       var histResCont = document.getElementById('histResCont');
       if(histResCont){
+        // Ativa edição inline em todos os campos .fv
+        histResCont.querySelectorAll('.fv').forEach(function(el){
+          el.contentEditable = 'true';
+          el.style.outline = '1.5px dashed transparent';
+          el.style.transition = 'outline .15s';
+          el.addEventListener('focus', function(){ this.style.outline = '1.5px dashed var(--verde-m)'; });
+          el.addEventListener('blur',  function(){ this.style.outline = '1.5px dashed transparent'; var k=this.dataset.key; if(k&&resultData) resultData[k]=this.textContent.trim(); });
+        });
+        // Listener para mostrar botão de salvar ao editar qualquer campo
         histResCont.addEventListener('input', histMarcaAlterado, { once: false });
       }
     }, 300);
