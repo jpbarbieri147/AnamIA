@@ -185,11 +185,11 @@ body{
 .la-msg{font-size:12px;margin-top:.25rem;min-height:16px;}
 /* ── FORMULÁRIO DE PRESCRIÇÃO ── */
 .pf-wrap{display:flex;flex-direction:column;gap:1.25rem;max-width:860px;width:100%;margin:0 auto;}
-.pf-sec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:20px;overflow:hidden;box-shadow:var(--sh-sm);}
+.pf-sec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:20px;overflow:visible;box-shadow:var(--sh-sm);}
 .pf-sec-hdr{padding:10px 14px;background:var(--verde-ll);border-bottom:1px solid var(--verde-b);display:flex;align-items:center;gap:8px;}
 .pf-sec-hdr i{color:var(--verde);font-size:15px;}
 .pf-sec-ttl{font-size:12px;font-weight:600;color:var(--verde-txt);text-transform:uppercase;letter-spacing:.4px;}
-.pf-sec-body{padding:14px;}
+.pf-sec-body{padding:14px;overflow:visible;}
 .pf-row{display:grid;gap:.6rem;margin-bottom:.6rem;}
 .pf-row.col2{grid-template-columns:1fr 1fr;}
 .pf-row.col3{grid-template-columns:1fr 1fr 1fr;}
@@ -205,8 +205,8 @@ body{
 .pf-tipo-btn .ptb-ico{font-size:18px;margin-bottom:4px;display:block;}
 .pf-tipo-btn .ptb-name{font-size:12px;font-weight:600;color:var(--preto);display:block;}
 .pf-tipo-btn .ptb-desc{font-size:10px;color:var(--cinza);display:block;margin-top:1px;}
-.pf-search-wrap{position:relative;}
-.pf-search-drop{position:absolute;top:100%;left:0;right:0;background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:var(--sh-md);z-index:200;max-height:200px;overflow-y:auto;display:none;}
+.pf-search-wrap{position:relative;overflow:visible;}
+.pf-search-drop{position:absolute;top:100%;left:0;right:0;background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:var(--sh-md);z-index:9000;max-height:280px;overflow-y:auto;display:none;}
 .pf-search-drop.open{display:block;}
 .pf-search-item{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--cinza-l);}
 .pf-search-item:last-child{border-bottom:none;}
@@ -220,8 +220,8 @@ body{
 .pf-med-num{font-size:10px;font-weight:600;color:var(--verde);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
 .pf-med-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--cinza);font-size:16px;padding:2px 6px;border-radius:4px;}
 .pf-med-del:hover{background:var(--cinza-l);color:var(--red);}
-.pf-ac-wrap{position:relative;}
-.pf-ac-drop{position:absolute;top:100%;left:0;right:0;background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:var(--sh-md);z-index:200;max-height:320px;overflow-y:auto;display:none;}
+.pf-ac-wrap{position:relative;overflow:visible;}
+.pf-ac-drop{position:absolute;top:100%;left:0;right:0;background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--rs);box-shadow:var(--sh-md);z-index:9000;max-height:320px;overflow-y:auto;display:none;}
 .pf-ac-drop.open{display:block;}
 .pf-ac-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--cinza-l);font-size:12px;}
 .pf-ac-item:last-child{border-bottom:none;}
