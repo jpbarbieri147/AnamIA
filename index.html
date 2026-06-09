@@ -6226,19 +6226,17 @@ async function prescricaoFromAnamnese(){
   var pacNome = (resultData && resultData.id_nome) ? resultData.id_nome.trim() : '';
 
   try {
-    // Chama Claude para extrair fármacos
-    var apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+    // Chama Claude via backend /api/osler (evita CORS)
+    var apiRes = await fetch('/api/osler', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
         system: 'Você é um assistente médico. Extraia SOMENTE os medicamentos mencionados na conduta. Responda EXCLUSIVAMENTE em JSON válido, sem texto adicional, sem markdown. Formato: {"medicamentos":[{"substancia":"NOME EM MAIÚSCULAS","dose":"dose e forma farmacêutica","posologia":"como usar","via":"oral/im/ev etc"}]}. Se não houver medicamentos, retorne {"medicamentos":[]}.',
         messages: [{ role: 'user', content: 'Conduta médica:\n\n' + textoConduta }]
       })
     });
     var apiData = await apiRes.json();
-    var raw = (apiData.content && apiData.content[0]) ? apiData.content[0].text : '{}';
+    var raw = apiData.response || '{}';
     var clean = raw.replace(/```json|```/g,'').trim();
     var parsed = JSON.parse(clean);
     var meds = parsed.medicamentos || [];
