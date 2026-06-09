@@ -6263,11 +6263,23 @@ async function prescricaoFromAnamnese(){
 }
 
 function prescricaoPreencherDaAnamnese(meds, pacNome){
-  // 1. Abre nova prescrição
+  // Aguarda o formulário estar montado no DOM (prescNovaClick é async)
+  function waitForForm(cb, tries){
+    tries = tries || 0;
+    if(tries > 40) return; // desiste após 4s
+    var list = document.getElementById('pfMedList');
+    if(list){
+      cb();
+    } else {
+      setTimeout(function(){ waitForForm(cb, tries + 1); }, 100);
+    }
+  }
+
+  // Dispara prescNovaClick e espera o formulário aparecer
   prescNovaClick();
 
-  setTimeout(function(){
-    // 2. Pré-preenche busca do paciente
+  waitForForm(function(){
+    // 1. Pré-preenche busca do paciente
     if(pacNome){
       var pacInp = document.getElementById('pfPacSearch');
       if(pacInp){
@@ -6276,24 +6288,22 @@ function prescricaoPreencherDaAnamnese(meds, pacNome){
       }
     }
 
-    // 3. Remove o medicamento vazio inicial e adiciona os extraídos
-    // pfMedCounter já tem 1 card criado pelo prescNovaClick
-    // Preenche o primeiro e adiciona os restantes
+    // 2. O primeiro card já existe (criado por prescFormAbrir → pfAddMed)
+    //    Adiciona os demais antes de preencher
+    for(var j = 1; j < meds.length; j++){
+      pfAddMed();
+    }
+
+    // 3. Preenche cada card — IDs são sempre pfMed_1, pfMed_2, etc.
+    //    pois prescFormAbrir reseta pfMedCounter = 0 antes do primeiro pfAddMed
     meds.forEach(function(med, i){
-      if(i > 0) pfAddMed();
-      setTimeout(function(){
-        // ID do card: pfMed_(pfMedCounter - meds.length + i + 1)
-        var base = 'pfMed_' + (pfMedCounter - meds.length + i + 1);
-        var set = function(sfx, val){
-          var el = document.getElementById(base + sfx);
-          if(el && val) el.value = val;
-        };
-        set('_sub',  med.substancia || '');
-        set('_dose', [med.dose, med.via].filter(Boolean).join(' · ') || '');
-        set('_pos',  med.posologia || '');
-      }, i * 100);
+      var base = 'pfMed_' + (i + 1);
+      var el;
+      el = document.getElementById(base + '_sub');  if(el && med.substancia) el.value = med.substancia;
+      el = document.getElementById(base + '_dose'); if(el && (med.dose || med.via)) el.value = [med.dose, med.via].filter(Boolean).join(' · ');
+      el = document.getElementById(base + '_pos');  if(el && med.posologia) el.value = med.posologia;
     });
-  }, 700);
+  });
 }
 
 // ── INIT ──
