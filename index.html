@@ -1415,6 +1415,9 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
         <div class="vh-sub" id="histMeta">—</div>
       </div>
       <div class="vh-actions">
+        <button class="bts" id="histSaveBtn" onclick="salvarAlteracoesConsulta()" style="color:var(--verde);border-color:var(--verde-b);display:none;">
+          <i class="ti ti-device-floppy"></i> <span id="histSaveBtnLabel">Salvar alterações</span>
+        </button>
         <button class="bts" onclick="openExport()"><i class="ti ti-download"></i> Baixar</button>
         <button class="btp" onclick="doPrint()"><i class="ti ti-printer"></i> Imprimir</button>
         <button class="bts" onclick="document.getElementById('histListState').style.display='flex';document.getElementById('histResultState').style.display='none';" style="color:var(--cinza);">
@@ -3586,6 +3589,88 @@ async function executarSave() {
   }
 }
 
+// ── SALVAR ALTERAÇÕES (histórico) ──
+async function salvarAlteracoesConsulta(){
+  if(!currentConsultaId){ alert('Nenhuma consulta aberta.'); return; }
+  var btn   = document.getElementById('histSaveBtn');
+  var label = document.getElementById('histSaveBtnLabel');
+  if(btn){ btn.disabled = true; }
+  if(label){ label.textContent = 'Salvando...'; }
+
+  try {
+    var token = await getToken();
+    if(!token){ if(btn){btn.disabled=false;} if(label){label.textContent='Salvar alterações';} return; }
+
+    // Coleta dados atuais do DOM do histResCont
+    var data = Object.assign({}, resultData);
+
+    // Campos editáveis: todos os inputs/textareas dentro de histResCont
+    var histResCont = document.getElementById('histResCont');
+    if(histResCont){
+      histResCont.querySelectorAll('[data-key]').forEach(function(el){
+        var k = el.getAttribute('data-key');
+        if(k && el.value !== undefined) data[k] = el.value;
+      });
+    }
+
+    // CIDs múltiplos e conduta_def
+    var cidVals = cidGetAllValues();
+    if(cidVals.length > 0) data = Object.assign({}, data, { hipotese_def: JSON.stringify(cidVals) });
+    var condutaEl = document.querySelector('#histResCont .sdef-input[data-key="conduta_def"]');
+    if(condutaEl && condutaEl.value.trim()) data = Object.assign({}, data, { conduta_def: condutaEl.value.trim() });
+
+    var payload = {
+      id: currentConsultaId,
+      medico_id: currentUser.id,
+      paciente_nome: (data && data.id_nome) ? String(data.id_nome).trim() || null : null,
+      paciente_idade: (data && data.id_idade) ? String(data.id_idade).trim() || null : null,
+      paciente_sexo:  (data && data.id_sexo)  ? String(data.id_sexo).trim()  || null : null,
+      anamnese: data
+    };
+
+    var res = await fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: token, payload: payload })
+    });
+
+    if(!res.ok){
+      var errText = await res.text();
+      console.error('Erro ao atualizar consulta:', res.status, errText);
+      alert('Erro ao salvar alterações. Tente novamente.');
+      if(btn){ btn.disabled=false; } if(label){ label.textContent='Salvar alterações'; }
+      return;
+    }
+
+    // Atualiza resultData com os dados mesclados
+    resultData = data;
+
+    // Feedback visual: botão vira "✓ Salvo" por 2s e some
+    if(label){ label.textContent = '✓ Salvo'; }
+    if(btn){ btn.style.color='var(--verde)'; btn.disabled=false; }
+    var meta = document.getElementById('histMeta');
+    if(meta){
+      var now = new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      meta.textContent = 'Atualizado em ' + now;
+    }
+    setTimeout(function(){
+      if(btn){ btn.style.display='none'; }
+      if(label){ label.textContent='Salvar alterações'; }
+    }, 2000);
+
+  } catch(e){
+    console.error('salvarAlteracoesConsulta exception:', e);
+    alert('Erro inesperado ao salvar.');
+    if(btn){ btn.disabled=false; } if(label){ label.textContent='Salvar alterações'; }
+  }
+}
+
+// Mostra o botão de salvar quando qualquer campo do histResCont é editado
+function histMarcaAlterado(){
+  var btn = document.getElementById('histSaveBtn');
+  if(btn) btn.style.display='inline-flex';
+}
+
 // ── HISTORICO ──
 function fmtData(iso){
   if(!iso) return '';
@@ -4003,6 +4088,17 @@ async function abrirConsulta(id){
 
     setTimeout(function(){ anexosInit(); }, 100);
     pendingSave = null;
+
+    // Esconde botão de salvar e registra listeners de alteração
+    var saveBtn = document.getElementById('histSaveBtn');
+    if(saveBtn) saveBtn.style.display = 'none';
+    setTimeout(function(){
+      var histResCont = document.getElementById('histResCont');
+      if(histResCont){
+        histResCont.addEventListener('input', histMarcaAlterado, { once: false });
+      }
+    }, 300);
+
   } catch(e) {
     console.error('abrirConsulta exception:', e);
     alert('Erro ao abrir a consulta.');
@@ -6231,7 +6327,7 @@ async function prescricaoFromAnamnese(){
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        system: 'Você é um assistente médico. Extraia SOMENTE os medicamentos mencionados na conduta. Responda EXCLUSIVAMENTE em JSON válido, sem texto adicional, sem markdown. Formato: {"medicamentos":[{"substancia":"NOME EM MAIÚSCULAS","dose":"dose e forma farmacêutica","posologia":"como usar","via":"oral/im/ev etc"}]}. Se não houver medicamentos, retorne {"medicamentos":[]}.',
+        system: 'Você é um assistente médico. Extraia SOMENTE os medicamentos mencionados na conduta. Responda EXCLUSIVAMENTE em JSON válido, sem texto adicional, sem markdown. Formato: {"medicamentos":[{"substancia":"NOME EM MAIÚSCULAS","dose":"dose e forma farmacêutica","via":"oral/im/ev etc","posologia":"frequência de uso SEM duração, ex: 1 comprimido a cada 12 horas","duracao":"apenas o período de tratamento, ex: 7 dias"}]}. Separe SEMPRE posologia (frequência) de duracao (período de tratamento). Se não houver medicamentos, retorne {"medicamentos":[]}.',
         messages: [{ role: 'user', content: 'Conduta médica:\n\n' + textoConduta }]
       })
     });
@@ -6302,6 +6398,7 @@ function prescricaoPreencherDaAnamnese(meds, pacNome){
       el = document.getElementById(base + '_sub');  if(el && med.substancia) el.value = med.substancia;
       el = document.getElementById(base + '_dose'); if(el && (med.dose || med.via)) el.value = [med.dose, med.via].filter(Boolean).join(' · ');
       el = document.getElementById(base + '_pos');  if(el && med.posologia) el.value = med.posologia;
+      el = document.getElementById(base + '_dur');  if(el && med.duracao) el.value = med.duracao;
     });
   });
 }
