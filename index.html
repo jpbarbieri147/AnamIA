@@ -2091,7 +2091,12 @@ function showView(v){
   if(v === 'prescricao'){
     if(vPrescricao){ vPrescricao.style.display='flex'; vPrescricao.classList.add('show'); }
     // Prescrição só carrega na primeira vez; recarregar explicitamente com prescLoad()
-    if(!_viewInited['prescricao']){ prescLoad(); _viewInited['prescricao'] = true; }
+    if(!_viewInited['prescricao']){
+      _viewInited['prescricao'] = true;
+      prescLoad().then(function(){ if(typeof _prescricaoViewCallback==='function'){ var cb=_prescricaoViewCallback; _prescricaoViewCallback=null; cb(); } });
+    } else {
+      if(typeof _prescricaoViewCallback==='function'){ var cb=_prescricaoViewCallback; _prescricaoViewCallback=null; setTimeout(cb,0); }
+    }
     return;
   }
 
@@ -5817,6 +5822,7 @@ async function prescNovaClick(){
 
 
 // ── ESTADO DO FORMULÁRIO DE PRESCRIÇÃO ──
+var _prescricaoViewCallback = null; // callback a executar após prescLoad na primeira abertura
 var pfLocal    = null;
 var pfTipo     = null;
 var pfPaciente = null;
@@ -6344,13 +6350,9 @@ async function prescricaoFromAnamnese(){
 
     if(msg){ msg.textContent = meds.length + ' medicamento(s) identificado(s). Abrindo prescrição...'; msg.style.color = 'var(--verde)'; }
 
-    // Navega para prescrição
+    // Navega para prescrição e preenche só depois que prescLoad terminar
+    _prescricaoViewCallback = function(){ prescricaoPreencherDaAnamnese(meds, pacNome); };
     showView('prescricao');
-
-    // Aguarda render e pré-preenche
-    setTimeout(function(){
-      prescricaoPreencherDaAnamnese(meds, pacNome);
-    }, 600);
 
   } catch(e) {
     console.error('prescricaoFromAnamnese error:', e);
