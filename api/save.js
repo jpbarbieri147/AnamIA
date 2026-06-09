@@ -53,7 +53,48 @@ export default async function handler(req, res) {
       }
     }
 
-    // 3. Insere a consulta exatamente com o paciente_id recebido
+    // 3. UPDATE se payload.id vier preenchido (edição de consulta existente)
+    if (payload.id) {
+      // Confirma que a consulta pertence a este médico antes de atualizar
+      const ownerUrl = SUPA_URL + '/rest/v1/consultas'
+        + '?select=id,paciente_id&id=eq.' + encodeURIComponent(payload.id)
+        + '&medico_id=eq.' + encodeURIComponent(user.id) + '&limit=1';
+      const ownerResp = await fetch(ownerUrl, { method: 'GET', headers: H });
+      if (!ownerResp.ok) return res.status(500).json({ error: 'Ownership check failed' });
+      const ownerData = await ownerResp.json();
+      if (!ownerData || ownerData.length === 0) return res.status(403).json({ error: 'Consulta not found or not owned by user' });
+
+      const existingPacienteId = ownerData[0].paciente_id;
+
+      const updateResp = await fetch(SUPA_URL + '/rest/v1/consultas?id=eq.' + encodeURIComponent(payload.id), {
+        method: 'PATCH',
+        headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
+        body: JSON.stringify({
+          paciente_nome: payload.paciente_nome || null,
+          paciente_idade: payload.paciente_idade || null,
+          paciente_sexo: payload.paciente_sexo || null,
+          anamnese: payload.anamnese || null,
+          updated_at: new Date().toISOString()
+        })
+      });
+      if (!updateResp.ok) {
+        const errText = await updateResp.text();
+        return res.status(500).json({ error: 'Update failed: ' + errText });
+      }
+
+      // Toca o updated_at da pasta
+      if (existingPacienteId) {
+        await fetch(SUPA_URL + '/rest/v1/pacientes?id=eq.' + encodeURIComponent(existingPacienteId), {
+          method: 'PATCH',
+          headers: H,
+          body: JSON.stringify({ updated_at: new Date().toISOString() })
+        });
+      }
+
+      return res.status(200).json({ id: payload.id, paciente_id: existingPacienteId });
+    }
+
+    // 4. INSERT — nova consulta
     const insertResp = await fetch(SUPA_URL + '/rest/v1/consultas', {
       method: 'POST',
       headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
@@ -74,7 +115,7 @@ export default async function handler(req, res) {
     }
     const saved = await insertResp.json();
 
-    // 4. Toca o updated_at da pasta (para ordenacao por "ultima atualizacao")
+    // 5. Toca o updated_at da pasta (para ordenacao por "ultima atualizacao")
     if (paciente_id) {
       await fetch(SUPA_URL + '/rest/v1/pacientes?id=eq.' + encodeURIComponent(paciente_id), {
         method: 'PATCH',
