@@ -4108,10 +4108,9 @@ async function abrirConsulta(id){
         // Ativa edição inline em todos os campos .fv
         histResCont.querySelectorAll('.fv').forEach(function(el){
           el.contentEditable = 'true';
-          el.style.outline = '1.5px dashed transparent';
-          el.style.transition = 'outline .15s';
+          el.style.outline = 'none';
           el.addEventListener('focus', function(){ this.style.outline = '1.5px dashed var(--verde-m)'; });
-          el.addEventListener('blur',  function(){ this.style.outline = '1.5px dashed transparent'; var k=this.dataset.key; if(k&&resultData) resultData[k]=this.textContent.trim(); });
+          el.addEventListener('blur',  function(){ this.style.outline = 'none'; var k=this.dataset.key; if(k&&resultData) resultData[k]=this.textContent.trim(); });
         });
         // Listener para mostrar botão de salvar ao editar qualquer campo
         histResCont.addEventListener('input', histMarcaAlterado, { once: false });
