@@ -5970,8 +5970,10 @@ function pfAnvisaBuscar(medId,q){
         var sub=escapeHTML(row.substancia||'');
         var com=escapeHTML(row.nomeProduto||'');
         var emp=escapeHTML(row.empresa||'');
-        item.innerHTML='<div class="pai-sub">'+sub+'</div>'+
-          '<div class="pai-com">'+(com||'')+(emp?' &middot; '+emp:'')+'</div>';
+        // Substâncias compostas: formata SUBST A;SUBST B como duas linhas
+        var subFormatted = sub.replace(/;/g, '<span style="color:var(--cinza);font-weight:400;margin:0 4px;">+</span>');
+        item.innerHTML='<div class="pai-sub">'+subFormatted+'</div>'+
+          (com||emp ? '<div class="pai-com">'+(com||'')+(emp?' &middot; '+emp:'')+'</div>' : '');
         item.addEventListener('mousedown',function(){ pfAnvisaSelect(medId,row); });
         drop.appendChild(item);
       });
