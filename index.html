@@ -5498,8 +5498,8 @@ function pfAnvisaBuscar(medId,q){
       rows.forEach(function(row){
         var item=document.createElement('div'); item.className='pf-ac-item';
         var sub=escapeHTML(row.substancia||'');
-        // Mostrar apresentações disponíveis como subtítulo
-        var apres = (row.apresentacoes||[]).slice(0,3).map(function(a){ return a.a; }).join(' · ');
+        // Mostrar as primeiras apresentações como subtítulo
+        var apres=(row.apresentacoes||[]).slice(0,3).map(function(a){ return a.a; }).join(' · ');
         item.innerHTML='<div class="pai-sub">'+sub+'</div>'+
           (apres?'<div class="pai-com">'+escapeHTML(apres)+'</div>':'');
         item.addEventListener('mousedown',function(){ pfAnvisaSelect(medId,row); });
@@ -5517,10 +5517,10 @@ function pfAnvisaSelect(medId,row){
   pfAcDrop(medId,false);
   var s=function(fid,val){ var el=document.getElementById(fid); if(el&&val) el.value=val; };
   s(medId+'_sub',row.substancia||'');
-  // Preencher dose com a primeira apresentação se o campo estiver vazio
+  // Preencher dose com a primeira apresentação disponível se estiver vazio
   var doseEl=document.getElementById(medId+'_dose');
   if(doseEl && !doseEl.value && row.apresentacoes && row.apresentacoes[0]){
-    doseEl.value = row.apresentacoes[0].a;
+    doseEl.value=row.apresentacoes[0].a;
   }
 }
 
