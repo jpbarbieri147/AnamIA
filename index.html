@@ -2254,14 +2254,16 @@ async function dashLoadRecentes() {
   if(!el) return;
   el.innerHTML = '<div class="dash-empty">Carregando...</div>';
   try {
-    var { data, error } = await supa
-      .from('consultas')
-      .select('id, paciente_nome, created_at, pasta')
-      .eq('medico_id', currentUser.id)
-      .order('created_at', {ascending: false})
-      .limit(6);
+    var token = await getToken();
+    var res = await fetch('/api/consultas', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'list', sem_pasta: false, recentes: true, limit: 6 })
+    });
+    var json = res.ok ? await res.json() : {};
+    var data = (json.consultas || []).slice(0, 6);
 
-    if(error || !data || data.length === 0) {
+    if(!data || data.length === 0) {
       el.innerHTML = '<div class="dash-empty">Nenhum atendimento registrado ainda.</div>';
       return;
     }
@@ -2291,7 +2293,12 @@ async function dashLoadRecentes() {
       else if(diffMin < 60) timeStr = 'Hoje, '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
       else if(diffMin < 1440) timeStr = 'Hoje, '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
       else timeStr = dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
-      var pasta = c.pasta || c.tipo_consulta || 'Consulta';
+      // Tenta extrair tipo de consulta do título ou pasta
+      var tipoMap = {'primeira':'Primeira consulta','retorno':'Retorno','urgencia':'Urgência','urgência':'Urgência'};
+      var tituloLow = (c.titulo || '').toLowerCase();
+      var tipoDetect = '';
+      for(var k in tipoMap){ if(tituloLow.indexOf(k) !== -1){ tipoDetect = tipoMap[k]; break; } }
+      var pasta = tipoDetect || c.pasta || c.titulo || 'Consulta';
 
       html += '<div class="dash-rec-item" onclick="loadConsultaById(&quot;'+c.id+'&quot;)">'
         + '<div class="dash-rec-avatar" style="background:'+av.bg+';color:'+av.fg+';">'+initials+'</div>'
