@@ -2194,52 +2194,43 @@ async function dashLoadResumo() {
     var dd = String(today.getDate()).padStart(2,'0');
     var todayStr = yyyy+'-'+mm+'-'+dd;
 
-    // Consultas salvas hoje
-    var { data: consultas } = await supa
-      .from('consultas')
-      .select('id, created_at')
-      .eq('medico_id', currentUser.id)
-      .gte('created_at', todayStr+'T00:00:00')
-      .lte('created_at', todayStr+'T23:59:59');
+    // Três queries paralelas: agendamentos + prontuários + prescrições
+    var [agRes, consRes, prescRes] = await Promise.all([
+      supa.from('agendamentos').select('id,status').eq('medico_id',currentUser.id).eq('data',todayStr),
+      supa.from('consultas').select('id').eq('medico_id',currentUser.id).gte('created_at',todayStr+'T00:00:00').lte('created_at',todayStr+'T23:59:59'),
+      supa.from('prescricoes').select('id').eq('medico_id',currentUser.id).gte('created_at',todayStr+'T00:00:00').lte('created_at',todayStr+'T23:59:59')
+    ]);
 
-    // Agendamentos hoje
-    var { data: agds } = await supa
-      .from('agendamentos')
-      .select('id, status')
-      .eq('medico_id', currentUser.id)
-      .eq('data', todayStr);
+    var agds     = agRes.data || [];
+    var pronts   = consRes.data ? consRes.data.length : 0;
+    var prescs   = prescRes.data ? prescRes.data.length : 0;
 
-    var totalAg = agds ? agds.length : 0;
-    var prontuarios = consultas ? consultas.length : 0;
-    var confirmados = agds ? agds.filter(function(a){ return a.status === 'confirmado'; }).length : 0;
-    var pendentes = agds ? agds.filter(function(a){ return a.status === 'a_confirmar'; }).length : 0;
+    var agendado   = agds.filter(function(a){ return a.status==='agendado'; }).length;
+    var confirmado = agds.filter(function(a){ return a.status==='confirmado'; }).length;
+    var compareceu = agds.filter(function(a){ return a.status==='compareceu'; }).length;
+    var faltou     = agds.filter(function(a){ return a.status==='faltou'; }).length;
+    var cancelado  = agds.filter(function(a){ return a.status==='cancelado'; }).length;
 
-    var html = '<div class="dash-resumo-grid">'
-      + '<div class="dash-stat"><div class="dash-stat-num">'+totalAg+'</div><div class="dash-stat-label">Agendamentos</div></div>'
-      + '<div class="dash-stat"><div class="dash-stat-num">'+prontuarios+'</div><div class="dash-stat-label">Prontuários gerados</div></div>'
-      + '<div class="dash-stat"><div class="dash-stat-num">'+confirmados+'</div><div class="dash-stat-label">Confirmados</div></div>'
-      + '<div class="dash-stat"><div class="dash-stat-num">'+pendentes+'</div><div class="dash-stat-label">A confirmar</div></div>'
-      + '</div>';
-
-    if(pendentes > 0) {
-      html += '<div class="dash-insight">'
-        + '<div class="dash-insight-title">💡 Atenção</div>'
-        + '<div class="dash-insight-text">Você tem '+pendentes+' paciente'+(pendentes>1?'s':'')+' aguardando confirmação hoje.</div>'
-        + '</div>';
-    } else if(totalAg > 0) {
-      html += '<div class="dash-insight">'
-        + '<div class="dash-insight-title">✓ Agenda organizada</div>'
-        + '<div class="dash-insight-text">Todos os '+totalAg+' agendamentos de hoje estão confirmados.</div>'
-        + '</div>';
-    } else {
-      html += '<div class="dash-insight">'
-        + '<div class="dash-insight-title">📅 Agenda livre</div>'
-        + '<div class="dash-insight-text">Sem agendamentos para hoje.</div>'
-        + '</div>';
+    function stat(num, label, color){
+      return '<div class="dash-stat" style="'+(color?'border-left:3px solid '+color+';':'')+'">'
+        +'<div class="dash-stat-num">'+num+'</div>'
+        +'<div class="dash-stat-label">'+label+'</div>'
+        +'</div>';
     }
+
+    var html = '<div class="dash-resumo-grid" style="grid-template-columns:1fr 1fr;">'
+      + stat(agendado,   'Agendado')
+      + stat(confirmado, 'Confirmado',   'var(--verde-m)')
+      + stat(compareceu, 'Compareceu',   'var(--verde)')
+      + stat(faltou,     'Faltou',       'var(--amber)')
+      + stat(cancelado,  'Cancelou',     'var(--red)')
+      + stat(pronts,     'Prontuários',  'var(--blue)')
+      + stat(prescs,     'Prescrições',  'var(--blue)')
+      + '</div>';
 
     el.innerHTML = html;
   } catch(e) {
+    console.error('dashLoadResumo error:', e);
     el.innerHTML = '<div class="dash-empty">Erro ao carregar resumo.</div>';
   }
 }
@@ -3500,6 +3491,7 @@ async function executarSave() {
     var meta = document.getElementById('resMeta');
     if(meta) meta.textContent += '  ·  ✓ Salvo';
     pendingSave = null;
+    dashLoadResumo();
   } catch(e){
     console.error('executarSave exception:', e);
     alert('Erro inesperado ao salvar.');
@@ -4575,6 +4567,8 @@ async function agendaUpdateStatus(id, novoStatus) {
       var el = document.getElementById('agItem_' + id);
       if(el) el.outerHTML = adpBuildItem(a);
     }
+    // Atualiza resumo do dashboard em background
+    dashLoadResumo();
   } catch(e){ console.error('agendaUpdateStatus error:', e); }
 }
 
@@ -4679,6 +4673,7 @@ async function agendaSave() {
     agendaModalClose();
     await agendaLoad();
     if(adpCurrentDate) adpOpen(adpCurrentDate);
+    dashLoadResumo();
   } catch(e){ console.error('agendaSave error:', e); alert('Erro inesperado.'); }
   finally { btn.disabled = false; btn.textContent = amEditId ? 'Salvar alterações' : 'Salvar agendamento'; }
 }
@@ -5973,6 +5968,7 @@ async function pfGerarPdf(){
     var med=medArr&&medArr[0]?medArr[0]:{};
     pfGerarPdfDoc(dados,med);
     msg.textContent='Receita gerada!'; msg.style.color='var(--verde)';
+    dashLoadResumo();
   }catch(e){ msg.textContent='Erro: '+e.message; msg.style.color='var(--red)'; }
   finally{ btn.disabled=false; btn.innerHTML='<i class="ti ti-file-download" aria-hidden="true"></i> Gerar receita'; }
 }
