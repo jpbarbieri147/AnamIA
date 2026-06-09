@@ -12,32 +12,32 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 .ti{font-size:14px;line-height:1;vertical-align:-2px;}
 :root{
-  /* Brandbook AnamIA v2.0 — escala refinada */
-  --verde:     #0F6E56;
-  --verde-d:   #0A5A43;
+  /* Brandbook AnamIA v3.0 — Passo 1 */
+  --verde:     #3A5530;
+  --verde-d:   #2A3F25;
   --verde-m:   #4ECFA3;
-  --verde-l:   #E1F5EE;
-  --verde-ll:  #F0FAF6;
-  --verde-b:   #9FE1CB;
-  --verde-txt: #085041;
-  --preto:     #1A1814;
-  --pergaminho:#F7F5F0;
-  --cinza:     #6B6760;
-  --cinza-l:   #E6E2DA;
-  --cinza-ll:  #F2EFE9;
-  --cinza-warm:#8B877E;
-  --branco:    #FFFFFF;
+  --verde-l:   #E6EDE4;
+  --verde-ll:  #F0F4EF;
+  --verde-b:   #AEBFAB;
+  --verde-txt: #243820;
+  --preto:     #1E1C18;
+  --pergaminho:#F5F0E8;
+  --cinza:     #6E6B63;
+  --cinza-l:   #E3DED5;
+  --cinza-ll:  #EDE9E2;
+  --cinza-warm:#8E8A82;
+  --branco:    #FAFAF8;
   --red:       #A32D2D;
   --red-l:     #FCEBEB;
   --amber:     #854F0B;
   --amber-l:   #FAEEDA;
   --blue:      #185FA5;
-  --r:         14px;
-  --rs:        10px;
-  --rl:        18px;
-  --sh-sm:     0 1px 2px rgba(26,24,20,.04), 0 1px 3px rgba(26,24,20,.06);
-  --sh-md:     0 2px 4px rgba(26,24,20,.04), 0 4px 12px rgba(26,24,20,.07);
-  --sh-lg:     0 4px 8px rgba(26,24,20,.05), 0 12px 32px rgba(26,24,20,.09);
+  --r:         20px;
+  --rs:        12px;
+  --rl:        24px;
+  --sh-sm:     0 1px 3px rgba(20,18,14,.03), 0 2px 6px rgba(20,18,14,.05);
+  --sh-md:     0 2px 6px rgba(20,18,14,.04), 0 6px 20px rgba(20,18,14,.07);
+  --sh-lg:     0 4px 12px rgba(20,18,14,.04), 0 16px 48px rgba(20,18,14,.09);
   --font-serif:'EB Garamond',Georgia,serif;
   --font-sans: 'Inter',system-ui,sans-serif;
 }
@@ -50,130 +50,68 @@ body{
   line-height:1.6;
 }
 
-/* ── NAV VERTICAL ── */
-.nav{
-  position:fixed;top:0;left:0;
-  height:100vh;
-  width:64px;
-  background:var(--verde);
-  display:flex;flex-direction:column;
-  z-index:300;
-  transition:width .25s cubic-bezier(.4,0,.2,1);
-  overflow:hidden;
-}
-.nav.open{ width:260px; }
-
-.nav-top{
-  display:flex;align-items:center;
-  padding:0 14px;
-  height:64px;
-  gap:12px;
-  flex-shrink:0;
-  border-bottom:1px solid rgba(255,255,255,.12);
-}
-.nav-logo-mark{
-  width:36px;height:36px;flex-shrink:0;
-  background:rgba(255,255,255,.12);
-  border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-}
-.nav-logo-mark svg{width:22px;height:22px;}
-.nav-wordmark{
-  font-family:var(--font-serif);
-  font-size:21px;font-weight:400;
-  color:#fff;
-  white-space:nowrap;
-  opacity:0;
-  transition:opacity .15s .05s;
-  letter-spacing:-0.2px;
-}
-.nav-wordmark em{font-style:normal;color:var(--verde-m);}
-.nav.open .nav-wordmark{opacity:1;}
-
-.nav-toggle{
-  position:absolute;top:14px;right:14px;
-  width:36px;height:36px;
-  background:none;border:none;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  border-radius:6px;
-  color:#fff;
-  transition:background .15s;
-  flex-shrink:0;
-}
-.nav-toggle:hover{background:rgba(255,255,255,.12);}
-.nav-toggle svg{width:20px;height:20px;fill:#fff;transition:transform .25s;}
-.nav.open .nav-toggle svg{transform:rotate(180deg);}
-
-.nav-items{
-  flex:1;overflow-y:auto;overflow-x:hidden;
-  padding:10px 0;
-  display:flex;flex-direction:column;gap:2px;
-}
-.nav-items::-webkit-scrollbar{width:0;}
-
-.nav-item{
-  display:flex;align-items:center;
-  gap:13px;
-  padding:0 14px;
-  height:48px;
-  cursor:pointer;
-  border-radius:0;
-  background:none;border:none;
-  font-family:var(--font-sans);
-  color:rgba(255,255,255,.7);
-  text-align:left;
-  transition:background .15s, color .15s;
-  white-space:nowrap;
+/* === DASHBOARD === */
+.vdashboard{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);}
+.vdashboard.show{display:flex;}
+.dash-body{
+  padding:2rem 2.5rem;flex:1;
   width:100%;
-  position:relative;
+  box-sizing:border-box;
 }
-.nav-item:hover{background:rgba(255,255,255,.08);color:#fff;}
-.nav-item.active{background:rgba(255,255,255,.14);color:#fff;}
-.nav-item.active::before{
-  content:'';position:absolute;left:0;top:8px;bottom:8px;
-  width:3px;background:var(--verde-m);border-radius:0 3px 3px 0;
-}
-.nav-item-ico{
-  width:36px;height:36px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  border-radius:8px;
-  transition:background .15s;
-}
-.nav-item.active .nav-item-ico{background:rgba(255,255,255,.12);}
-.nav-item-ico svg{width:18px;height:18px;fill:currentColor;}
-#nav-osler .nav-item-ico svg,.nav-item-ico svg path[fill="none"]{fill:none;}
-.nav-item-label{
-  font-size:13px;font-weight:500;
-  opacity:0;transition:opacity .15s .05s;
-  pointer-events:none;
-}
-.nav.open .nav-item-label{opacity:1;}
-
-.nav-bottom{
-  padding:10px 0 16px;
-  border-top:1px solid rgba(255,255,255,.12);
-  display:flex;flex-direction:column;gap:2px;
-}
-.nav-user{
-  display:flex;align-items:center;gap:13px;
-  padding:0 14px;height:48px;
-  white-space:nowrap;overflow:hidden;
-  cursor:pointer;border-radius:var(--rs);
-  transition:background .15s;margin:0 6px;
-}
-.nav-user:hover{background:rgba(255,255,255,.1);}
-.nav-avatar{
-  width:36px;height:36px;flex-shrink:0;
-  background:rgba(255,255,255,.15);
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:600;color:#fff;
-}
-.nav-user-info{opacity:0;transition:opacity .15s .05s;min-width:0;}
-.nav.open .nav-user-info{opacity:1;}
-.nav-user-name{font-size:12px;font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
-.nav-user-role{font-size:10px;color:rgba(255,255,255,.55);}
+.dash-greeting{margin-bottom:2rem;}
+.dash-greeting h1{font-family:var(--font-serif);font-size:32px;font-weight:400;color:var(--preto);letter-spacing:-.4px;line-height:1.2;}
+.dash-greeting p{font-size:13px;color:var(--cinza);margin-top:4px;}
+.dash-modules{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2rem;}
+.dash-mod{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);padding:22px 18px;cursor:pointer;transition:all .18s ease;box-shadow:var(--sh-sm);display:flex;flex-direction:column;align-items:center;text-align:center;}
+.dash-mod:hover{border-color:var(--verde-b);box-shadow:var(--sh-md);transform:translateY(-1px);}
+.dash-mod-ico{width:44px;height:44px;border-radius:12px;background:var(--verde-l);display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:var(--verde);}
+.dash-mod-ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.dash-mod-title{font-size:14px;font-weight:600;color:var(--preto);margin-bottom:4px;}
+.dash-mod-desc{font-size:11px;color:var(--cinza);line-height:1.5;}
+.dash-widgets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.dash-widget{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);box-shadow:var(--sh-sm);display:flex;flex-direction:column;overflow:hidden;}
+.dash-widget-hdr{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cinza-l);flex-shrink:0;}
+.dash-widget-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--preto);}
+.dash-widget-title svg{width:16px;height:16px;stroke:var(--verde);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.dash-widget-link{font-size:11px;color:var(--verde);font-weight:500;cursor:pointer;text-decoration:none;}
+.dash-widget-link:hover{text-decoration:underline;}
+.dash-widget-body{padding:12px 20px;flex:1;overflow-y:auto;}
+.dash-widget-body::-webkit-scrollbar{width:0;}
+/* Agenda do dia */
+.dash-agenda-date{font-size:11px;color:var(--cinza);margin-bottom:10px;}
+.dash-ag-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--cinza-l);}
+.dash-ag-item:last-child{border-bottom:none;}
+.dash-ag-time{font-size:12px;font-weight:600;color:var(--cinza);width:40px;flex-shrink:0;font-variant-numeric:tabular-nums;}
+.dash-ag-info{flex:1;min-width:0;}
+.dash-ag-name{font-size:13px;font-weight:500;color:var(--preto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dash-ag-tipo{font-size:11px;color:var(--cinza);}
+.dash-ag-badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:8px;white-space:nowrap;flex-shrink:0;}
+.dash-ag-badge.confirmado{background:var(--verde-l);color:var(--verde-txt);}
+.dash-ag-badge.aconfirmar{background:var(--amber-l);color:var(--amber);}
+.dash-ag-badge.cancelado{background:var(--cinza-ll);color:var(--cinza);}
+.dash-ag-badge.compareceu{background:#E6EDE4;color:#2A3F25;}
+.dash-ag-badge.faltou{background:var(--red-l);color:var(--red);}
+.dash-ag-more{font-size:11px;color:var(--cinza);padding-top:8px;cursor:pointer;text-align:center;}
+.dash-ag-more:hover{color:var(--verde);}
+/* Resumo do dia */
+.dash-resumo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.dash-stat{padding:12px;background:var(--pergaminho);border-radius:var(--rs);border:1px solid var(--cinza-l);}
+.dash-stat-num{font-size:24px;font-weight:700;color:var(--preto);line-height:1;}
+.dash-stat-label{font-size:10px;color:var(--cinza);margin-top:3px;}
+.dash-insight{background:var(--verde-ll);border:1px solid var(--verde-b);border-radius:var(--rs);padding:10px 12px;}
+.dash-insight-title{font-size:11px;font-weight:600;color:var(--verde-txt);margin-bottom:3px;display:flex;align-items:center;gap:5px;}
+.dash-insight-text{font-size:11px;color:var(--cinza);line-height:1.5;}
+/* Atendimentos recentes */
+.dash-rec-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--cinza-l);cursor:pointer;transition:background .12s;}
+.dash-rec-item:last-child{border-bottom:none;}
+.dash-rec-item:hover{background:var(--verde-ll);margin:0 -20px;padding:9px 20px;}
+.dash-rec-avatar{width:34px;height:34px;border-radius:50%;background:var(--verde-l);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--verde-txt);flex-shrink:0;}
+.dash-rec-info{flex:1;min-width:0;}
+.dash-rec-name{font-size:13px;font-weight:500;color:var(--preto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dash-rec-meta{font-size:11px;color:var(--cinza);}
+.dash-rec-badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:8px;background:var(--cinza-ll);color:var(--cinza);white-space:nowrap;flex-shrink:0;}
+.dash-empty{text-align:center;padding:2rem 1rem;color:var(--cinza);font-size:12px;}
+/* ── NAV LEGACY (mantido para compatibilidade interna) ── */
 /* === TELECONSULTA === */
 .tc-wrap{display:none;position:fixed;inset:0;z-index:8000;background:#0D1117;flex-direction:column;}
 .tc-wrap.open{display:flex;}
@@ -210,16 +148,16 @@ body{
 /* === AGENDA === */
 .vagenda{display:none;flex-direction:column;width:100%;height:100%;overflow:hidden;}
 .vagenda.show{display:flex;}
-.vprescricao{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);}
+.vprescricao{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
 .vprescricao.show{display:flex;}
-.presc-hdr{padding:1.5rem 1.75rem 1.25rem;border-bottom:1px solid var(--cinza-l);background:var(--branco);flex-shrink:0;}
-.presc-hdr h1{font-family:var(--font-serif);font-size:24px;font-weight:500;color:var(--preto);letter-spacing:-.3px;}
+.presc-hdr{padding:2rem 2.5rem 1.25rem;border-bottom:1px solid var(--cinza-l);background:var(--pergaminho);flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;}
+.presc-hdr h1{font-family:var(--font-serif);font-size:26px;font-weight:400;color:var(--preto);letter-spacing:-.3px;margin-bottom:3px;}
 .presc-hdr p{font-size:12px;color:var(--cinza);margin-top:3px;}
-.presc-body{padding:1.5rem 1.75rem;flex:1;}
-.presc-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;gap:1rem;text-align:center;}
-.presc-empty-ico{width:56px;height:56px;background:var(--verde-l);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--verde);}
-.presc-empty h3{font-family:var(--font-serif);font-size:18px;font-weight:500;color:var(--preto);}
-.presc-empty p{font-size:13px;color:var(--cinza);max-width:320px;line-height:1.6;}
+.presc-body{padding:1.75rem 2.5rem;flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.presc-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:.6rem;max-width:500px;margin:0 auto;padding:3rem 0;width:100%;}
+.presc-empty-ico{width:52px;height:52px;background:var(--verde-l);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--verde);margin-bottom:.75rem;}
+.presc-empty h3{font-family:var(--font-serif);font-size:26px;font-weight:400;color:var(--preto);letter-spacing:-.3px;line-height:1.2;}
+.presc-empty p{font-size:13px;color:var(--cinza);max-width:400px;line-height:1.7;margin-top:.1rem;text-align:center;}
 /* ── MODAL LOCAL ATENDIMENTO ── */
 .la-ovl{position:fixed;inset:0;background:rgba(10,10,10,.45);z-index:9998;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:2rem 1rem;}
 .la-ovl.open{display:flex;}
@@ -246,8 +184,8 @@ body{
 .la-ftr{padding:1rem 1.5rem;border-top:1px solid var(--cinza-l);display:flex;justify-content:flex-end;gap:.5rem;}
 .la-msg{font-size:12px;margin-top:.25rem;min-height:16px;}
 /* ── FORMULÁRIO DE PRESCRIÇÃO ── */
-.pf-wrap{display:flex;flex-direction:column;gap:1.25rem;max-width:720px;}
-.pf-sec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh-sm);}
+.pf-wrap{display:flex;flex-direction:column;gap:1.25rem;max-width:860px;width:100%;margin:0 auto;}
+.pf-sec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:20px;overflow:hidden;box-shadow:var(--sh-sm);}
 .pf-sec-hdr{padding:10px 14px;background:var(--verde-ll);border-bottom:1px solid var(--verde-b);display:flex;align-items:center;gap:8px;}
 .pf-sec-hdr i{color:var(--verde);font-size:15px;}
 .pf-sec-ttl{font-size:12px;font-weight:600;color:var(--verde-txt);text-transform:uppercase;letter-spacing:.4px;}
@@ -261,7 +199,7 @@ body{
 .pf-inp::placeholder{color:var(--cinza);}
 .pf-sel{width:100%;padding:7px 10px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:var(--font-sans);color:var(--preto);background:var(--branco);cursor:pointer;}
 .pf-tipos{display:flex;gap:.5rem;flex-wrap:wrap;}
-.pf-tipo-btn{flex:1;min-width:140px;padding:10px 12px;border:1.5px solid var(--cinza-l);border-radius:var(--rs);background:var(--branco);cursor:pointer;text-align:left;transition:all .15s;font-family:var(--font-sans);}
+.pf-tipo-btn{flex:1;min-width:140px;padding:14px 16px;border:1.5px solid var(--cinza-l);border-radius:16px;background:var(--branco);cursor:pointer;text-align:left;transition:all .15s;font-family:var(--font-sans);box-shadow:var(--sh-sm);}
 .pf-tipo-btn:hover{border-color:var(--verde-b);background:var(--verde-ll);}
 .pf-tipo-btn.active{border-color:var(--verde);background:var(--verde-l);}
 .pf-tipo-btn .ptb-ico{font-size:18px;margin-bottom:4px;display:block;}
@@ -468,64 +406,138 @@ body{
 .profile-save-btn:active{transform:scale(.99);}
 .profile-save-btn:disabled{opacity:.5;cursor:not-allowed;}
 .profile-msg{font-size:11px;text-align:center;padding:6px 0;min-height:20px;color:var(--verde);}
-.nav-logout-btn{
-  display:flex;align-items:center;gap:13px;
-  padding:0 14px;height:40px;
-  cursor:pointer;background:none;border:none;
-  font-family:var(--font-sans);
-  color:rgba(255,255,255,.55);
-  transition:color .15s, background .15s;
-  width:100%;white-space:nowrap;
-}
-.nav-logout-btn:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9);}
-.nav-logout-btn svg{width:16px;height:16px;fill:currentColor;flex-shrink:0;}
-.nav-logout-label{font-size:12px;opacity:0;transition:opacity .15s .05s;}
-.nav.open .nav-logout-label{opacity:1;}
 
-/* badge protótipo no nav */
-.nav-badge{
-  opacity:0;transition:opacity .15s .05s;
-  font-size:9px;font-weight:600;
-  color:var(--verde);background:var(--verde-m);
-  padding:1px 7px;border-radius:10px;
-  margin-left:auto;letter-spacing:.3px;
-}
-.nav.open .nav-badge{opacity:1;}
+/* ── LAYOUT v2 — top nav horizontal flutuante ── */
+body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
+.layout{display:flex;height:calc(100vh - 76px);}
 
-/* ── LAYOUT ── */
-body{padding-left:80px;transition:padding-left .25s cubic-bezier(.4,0,.2,1);}
-body.nav-open{padding-left:276px;}
-.layout{display:flex;height:100vh;}
-
-/* ── PAINEL LATERAL (conteúdo dos itens do nav) ── */
-.panel{
-  width:380px;flex-shrink:0;
-  background:var(--pergaminho);
-  border-right:1px solid var(--cinza-l);
-  display:flex;flex-direction:column;
-  height:100vh;
-  overflow:hidden;
-  transition:width .2s, opacity .2s;
+/* ── TOP NAV — flutuante, alinhado com dash-body ── */
+.topnav{
+  position:fixed;top:10px;
+  left:2.5rem;right:2.5rem;
+  height:56px;
+  background:#283820;
+  display:flex;align-items:center;
+  z-index:400;
+  border-radius:16px;
+  box-shadow:0 4px 20px rgba(20,30,15,.25), 0 1px 4px rgba(20,30,15,.15);
 }
-.panel.hidden{width:0;opacity:0;pointer-events:none;}
-.panel-hdr{
-  padding:24px 28px 16px;
-  border-bottom:1px solid var(--cinza-l);
+/* Logo — sem borda direita */
+.topnav-logo{
+  display:flex;align-items:center;gap:10px;
+  padding:0 18px 0 16px;
+  text-decoration:none;
+  height:100%;
+  cursor:pointer;
+  flex-shrink:0;
+  border-radius:16px 0 0 16px;
+}
+.topnav-logo:hover{background:rgba(255,255,255,.05);}
+.topnav-logo-mark{
+  width:32px;height:32px;
+  background:rgba(255,255,255,.1);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
 }
-.panel-hdr h2{
+.topnav-logo-mark svg{width:20px;height:20px;}
+.topnav-wordmark{
   font-family:var(--font-serif);
-  font-size:20px;font-weight:400;
-  color:var(--preto);margin-bottom:2px;
+  font-size:19px;font-weight:400;
+  color:#fff;letter-spacing:-.2px;
+  white-space:nowrap;
 }
-.panel-hdr p{font-size:11px;color:var(--cinza);line-height:1.5;}
-.panel-body{
-  flex:1;overflow-y:auto;
-  padding:1.5rem 1.75rem;
-  display:flex;flex-direction:column;gap:1rem;
+.topnav-wordmark em{font-style:normal;color:var(--verde-m);}
+
+
+/* Nav items — ícone em cima, label embaixo */
+.topnav-items{
+  display:flex;align-items:center;justify-content:center;gap:1px;
+  padding:0 8px;
+  height:100%;
+  flex:1;
 }
-.panel-body::-webkit-scrollbar{width:4px;}
-.panel-body::-webkit-scrollbar-thumb{background:var(--cinza-l);border-radius:4px;}
+.tn-item{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:0 12px;height:100%;min-width:64px;
+  cursor:pointer;border-radius:10px;
+  background:none;border:none;
+  font-family:var(--font-sans);
+  color:rgba(255,255,255,.6);
+  font-size:10px;font-weight:500;
+  transition:background .15s, color .15s;
+  white-space:nowrap;
+  position:relative;
+  letter-spacing:.1px;
+}
+.tn-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9);}
+.tn-item.active{background:rgba(255,255,255,.13);color:#fff;}
+.tn-item-ico{
+  width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.tn-item-ico svg{
+  width:18px;height:18px;
+  stroke:currentColor;fill:none;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+}
+.tn-badge{
+  position:absolute;top:6px;right:6px;
+  font-size:8px;font-weight:700;
+  color:#283820;background:var(--verde-m);
+  padding:1px 5px;border-radius:6px;
+  letter-spacing:.2px;
+}
+
+/* Separador vertical centralizado — só antes da seção do usuário */
+.topnav-sep{
+  width:1px;height:28px;
+  background:rgba(255,255,255,.15);
+  flex-shrink:0;
+  margin:0 4px;
+  align-self:center;
+}
+
+/* Right section — usuário */
+.topnav-right{
+  display:flex;align-items:center;
+  gap:4px;
+  padding:0 10px;
+  flex-shrink:0;
+}
+.topnav-user{
+  display:flex;align-items:center;gap:9px;
+  padding:6px 10px;border-radius:10px;
+  cursor:pointer;
+  transition:background .15s;
+}
+.topnav-user:hover{background:rgba(255,255,255,.1);}
+.topnav-avatar{
+  width:30px;height:30px;
+  background:rgba(255,255,255,.15);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;color:#fff;
+  flex-shrink:0;
+}
+.topnav-username{font-size:12px;font-weight:500;color:rgba(255,255,255,.9);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;}
+.topnav-userrole{font-size:10px;color:rgba(255,255,255,.45);}
+.topnav-logout{
+  width:34px;height:34px;border-radius:10px;
+  background:none;border:none;cursor:pointer;
+  color:rgba(255,255,255,.45);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s, color .15s;
+}
+.topnav-logout:hover{background:rgba(255,255,255,.1);color:#fff;}
+.topnav-logout svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ── PAINEL LATERAL — agora é .vc-left-card (mantido como fallback) ── */
+.panel{display:none !important;}
+.panel.hidden{display:none !important;}
+.panel-hdr{display:none;}
+.panel-body{display:none;}
 
 /* ── LEGADO: .sb mantido para outros usos, mas painel de gravação não usa mais ── */
 .sb{ display:contents; }
@@ -648,7 +660,98 @@ body.nav-open{padding-left:276px;}
 .ast{font-size:10px;margin-top:2px;}
 
 /* ── MAIN ── */
-.main{overflow-y:auto;height:100vh;flex:1;}
+.main{
+  height:100%;flex:1;
+  display:flex;flex-direction:column;
+  background:var(--pergaminho);
+  overflow:hidden;
+}
+
+/* ── VIEW CONTAINER — tela cheia iOS ── */
+.view-container{
+  display:none;
+  width:100%;height:100%;
+  flex-direction:column;
+  box-sizing:border-box;
+  overflow-y:auto;
+  animation:fadeIn .22s ease;
+  background:var(--pergaminho);
+}
+.view-container.show{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* Header da view */
+.vh{
+  padding:2rem 2.5rem 1.25rem;
+  flex-shrink:0;
+  border-bottom:1px solid var(--cinza-l);
+  background:var(--pergaminho);
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:1rem;
+}
+.vh-title{
+  font-family:var(--font-serif);
+  font-size:26px;font-weight:400;
+  color:var(--preto);letter-spacing:-.3px;margin-bottom:3px;
+}
+.vh-sub{font-size:12px;color:var(--cinza);line-height:1.5;}
+.vh-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+
+/* Body da view — área com padding e scroll */
+.vb{
+  padding:1.75rem 2.5rem 3rem;
+  display:flex;flex-direction:column;gap:1.5rem;
+}
+.vb::-webkit-scrollbar{width:4px;}
+.vb::-webkit-scrollbar-thumb{background:var(--cinza-l);border-radius:4px;}
+
+/* Card iOS dentro das views */
+.vc{
+  background:var(--branco);
+  border:1px solid var(--cinza-l);
+  border-radius:20px;
+  box-shadow:var(--sh-sm);
+  overflow:hidden;
+}
+.vc-hdr{
+  padding:14px 20px;
+  border-bottom:1px solid var(--cinza-l);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.vc-hdr-title{
+  font-size:12px;font-weight:600;
+  letter-spacing:.6px;text-transform:uppercase;
+  color:var(--cinza);
+}
+.vc-body{padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:.85rem;}
+
+/* Grid de cards */
+.vc-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;}
+.vc-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;}
+
+/* Resultado inline (anamnese gerada) */
+.vr-wrap{
+  background:var(--branco);
+  border:1px solid var(--cinza-l);
+  border-radius:20px;
+  box-shadow:var(--sh-sm);
+  overflow:hidden;
+  flex:1;
+}
+.vr-hdr{
+  padding:1.25rem 1.75rem;
+  border-bottom:1px solid var(--cinza-l);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:8px;
+}
+.vr-hdr h2{font-family:var(--font-serif);font-size:20px;font-weight:400;color:var(--preto);letter-spacing:-.2px;}
+.vr-hdr p{font-size:11px;color:var(--cinza);margin-top:2px;}
+.vr-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.vr-body{padding:0 1.75rem 1.75rem;overflow-y:auto;}
+
+/* Loading inline */
+.vl{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1.25rem;text-align:center;}
 
 /* ── WELCOME SCREEN ── */
 .wel{
@@ -670,7 +773,7 @@ body.nav-open{padding-left:276px;}
 .wel-logo svg{width:44px;height:44px;}
 .wel h1{
   font-family:var(--font-serif);
-  font-size:34px;font-weight:500;
+  font-size:34px;font-weight:400;
   color:var(--preto);
   letter-spacing:-0.5px;
   line-height:1.2;
@@ -740,7 +843,7 @@ body.nav-open{padding-left:276px;}
 }
 .rhdr h1{
   font-family:var(--font-serif);
-  font-size:24px;font-weight:500;
+  font-size:24px;font-weight:400;
   color:var(--preto);letter-spacing:-0.3px;
 }
 .rhdr p{font-size:12px;color:var(--cinza);margin-top:3px;}
@@ -796,7 +899,7 @@ body.nav-open{padding-left:276px;}
   cursor:pointer;font-family:var(--font-sans);white-space:nowrap;
   transition:background .15s;
 }
-.save-bar-btn:hover{background:#0D6E50;}
+.save-bar-btn:hover{background:#2A3F25;}
 .save-bar-btn:disabled{opacity:.5;cursor:not-allowed;}
 .save-bar-done{font-size:12px;color:var(--verde);font-weight:500;}
 
@@ -892,10 +995,10 @@ body.nav-open{padding-left:276px;}
 .cintro{font-size:12px;color:var(--cinza);margin-bottom:1.25rem;line-height:1.6;}
 /* === HISTORICO === */
 .hpanel{padding:1.5rem 1.75rem;overflow-y:auto;background:var(--pergaminho);}
-.hpanel h1{font-family:var(--font-serif);font-size:26px;font-weight:500;color:var(--preto);margin-bottom:.3rem;letter-spacing:-.3px;}
+.hpanel h1{font-family:var(--font-serif);font-size:26px;font-weight:400;color:var(--preto);margin-bottom:.3rem;letter-spacing:-.3px;}
 .hintro{font-size:12px;color:var(--cinza);margin-bottom:1.5rem;line-height:1.6;}
-.hlist{display:flex;flex-direction:column;gap:.6rem;}
-.hcard{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:16px 18px;border:1px solid var(--cinza-l);border-radius:var(--r);background:var(--branco);cursor:pointer;transition:all .16s ease;box-shadow:var(--sh-sm);}
+.hlist{display:flex;flex-direction:column;gap:.75rem;padding:.25rem 0;}
+.hcard{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:16px 20px;border:1px solid var(--cinza-l);border-radius:20px;background:var(--branco);cursor:pointer;transition:all .16s ease;box-shadow:var(--sh-sm);}
 .hcard:hover{border-color:var(--verde-b);background:var(--verde-ll);box-shadow:var(--sh-md);}
 .hcard-main{flex:1;min-width:0;}
 .hcard-name{font-size:14px;font-weight:500;color:var(--preto);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -925,12 +1028,21 @@ body.nav-open{padding-left:276px;}
 .cid-code{font-weight:600;color:var(--verde);margin-right:6px;}
 .cid-desc{color:var(--preto);}
 .cid-hint{font-size:10px;color:var(--cinza);padding:8px 12px;text-align:center;}
-.htools{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem;}
-.hsearch{width:100%;padding:9px 12px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:13px;font-family:var(--font-sans);color:var(--preto);outline:none;transition:border-color .15s;}
+.htools{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem;}
+.hsearch{
+  width:100%;padding:10px 14px;
+  border:1px solid var(--cinza-l);
+  border-radius:12px;
+  font-size:13px;font-family:var(--font-sans);
+  color:var(--preto);background:var(--branco);
+  outline:none;transition:border-color .15s,box-shadow .15s;
+  box-shadow:var(--sh-sm);
+}
+.hsearch:focus{border-color:var(--verde);box-shadow:0 0 0 3px var(--verde-ll);}
 .hsearch:focus{border-color:var(--verde);}
 .htools-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.hnewbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:background .15s;}
-.hnewbtn:hover{background:#0D6E50;}
+.hnewbtn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:var(--verde);color:#fff;border:none;border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:all .15s;box-shadow:var(--sh-sm);}
+.hnewbtn:hover{background:#2A3F25;}
 .hsort{padding:8px 10px;border:1px solid var(--cinza-l);border-radius:var(--rs);font-size:12px;font-family:var(--font-sans);color:var(--preto);background:var(--branco);cursor:pointer;outline:none;}
 .hsort:focus{border-color:var(--verde);}
 .hback{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:var(--verde);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);padding:4px 0;margin-bottom:.5rem;}
@@ -963,7 +1075,7 @@ body.nav-open{padding-left:276px;}
 .mover-btn{padding:9px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);border:1px solid var(--cinza-l);background:var(--branco);color:var(--preto);transition:all .15s;}
 .mover-btn:hover{background:var(--pergaminho);}
 .mover-btn.primary{background:var(--verde);color:#fff;border-color:var(--verde);}
-.mover-btn.primary:hover{background:#0D6E50;}
+.mover-btn.primary:hover{background:#2A3F25;}
 .mover-btn:disabled{opacity:.5;cursor:not-allowed;}
 .hmodal-ovl{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,10,10,.4);z-index:9999;display:none;align-items:center;justify-content:center;}
 .hmodal-ovl.open{display:flex;}
@@ -975,7 +1087,7 @@ body.nav-open{padding-left:276px;}
 .hmodal-btn{padding:9px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);border:1px solid var(--cinza-l);background:var(--branco);color:var(--preto);transition:all .15s;}
 .hmodal-btn:hover{background:var(--pergaminho);}
 .hmodal-btn.primary{background:var(--verde);color:#fff;border-color:var(--verde);}
-.hmodal-btn.primary:hover{background:#0D6E50;}
+.hmodal-btn.primary:hover{background:#2A3F25;}
 .cacts{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
 .cbtn{
   padding:7px 12px;border:1px solid var(--cinza-l);
@@ -985,7 +1097,7 @@ body.nav-open{padding-left:276px;}
 }
 .cbtn:hover{background:var(--pergaminho);}
 .cbtn.sv{background:var(--verde);color:#fff;border-color:var(--verde);font-weight:600;}
-.cbtn.sv:hover{background:#0D6E50;}
+.cbtn.sv:hover{background:#2A3F25;}
 .csaved{font-size:11px;color:var(--verde);display:none;}
 .csaved.show{display:inline;}
 .csec{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);margin-bottom:.5rem;overflow:hidden;}
@@ -1037,7 +1149,7 @@ body.nav-open{padding-left:276px;}
 .osler-input{flex:1;border:1px solid var(--cinza-l);border-radius:var(--rs);padding:8px 10px;font-size:12px;font-family:var(--font-sans);resize:none;outline:none;min-height:38px;max-height:100px;background:var(--branco);}
 .osler-input:focus{border-color:var(--verde);}
 .osler-send{width:36px;height:36px;border-radius:var(--rs);background:var(--verde);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-end;}
-.osler-send:hover{background:#0D6E50;}
+.osler-send:hover{background:#2A3F25;}
 .osler-send svg{width:16px;height:16px;fill:#fff;}
 .osler-disclaimer{font-size:10px;color:var(--cinza);font-style:italic;padding:6px 14px 10px;text-align:center;line-height:1.5;}
 /* ── OSLER MODE PILLS ── */
@@ -1074,15 +1186,15 @@ body.nav-open{padding-left:276px;}
 .mcan{padding:8px 16px;border:1px solid var(--cinza-l);border-radius:var(--rs);background:var(--branco);font-size:12px;cursor:pointer;font-family:var(--font-sans);color:var(--preto);}
 .mcan:hover{background:var(--pergaminho);}
 .mdl{padding:8px 18px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);}
-.mdl:hover{background:#0D6E50;}
+.mdl:hover{background:#2A3F25;}
 
 /* === AUTH OVERLAY === */
-.auth-ovl{position:fixed;inset:0;background:rgba(247,245,240,.97);z-index:99999;display:flex;align-items:center;justify-content:center;}
+.auth-ovl{position:fixed;inset:0;background:rgba(245,240,232,.97);z-index:99999;display:flex;align-items:center;justify-content:center;}
 .auth-card{background:var(--branco);border:1px solid var(--cinza-l);border-radius:var(--r);padding:2rem;width:360px;box-shadow:0 8px 40px rgba(0,0,0,.1);}
 /* Logo mark (container verde arredondado) — brandbook */
 .logo-mark{
   width:36px;height:36px;border-radius:8px;
-  background:#0A5A43;
+  background:#2A3F25;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
 }
@@ -1108,7 +1220,7 @@ body.nav-open{padding-left:276px;}
 .auth-err.show{display:block;}
 .auth-ovl *{pointer-events:auto;}
 .auth-btn{width:100%;padding:11px;background:var(--verde);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:all .15s;margin-top:.2rem;}
-.auth-btn:hover{background:#0D6E50;}
+.auth-btn:hover{background:#2A3F25;}
 .auth-btn:disabled{opacity:.6;cursor:not-allowed;}
 /* hdr-user legacy — substituído pelo nav-user */
 </style>
@@ -1116,384 +1228,394 @@ body.nav-open{padding-left:276px;}
 </head>
 <body>
 
-<!-- NAV VERTICAL -->
-<nav class="nav" id="mainNav">
-  <!-- Topo: logo (clicar abre/fecha o menu) -->
-  <div class="nav-top">
-    <div class="nav-logo-mark" onclick="toggleNav()" title="Abrir/fechar menu" style="cursor:pointer;">
-      <svg width="22" height="22" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22 7L9 37H15.5L18.5 29H25.5L28.5 37H35L22 7Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
-        <line x1="18" y1="23.5" x2="26" y2="23.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/>
+<!-- TOP NAV -->
+<nav class="topnav" id="topNav">
+  <!-- Logo — sem borda separadora -->
+  <div class="topnav-logo" onclick="showView('dashboard')" title="Início">
+    <div class="topnav-logo-mark">
+      <svg width="20" height="20" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 38L22 8L34 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M14.5 28.5Q22 20 29.5 28.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round" fill="none"/>
       </svg>
     </div>
-    <span class="nav-wordmark">Anam<em>IA</em></span>
+    <span class="topnav-wordmark">Anam<em>IA</em></span>
   </div>
 
-  <!-- Itens de navegação -->
-  <div class="nav-items">
-    <button class="nav-item active" id="nav-record" onclick="showView('record')">
-      <span class="nav-item-ico">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <rect x="9" y="2" width="6" height="12" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
-          <path d="M5 10a7 7 0 0014 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <line x1="8" y1="22" x2="16" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <span class="nav-item-label">Nova Consulta</span>
-      <span class="nav-badge">Beta</span>
+  <!-- Nav items — ícone em cima, label embaixo -->
+  <div class="topnav-items" id="topNavItems" style="display:none;">
+    <button class="tn-item active" id="sb-dashboard" onclick="showView('dashboard')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+      Início
     </button>
-
-    <button class="nav-item" id="nav-history" onclick="showView('history')">
-      <span class="nav-item-ico">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <span class="nav-item-label">Histórico</span>
+    <button class="tn-item" id="sb-record" onclick="showView('record')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></span>
+      Nova Consulta
+      <span class="tn-badge">Beta</span>
     </button>
-
-    <button class="nav-item" id="nav-prescricao" onclick="showView('prescricao')">
-      <span class="nav-item-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" fill="none"/>
-          <rect x="9" y="3" width="6" height="4" rx="1" fill="none"/>
-          <path d="M9 12h6M9 16h4" fill="none"/>
-        </svg>
-      </span>
-      <span class="nav-item-label">Prescrição</span>
+    <button class="tn-item" id="sb-history" onclick="showView('history')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg></span>
+      Histórico
     </button>
-
-    <button class="nav-item" id="nav-customize" onclick="showView('customize')">
-      <span class="nav-item-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
-          <line x1="4" y1="6" x2="20" y2="6"/>
-          <line x1="4" y1="12" x2="20" y2="12"/>
-          <line x1="4" y1="18" x2="20" y2="18"/>
-          <circle cx="8" cy="6" r="2.5" fill="none"/>
-          <circle cx="16" cy="12" r="2.5" fill="none"/>
-          <circle cx="10" cy="18" r="2.5" fill="none"/>
-        </svg>
-      </span>
-      <span class="nav-item-label">Personalização</span>
+    <button class="tn-item" id="sb-prescricao" onclick="showView('prescricao')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></span>
+      Prescrição
     </button>
-
-    <button class="nav-item" id="nav-osler" onclick="showView('osler')">
-      <span class="nav-item-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 18h6" fill="none"/>
-          <path d="M10 21h4" fill="none"/>
-          <path d="M12 2a7 7 0 0 1 5 11.9V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-2.1A7 7 0 0 1 12 2z" fill="none"/>
-        </svg>
-      </span>
-      <span class="nav-item-label">Osler</span>
+    <button class="tn-item" id="sb-agenda" onclick="showView('agenda')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+      Agenda
     </button>
-    <button class="nav-item" id="nav-agenda" onclick="showView('agenda')">
-      <span class="nav-item-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="4" width="18" height="18" rx="2" fill="none"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-          <line x1="8" y1="15" x2="8" y2="15" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="12" y1="15" x2="12" y2="15" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="16" y1="15" x2="16" y2="15" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <span class="nav-item-label">Agenda</span>
+    <button class="tn-item" id="sb-osler" onclick="showView('osler')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 2a7 7 0 015 11.9V16a1 1 0 01-1 1H8a1 1 0 01-1-1v-2.1A7 7 0 0112 2z"/></svg></span>
+      Osler
+    </button>
+    <button class="tn-item" id="sb-customize" onclick="showView('customize')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2.5"/><circle cx="16" cy="12" r="2.5"/><circle cx="10" cy="18" r="2.5"/></svg></span>
+      Personalização
     </button>
   </div>
 
-  <!-- Rodapé: usuário + logout -->
-  <div class="nav-bottom">
-    <div class="nav-user" id="hdrUser" style="display:none" onclick="showView('profile')" title="Editar perfil" role="button" tabindex="0">
-      <div class="nav-avatar" id="navAvatar">?</div>
-      <div class="nav-user-info">
-        <div class="nav-user-name" id="hdrUserName"></div>
-        <div class="nav-user-role">Médico · Ver perfil</div>
+  <!-- Separador centralizado — só antes do usuário -->
+  <div class="topnav-sep" id="topNavSep" style="display:none;"></div>
+
+  <!-- Usuário + logout -->
+  <div class="topnav-right" id="topNavRight" style="display:none;">
+    <div class="topnav-user" onclick="showView('profile')" title="Perfil" id="topNavUser">
+      <div class="topnav-avatar" id="topNavAvatar">?</div>
+      <div>
+        <div class="topnav-username" id="topNavName"></div>
+        <div class="topnav-userrole" id="topNavRole">Médico</div>
       </div>
     </div>
-    <button class="nav-logout-btn" onclick="authLogout()">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-      <span class="nav-logout-label">Sair</span>
+    <button class="topnav-logout" onclick="authLogout()" title="Sair">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
 </nav>
 
+
 <div class="layout">
 
-<!-- PAINEL: NOVA CONSULTA -->
-<aside class="panel" id="panel-record">
-  <div class="panel-hdr">
-    <h2>Nova Consulta</h2>
-    <p>Grave ou cole a transcrição da consulta</p>
-  </div>
-  <div class="panel-body" id="recordPanelBody">
-    <div>
-      <div class="lbl">Status</div>
-      <div style="color:var(--verde);font-size:11px;display:flex;align-items:center;gap:5px;">
-        <span style="width:7px;height:7px;border-radius:50%;background:var(--verde-m);display:inline-block;flex-shrink:0;"></span>
-        Backend conectado
+<!-- VIEW: NOVA CONSULTA -->
+<div class="view-container" id="panel-record">
+  <!-- Estado: entrada (gravação/transcrição) -->
+  <div id="recordInputState" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+    <div class="vh">
+      <div>
+        <div class="vh-title">Nova Consulta</div>
+        <div class="vh-sub">Grave a consulta ou cole a transcrição para gerar a anamnese</div>
+      </div>
+      <div class="vh-actions">
+        <div style="color:var(--verde);font-size:11px;display:flex;align-items:center;gap:5px;">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--verde-m);display:inline-block;flex-shrink:0;"></span>
+          Backend conectado
+        </div>
       </div>
     </div>
-    <div>
-      <div class="lbl">Gravação</div>
-      <div class="reca" id="recArea">
-        <button class="rbtn" id="recBtn" onclick="toggleRec()">
-          <svg id="micIco" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-            <rect x="9" y="2" width="6" height="12" rx="3"/>
-            <path d="M5 10a7 7 0 0014 0"/>
-            <line x1="12" y1="19" x2="12" y2="22"/>
-            <line x1="8" y1="22" x2="16" y2="22"/>
-          </svg>
-          <svg id="stopIco" viewBox="0 0 24 24" style="display:none" fill="white" width="20" height="20">
-            <rect x="6" y="6" width="12" height="12" rx="2"/>
-          </svg>
+    <div class="vb" id="recordPanelBody" style="flex:1;">
+      <div class="vc-grid-2" style="align-items:stretch;flex:1;">
+        <!-- Card: Gravação -->
+        <div class="vc">
+          <div class="vc-hdr"><span class="vc-hdr-title">Gravação</span></div>
+          <div class="vc-body" style="align-items:center;text-align:center;padding:2rem 1.5rem;flex:1;">
+            <div class="reca" id="recArea" style="border:none;padding:0;background:transparent;">
+              <button class="rbtn" id="recBtn" onclick="toggleRec()">
+                <svg id="micIco" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+                  <rect x="9" y="2" width="6" height="12" rx="3"/>
+                  <path d="M5 10a7 7 0 0014 0"/>
+                  <line x1="12" y1="19" x2="12" y2="22"/>
+                  <line x1="8" y1="22" x2="16" y2="22"/>
+                </svg>
+                <svg id="stopIco" viewBox="0 0 24 24" style="display:none" fill="white" width="22" height="22">
+                  <rect x="6" y="6" width="12" height="12" rx="2"/>
+                </svg>
+              </button>
+              <div class="tmr" id="timer">00:00</div>
+              <div class="rst" id="recSt">Clique para gravar</div>
+            </div>
+            <div style="margin-top:1.25rem;width:100%;">
+              <div class="lbl" style="text-align:left;">Transcrição ao vivo</div>
+              <div class="txb" id="txBox" style="min-height:120px;"><p class="txph">A transcrição aparecerá aqui...</p></div>
+              <div class="log-mini" id="logMini"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Card: Colar transcrição -->
+        <div class="vc">
+          <div class="vc-hdr"><span class="vc-hdr-title">Colar transcrição</span></div>
+          <div class="vc-body" style="flex:1;display:flex;flex-direction:column;">
+            <div style="font-size:12px;color:var(--cinza);line-height:1.6;">
+              Cole aqui a transcrição da consulta no formato médico. Use os prefixos <strong>[MEDICO]</strong> e <strong>[PACIENTE]</strong> para identificar as falas.
+            </div>
+            <textarea class="mta" id="manTx" placeholder="[MEDICO]: Qual o motivo da consulta?&#10;[PACIENTE]: Estou com dor no peito..." style="flex:1;min-height:200px;resize:none;"></textarea>
+          </div>
+        </div>
+      </div>
+      <!-- Botão gerar -->
+      <button class="pbtn" onclick="processTranscript()" style="max-width:400px;margin:0 auto;">
+        <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M5 3l14 9-14 9V3z"/></svg>
+        Gerar Anamnese com IA
+      </button>
+    </div>
+  </div>
+
+  <!-- Estado: loading -->
+  <div id="vLoading" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;padding:4rem 2rem;text-align:center;" class="vl">
+    <div class="spin"></div>
+    <div><strong id="ldMsg" style="font-family:var(--font-serif);font-size:18px;color:var(--preto);">Analisando a consulta...</strong><p id="ldSub" style="color:var(--cinza);font-size:12px;margin-top:4px;">Identificando falas e preenchendo seções</p></div>
+  </div>
+
+  <!-- Estado: resultado -->
+  <div id="vResult" style="display:none;flex-direction:column;flex:1;">
+    <div class="vh">
+      <div>
+        <div class="vh-title">Anamnese Gerada</div>
+        <div class="vh-sub" id="resMeta">—</div>
+      </div>
+      <div class="vh-actions">
+        <div class="save-bar" id="saveBar" style="display:none;background:none;border:none;padding:0;margin:0;gap:6px;">
+          <label style="font-size:11px;color:var(--cinza);white-space:nowrap;"><i class="ti ti-folder"></i> Salvar em:</label>
+          <select id="savePastaSelect" style="font-size:11px;border:1px solid var(--cinza-l);border-radius:8px;padding:4px 8px;background:var(--branco);"><option value="">Carregando...</option></select>
+          <button class="save-bar-btn" id="saveBarBtn" onclick="executarSave()">Salvar</button>
+        </div>
+        <button class="bts" id="editBtn" onclick="toggleEdit()"><i class="ti ti-pencil"></i> Editar</button>
+        <button class="bts" onclick="openExport()"><i class="ti ti-download"></i> Baixar</button>
+        <button class="btp" onclick="doPrint()"><i class="ti ti-printer"></i> Imprimir</button>
+        <button class="bts" onclick="novaConsulta();" style="color:var(--cinza);">
+          <i class="ti ti-arrow-left"></i> Nova
         </button>
-        <div class="tmr" id="timer">00:00</div>
-        <div class="rst" id="recSt">Clique para gravar</div>
       </div>
     </div>
+    <div class="vb">
+      <div class="rb" id="resCont" style="background:var(--branco);border:1px solid var(--cinza-l);border-radius:20px;padding:1.5rem;box-shadow:var(--sh-sm);"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW: HISTÓRICO -->
+<div class="view-container" id="panel-history">
+  <!-- Estado: lista de pastas -->
+  <div id="histListState" style="display:flex;flex-direction:column;flex:1;">
+    <div class="vh">
+      <div>
+        <div class="vh-title">Histórico</div>
+        <div class="vh-sub">Pastas de pacientes e consultas salvas</div>
+      </div>
+    </div>
+    <div class="vb">
+      <div id="hList" class="hlist">
+        <div class="hloading">Carregando...</div>
+      </div>
+    </div>
+  </div>
+  <!-- Estado: resultado de consulta -->
+  <div id="histResultState" style="display:none;flex-direction:column;flex:1;">
+    <div class="vh">
+      <div>
+        <div class="vh-title" id="histPacName">Consulta</div>
+        <div class="vh-sub" id="histMeta">—</div>
+      </div>
+      <div class="vh-actions">
+        <button class="bts" onclick="openExport()"><i class="ti ti-download"></i> Baixar</button>
+        <button class="btp" onclick="doPrint()"><i class="ti ti-printer"></i> Imprimir</button>
+        <button class="bts" onclick="document.getElementById('histListState').style.display='flex';document.getElementById('histResultState').style.display='none';" style="color:var(--cinza);">
+          <i class="ti ti-arrow-left"></i> Voltar
+        </button>
+      </div>
+    </div>
+    <div class="vb">
+      <div class="rb" id="histResCont" style="background:var(--branco);border:1px solid var(--cinza-l);border-radius:20px;padding:1.5rem;box-shadow:var(--sh-sm);"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW: PERSONALIZAÇÃO -->
+<div class="view-container" id="panel-customize">
+  <div class="vh">
     <div>
-      <div class="lbl">Transcrição ao vivo</div>
-      <div class="txb" id="txBox"><p class="txph">A transcrição aparecerá aqui...</p></div>
-      <div class="log-mini" id="logMini"></div>
+      <div class="vh-title">Personalização</div>
+      <div class="vh-sub">Selecione as seções que a IA deve preencher na anamnese</div>
     </div>
+    <div class="vh-actions">
+      <div class="cacts" style="margin:0;">
+        <button class="cbtn" onclick="selAll(true)"><i class="ti ti-checks"></i> Marcar todos</button>
+        <button class="cbtn" onclick="selAll(false)"><i class="ti ti-square"></i> Desmarcar todos</button>
+        <button class="cbtn sv" onclick="savePrefs()"><i class="ti ti-device-floppy"></i> Salvar</button>
+        <span class="csaved" id="cSaved">✓ Salvo!</span>
+      </div>
+    </div>
+  </div>
+  <div class="vb">
+    <div id="custSecs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+  </div>
+</div>
+
+<!-- VIEW: OSLER -->
+<div class="view-container" id="panel-osler">
+  <div class="vh">
     <div>
-      <div class="lbl">Ou cole a transcrição</div>
-      <textarea class="mta" id="manTx" placeholder="[MEDICO]: Qual o motivo da consulta?&#10;[PACIENTE]: Estou com dor no peito..."></textarea>
-    </div>
-    <button class="pbtn" onclick="processTranscript()">
-      <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M5 3l14 9-14 9V3z"/></svg>
-      Gerar Anamnese com IA
-    </button>
-  </div>
-</aside>
-
-<!-- PAINEL: HISTÓRICO -->
-<aside class="panel hidden" id="panel-history">
-  <div class="panel-hdr">
-    <h2>Histórico</h2>
-    <p>Pastas de pacientes e consultas salvas.</p>
-  </div>
-  <div class="panel-body">
-    <div id="hList" class="hlist">
-      <div class="hloading">Carregando...</div>
+      <div class="vh-title">Osler</div>
+      <div class="vh-sub">Assistente de raciocínio clínico — homenagem a William Osler, pai da medicina moderna</div>
     </div>
   </div>
-</aside>
-
-<!-- PAINEL: PERSONALIZAÇÃO -->
-<aside class="panel hidden" id="panel-customize">
-  <div class="panel-hdr">
-    <h2>Personalização</h2>
-    <p>Selecione as seções que a IA deve preencher</p>
-  </div>
-  <div class="panel-body">
-    <div class="cacts">
-      <button class="cbtn" onclick="selAll(true)"><i class="ti ti-checks" aria-hidden="true"></i> Marcar todos</button>
-      <button class="cbtn" onclick="selAll(false)"><i class="ti ti-square" aria-hidden="true"></i> Desmarcar todos</button>
-      <button class="cbtn sv" onclick="savePrefs()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar</button>
-      <span class="csaved" id="cSaved">✓ Salvo!</span>
-    </div>
-    <div id="custSecs"></div>
-  </div>
-</aside>
-
-<!-- PAINEL: OSLER -->
-<aside class="panel hidden" id="panel-osler">
-  <div class="panel-hdr">
-    <h2>Osler</h2>
-    <p>Configure o assistente de raciocínio clínico</p>
-  </div>
-  <div class="panel-body">
-    <div class="lbl">Osler na anamnese</div>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
-        <input type="checkbox" id="hipoteseChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['hipoteses']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Hipóteses Diagnósticas Sugeridas</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Possibilidades de diagnóstico diferencial</div>
+  <div class="vb">
+    <div class="vc-grid-2">
+      <!-- Card: Configurações na anamnese -->
+      <div class="vc">
+        <div class="vc-hdr"><span class="vc-hdr-title">Na anamnese gerada</span></div>
+        <div class="vc-body">
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);">
+            <input type="checkbox" id="hipoteseChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['hipoteses']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Hipóteses Diagnósticas</div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">Possibilidades de diagnóstico diferencial</div></div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);">
+            <input type="checkbox" id="condutaChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['conduta']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Investigação e Terapêutica</div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">Sugestões de exames, condutas e tratamento</div></div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);">
+            <input type="checkbox" id="oslerEnabledChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="toggleOslerEnabled(this.checked)">
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Chat Osler</div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">Debate livre sobre hipóteses e condutas</div></div>
+          </label>
         </div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
-        <input type="checkbox" id="condutaChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" checked onchange="activeKeys['conduta']=this.checked;if(Object.keys(resultData).length>0)renderResult(resultData);">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Investigação Complementar e Proposta Terapêutica</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Sugestões de exames, condutas e tratamento</div>
+      </div>
+      <!-- Card: Modo de operação -->
+      <div class="vc">
+        <div class="vc-hdr"><span class="vc-hdr-title">Modo de operação</span></div>
+        <div class="vc-body">
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);" id="osler-opt-claude">
+            <input type="radio" name="oslerMode" value="claude" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('claude')" checked>
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Somente Claude</div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">Raciocínio clínico baseado no conhecimento do modelo</div></div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);" id="osler-opt-pdf">
+            <input type="radio" name="oslerMode" value="pdf" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('pdf')">
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Somente PDF</div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">Responde exclusivamente com base nos seus documentos</div></div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--pergaminho);" id="osler-opt-hybrid">
+            <input type="radio" name="oslerMode" value="hybrid" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('hybrid')">
+            <div><div style="font-size:13px;font-weight:500;color:var(--preto);">Híbrido <span style="font-size:10px;background:var(--verde-l);color:var(--verde);padding:1px 6px;border-radius:8px;">Recomendado</span></div><div style="font-size:11px;color:var(--cinza);margin-top:2px;">PDFs têm prioridade; Claude complementa quando necessário</div></div>
+          </label>
         </div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;background:var(--branco);">
-        <input type="checkbox" id="oslerEnabledChk" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="toggleOslerEnabled(this.checked)">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Chat Osler</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Debate livre sobre as hipóteses sugeridas, investigações e proposta terapêutica com o assistente clínico</div>
-        </div>
-      </label>
+      </div>
     </div>
-
-    <div class="lbl">Modo de operação</div>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;">
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-claude">
-        <input type="radio" name="oslerMode" value="claude" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('claude')" checked>
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Somente Claude</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Raciocínio clínico baseado no conhecimento geral do modelo.</div>
+    <!-- Card: PDFs de referência (largura total) -->
+    <div class="vc">
+      <div class="vc-hdr"><span class="vc-hdr-title">PDFs de referência</span></div>
+      <div class="vc-body">
+        <div id="docUploadArea" style="border:1.5px dashed var(--verde-b);border-radius:var(--rs);padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--verde-ll);" onclick="document.getElementById('docFileInput').click()">
+          <svg viewBox="0 0 24 24" style="width:24px;height:24px;margin:0 auto 6px;display:block;fill:none;stroke:var(--verde);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          <div style="font-size:13px;font-weight:500;color:var(--verde);">Adicionar PDF</div>
+          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Guidelines, artigos, protocolos</div>
         </div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-pdf">
-        <input type="radio" name="oslerMode" value="pdf" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('pdf')">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Somente PDF</div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">Responde exclusivamente com base nos seus documentos carregados.</div>
+        <input type="file" id="docFileInput" accept=".pdf" style="display:none" onchange="docHandleFile(this)"/>
+        <div id="docUploadStatus" style="display:none;font-size:11px;color:var(--cinza);text-align:center;"></div>
+        <div id="docList" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div style="background:var(--verde-ll);border:1px solid var(--verde-b);border-radius:var(--rs);padding:10px 12px;font-size:11px;color:var(--verde);line-height:1.5;">
+          <strong style="display:block;margin-bottom:2px;">Sobre o Osler</strong>
+          Homenagem a William Osler, pai da medicina moderna. O Osler analisa a consulta e a anamnese gerada para fornecer raciocínio clínico de apoio — não substitui o julgamento médico.
         </div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--cinza-l);border-radius:var(--rs);cursor:pointer;transition:all .15s;background:var(--branco);" id="osler-opt-hybrid">
-        <input type="radio" name="oslerMode" value="hybrid" style="width:16px;height:16px;margin-top:2px;accent-color:var(--verde);flex-shrink:0;" onchange="setOslerMode('hybrid')">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--preto);">Híbrido <span style="font-size:10px;background:var(--verde-l);color:var(--verde);padding:1px 6px;border-radius:8px;font-weight:500;">Recomendado</span></div>
-          <div style="font-size:11px;color:var(--cinza);margin-top:2px;">PDFs têm prioridade; Claude complementa quando necessário.</div>
-        </div>
-      </label>
-    </div>
-
-    <div class="lbl" style="margin-top:.25rem;">PDFs de referência</div>
-
-    <div id="docUploadArea" style="border:1.5px dashed var(--verde-b);border-radius:var(--rs);padding:14px;text-align:center;cursor:pointer;transition:all .15s;background:var(--verde-l);" onclick="document.getElementById('docFileInput').click()">
-      <svg viewBox="0 0 24 24" style="width:22px;height:22px;margin:0 auto 5px;display:block;fill:none;stroke:var(--verde);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="12" y1="18" x2="12" y2="12"/>
-        <line x1="9" y1="15" x2="15" y2="15"/>
-      </svg>
-      <div style="font-size:12px;font-weight:500;color:var(--verde);">Adicionar PDF</div>
-      <div style="font-size:10px;color:var(--cinza);margin-top:2px;">Guidelines, artigos, protocolos</div>
-    </div>
-    <input type="file" id="docFileInput" accept=".pdf" style="display:none" onchange="docHandleFile(this)"/>
-
-    <div id="docUploadStatus" style="display:none;font-size:11px;color:var(--cinza);padding:6px 0;text-align:center;"></div>
-
-    <div id="docList" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;"></div>
-
-    <div style="margin-top:.5rem;background:var(--verde-l);border:1px solid var(--verde-b);border-radius:var(--rs);padding:8px 10px;font-size:10px;color:var(--verde);line-height:1.5;">
-      <strong style="display:block;margin-bottom:2px;">Sobre o Osler</strong>
-      Homenagem a William Osler, pai da medicina moderna. O Osler analisa a consulta e a anamnese gerada para fornecer raciocínio clínico de apoio — não substitui o julgamento médico.
+      </div>
     </div>
   </div>
-</aside>
+</div>
 
 <!-- PAINEL: PERFIL -->
-<aside class="panel hidden" id="panel-profile">
-  <div class="panel-hdr">
-    <h2>Perfil</h2>
-    <p>Suas informações profissionais</p>
-  </div>
-  <div class="panel-body">
-
-    <!-- Avatar + nome atual -->
-    <div class="profile-avatar-wrap">
-      <div class="profile-avatar-big" id="profileAvatarBig">?</div>
+<div class="view-container" id="panel-profile">
+  <div class="vh">
+    <div>
+      <div class="vh-title">Perfil</div>
+      <div class="vh-sub">Suas informações profissionais e de contato</div>
+    </div>
+    <div class="vh-actions">
+      <div class="profile-avatar-big" id="profileAvatarBig" style="width:40px;height:40px;font-size:16px;">?</div>
       <div>
-        <div class="profile-name-big" id="profileNameBig">Carregando...</div>
+        <div class="profile-name-big" id="profileNameBig" style="font-size:14px;">Carregando...</div>
         <div class="profile-crm-tag" id="profileCrmTag"></div>
       </div>
     </div>
-
-    <!-- Campos editáveis -->
-    <div class="profile-field">
-      <div class="profile-label">Nome completo</div>
-      <input type="text" class="profile-input" id="pNome" placeholder="Dr. Nome Completo"/>
-    </div>
-
-    <div class="profile-field">
-      <div class="profile-label">Especialidade</div>
-      <input type="text" class="profile-input" id="pEspecialidade" placeholder="Ex: Clínica Médica, Cardiologia..."/>
-    </div>
-
-    <div class="profile-row">
-      <div class="profile-field">
-        <div class="profile-label">CRM</div>
-        <input type="text" class="profile-input" id="pCrm" placeholder="123456"/>
-      </div>
-      <div class="profile-field">
-        <div class="profile-label">UF</div>
-        <input type="text" class="profile-input" id="pUfCrm" placeholder="SP" maxlength="2" style="text-transform:uppercase;"/>
-      </div>
-    </div>
-
-    <div class="profile-field">
-      <div class="profile-label">Telefone / WhatsApp</div>
-      <input type="tel" class="profile-input" id="pTelefone" placeholder="(11) 99999-9999"/>
-    </div>
-
-    <div class="profile-field">
-      <div class="profile-label">E-mail de contato</div>
-      <input type="email" class="profile-input" id="pEmailContato" placeholder="medico@exemplo.com"/>
-    </div>
-
-    <button type="button" class="profile-save-btn" id="profileSaveBtn" onclick="profileSave('profileSaveBtn')">Salvar perfil</button>
-    <div class="profile-msg" id="profileMsg"></div>
-
-    <!-- ENDEREÇO -->
-    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--cinza-l);">
-      <div style="font-size:13px;font-weight:600;color:var(--preto);margin-bottom:4px;">Endereço</div>
-      <div style="font-size:11px;color:var(--cinza);margin-bottom:1rem;">Confira ou altere o seu endereço físico</div>
-
-      <div class="profile-row" style="grid-template-columns:140px 1fr;">
-        <div class="profile-field">
-          <div class="profile-label">CEP</div>
-          <input type="text" class="profile-input" id="pCep" placeholder="00000-000" maxlength="9" oninput="cepMask(this)" onblur="cepBuscar(this.value)"/>
-        </div>
-        <div class="profile-field">
-          <div class="profile-label">Rua</div>
-          <input type="text" class="profile-input" id="pRua" placeholder="Rua, Avenida..."/>
+  </div>
+  <div class="vb">
+    <div class="vc-grid-2">
+      <!-- Card: Dados profissionais -->
+      <div class="vc">
+        <div class="vc-hdr"><span class="vc-hdr-title">Dados profissionais</span></div>
+        <div class="vc-body">
+          <div class="profile-field">
+            <div class="profile-label">Nome completo</div>
+            <input type="text" class="profile-input" id="pNome" placeholder="Dr. Nome Completo"/>
+          </div>
+          <div class="profile-field">
+            <div class="profile-label">Especialidade</div>
+            <input type="text" class="profile-input" id="pEspecialidade" placeholder="Ex: Clínica Médica, Cardiologia..."/>
+          </div>
+          <div class="profile-row">
+            <div class="profile-field">
+              <div class="profile-label">CRM</div>
+              <input type="text" class="profile-input" id="pCrm" placeholder="123456"/>
+            </div>
+            <div class="profile-field">
+              <div class="profile-label">UF</div>
+              <input type="text" class="profile-input" id="pUfCrm" placeholder="SP" maxlength="2" style="text-transform:uppercase;"/>
+            </div>
+          </div>
+          <div class="profile-field">
+            <div class="profile-label">Telefone / WhatsApp</div>
+            <input type="tel" class="profile-input" id="pTelefone" placeholder="(11) 99999-9999"/>
+          </div>
+          <div class="profile-field">
+            <div class="profile-label">E-mail de contato</div>
+            <input type="email" class="profile-input" id="pEmailContato" placeholder="medico@exemplo.com"/>
+          </div>
+          <button type="button" class="profile-save-btn" id="profileSaveBtn" onclick="profileSave('profileSaveBtn')">Salvar perfil</button>
+          <div class="profile-msg" id="profileMsg"></div>
         </div>
       </div>
-
-      <div class="profile-row" style="grid-template-columns:100px 1fr;">
-        <div class="profile-field">
-          <div class="profile-label">Número</div>
-          <input type="text" class="profile-input" id="pNumero" placeholder="123"/>
-        </div>
-        <div class="profile-field">
-          <div class="profile-label">Complemento</div>
-          <input type="text" class="profile-input" id="pComplemento" placeholder="Sala, Andar..."/>
+      <!-- Card: Endereço -->
+      <div class="vc">
+        <div class="vc-hdr"><span class="vc-hdr-title">Endereço do consultório</span></div>
+        <div class="vc-body">
+          <div class="profile-row" style="grid-template-columns:140px 1fr;">
+            <div class="profile-field">
+              <div class="profile-label">CEP</div>
+              <input type="text" class="profile-input" id="pCep" placeholder="00000-000" maxlength="9" oninput="cepMask(this)" onblur="cepBuscar(this.value)"/>
+            </div>
+            <div class="profile-field">
+              <div class="profile-label">Rua</div>
+              <input type="text" class="profile-input" id="pRua" placeholder="Rua, Avenida..."/>
+            </div>
+          </div>
+          <div class="profile-row" style="grid-template-columns:100px 1fr;">
+            <div class="profile-field">
+              <div class="profile-label">Número</div>
+              <input type="text" class="profile-input" id="pNumero" placeholder="123"/>
+            </div>
+            <div class="profile-field">
+              <div class="profile-label">Complemento</div>
+              <input type="text" class="profile-input" id="pComplemento" placeholder="Sala, Andar..."/>
+            </div>
+          </div>
+          <div class="profile-field">
+            <div class="profile-label">Bairro</div>
+            <input type="text" class="profile-input" id="pBairro" placeholder="Bairro"/>
+          </div>
+          <div class="profile-row" style="grid-template-columns:1fr 80px;">
+            <div class="profile-field">
+              <div class="profile-label">Cidade</div>
+              <input type="text" class="profile-input" id="pCidade" placeholder="Cidade"/>
+            </div>
+            <div class="profile-field">
+              <div class="profile-label">UF</div>
+              <input type="text" class="profile-input" id="pUfEndereco" placeholder="SP" maxlength="2" style="text-transform:uppercase;"/>
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--cinza);"><span id="cepStatus"></span></div>
+          <button type="button" class="profile-save-btn" id="enderecoSaveBtn" onclick="event.stopPropagation();profileSave('enderecoSaveBtn')">Salvar endereço</button>
         </div>
       </div>
-
-      <div class="profile-field">
-        <div class="profile-label">Bairro</div>
-        <input type="text" class="profile-input" id="pBairro" placeholder="Bairro"/>
-      </div>
-
-      <div class="profile-row" style="grid-template-columns:1fr 80px;">
-        <div class="profile-field">
-          <div class="profile-label">Cidade</div>
-          <input type="text" class="profile-input" id="pCidade" placeholder="Cidade"/>
-        </div>
-        <div class="profile-field">
-          <div class="profile-label">UF</div>
-          <input type="text" class="profile-input" id="pUfEndereco" placeholder="SP" maxlength="2" style="text-transform:uppercase;"/>
-        </div>
-      </div>
-
-      <div style="font-size:10px;color:var(--cinza);margin-bottom:12px;margin-top:-6px;">
-        <span id="cepStatus"></span>
-      </div>
-
-      <button type="button" class="profile-save-btn" id="enderecoSaveBtn" onclick="event.stopPropagation();profileSave('enderecoSaveBtn')">Salvar endereço</button>
     </div>
-
-    <div style="text-align:center;padding-top:8px;">
+    <div style="text-align:center;padding-top:4px;">
       <a onclick="obShowAgain()" style="font-size:11px;color:var(--cinza);text-decoration:underline;cursor:pointer;">Ver introdução novamente</a>
     </div>
-
   </div>
-</aside>
+</div>
 
 <!-- PAINEL: PERFIL FIM -->
 <main class="main" id="mainArea">
@@ -1522,90 +1644,140 @@ body.nav-open{padding-left:276px;}
   <!-- PRESCRIÇÃO -->
   <div class="vprescricao" id="vPrescricao">
     <div class="presc-hdr">
-      <h1>Prescrição</h1>
-      <p>Emita receitas digitais com assinatura eletrônica</p>
+      <div>
+        <h1>Prescrição</h1>
+        <p>Emita receitas digitais com assinatura eletrônica</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;" id="prescHdrActions"></div>
     </div>
     <div class="presc-body">
       <div class="presc-empty" id="prescEmpty">
         <div class="presc-empty-ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="28" height="28">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" fill="none"/>
-            <rect x="9" y="3" width="6" height="4" rx="1" fill="none"/>
-            <path d="M9 12h6M9 16h4" fill="none"/>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+            <rect x="9" y="3" width="6" height="4" rx="1"/>
+            <path d="M9 12h6M9 16h4"/>
           </svg>
         </div>
         <h3>Nenhuma prescrição ainda</h3>
         <p>Configure seu local de atendimento e comece a emitir receitas digitais com assinatura eletrônica.</p>
-        <button class="pbtn" style="width:auto;padding:10px 20px;margin-top:.5rem;" onclick="prescNovaClick()">
-          <i class="ti ti-plus" aria-hidden="true"></i> Nova prescrição
-        </button>
+        <div style="display:flex;gap:10px;margin-top:1.25rem;flex-wrap:wrap;">
+          <button class="pbtn" style="width:auto;padding:10px 22px;" onclick="prescNovaClick()">
+            <i class="ti ti-plus" aria-hidden="true"></i> Nova prescrição
+          </button>
+          <button class="bts" style="padding:10px 16px;" onclick="laModalOpen()">
+            <i class="ti ti-settings" aria-hidden="true"></i> Gerenciar locais
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- WELCOME -->
-  <div class="wel" id="vWelcome">
-    <div class="wel-logo">
-      <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22 7L9 37H15.5L18.5 29H25.5L28.5 37H35L22 7Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
-        <line x1="18" y1="23.5" x2="26" y2="23.5" stroke="#4ECFA3" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
-    </div>
-    <h1>Anam<em>IA</em></h1>
-    <p class="wel-tagline">"Menos burocracia.<br>Mais tempo para o que importa."</p>
-    <div class="wel-divider"></div>
-    <p class="wel-desc">Preenchimento automático da anamnese médica. Grave a consulta ou cole a transcrição e deixe a IA organizar.</p>
-    <div class="wst">
-      <div class="wstp">
-        <div class="wsn">1</div>
-        <p>Personalize os campos na aba acima</p>
+  <!-- DASHBOARD -->
+  <div class="vdashboard" id="vDashboard">
+    <div class="dash-body">
+      <div class="dash-greeting">
+        <h1 id="dashGreeting">Bom dia</h1>
+        <p>Sua IA clínica completa para cuidar de cada detalhe do seu consultório.</p>
       </div>
-      <div class="wstp">
-        <div class="wsn">2</div>
-        <p>Grave ou cole a transcrição</p>
-      </div>
-      <div class="wstp">
-        <div class="wsn">3</div>
-        <p>Gere e revise a anamnese</p>
-      </div>
-    </div>
 
+      <!-- Módulos rápidos -->
+      <div class="dash-modules">
+        <div class="dash-mod" onclick="showView('record')">
+          <div class="dash-mod-ico">
+            <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+          </div>
+          <div class="dash-mod-title">Nova Consulta</div>
+          <div class="dash-mod-desc">Grave e gere o prontuário com IA.</div>
+        </div>
+        <div class="dash-mod" onclick="showView('history')">
+          <div class="dash-mod-ico">
+            <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
+          </div>
+          <div class="dash-mod-title">Histórico</div>
+          <div class="dash-mod-desc">Consulte prontuários salvos.</div>
+        </div>
+        <div class="dash-mod" onclick="showView('prescricao')">
+          <div class="dash-mod-ico">
+            <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+          </div>
+          <div class="dash-mod-title">Prescrição</div>
+          <div class="dash-mod-desc">Emita receitas com assinatura.</div>
+        </div>
+        <div class="dash-mod" onclick="showView('osler')">
+          <div class="dash-mod-ico">
+            <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 2a7 7 0 015 11.9V16a1 1 0 01-1 1H8a1 1 0 01-1-1v-2.1A7 7 0 0112 2z"/></svg>
+          </div>
+          <div class="dash-mod-title">Osler</div>
+          <div class="dash-mod-desc">Consultoria clínica com IA.</div>
+        </div>
+      </div>
+
+      <!-- Widgets — 3 colunas: Agenda | Status+Tipo empilhados | Recentes -->
+      <div class="dash-widgets">
+
+        <!-- Agenda do dia -->
+        <div class="dash-widget">
+          <div class="dash-widget-hdr">
+            <div class="dash-widget-title">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Agenda de hoje
+            </div>
+            <a class="dash-widget-link" onclick="showView('agenda')">Ver agenda →</a>
+          </div>
+          <div class="dash-widget-body" id="dashAgendaBody">
+            <div class="dash-empty">Carregando...</div>
+          </div>
+        </div>
+
+        <!-- Coluna central: Status + Tipo empilhados -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <!-- Status do dia -->
+          <div class="dash-widget">
+            <div class="dash-widget-hdr">
+              <div class="dash-widget-title">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Resumo do dia
+              </div>
+            </div>
+            <div class="dash-widget-body" id="dashStatusBody">
+              <div class="dash-empty">Carregando...</div>
+            </div>
+          </div>
+
+          <!-- Tipo de consulta -->
+          <div class="dash-widget">
+            <div class="dash-widget-hdr">
+              <div class="dash-widget-title">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Tipo de consulta
+              </div>
+            </div>
+            <div class="dash-widget-body" id="dashTipoBody">
+              <div class="dash-empty">Carregando...</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Atendimentos recentes -->
+        <div class="dash-widget">
+          <div class="dash-widget-hdr">
+            <div class="dash-widget-title">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Atendimentos recentes
+            </div>
+            <a class="dash-widget-link" onclick="showView('history')">Ver todos →</a>
+          </div>
+          <div class="dash-widget-body" id="dashRecentesBody">
+            <div class="dash-empty">Carregando...</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
-
-  <!-- LOADING -->
-  <div class="ld" id="vLoading" style="display:none">
-    <div class="spin"></div>
-    <div>
-      <strong id="ldMsg">Analisando a consulta...</strong>
-      <p id="ldSub">Identificando falas e preenchendo seções</p>
-    </div>
-  </div>
-
-  <!-- RESULT -->
-  <div id="vResult" style="display:none">
-    <div class="rhdr">
-      <div>
-        <h1>Anamnese Gerada</h1>
-        <p id="resMeta">—</p>
-      </div>
-      <div class="hacts">
-        <button class="bts" id="editBtn" onclick="toggleEdit()"><i class="ti ti-pencil" aria-hidden="true"></i> Editar</button>
-        <button class="bts" onclick="openExport()"><i class="ti ti-download" aria-hidden="true"></i> Baixar</button>
-        <button class="btp" onclick="doPrint()"><i class="ti ti-printer" aria-hidden="true"></i> Imprimir</button>
-      </div>
-    </div>
-
-    <!-- BARRA DE SALVAMENTO -->
-    <div class="save-bar" id="saveBar" style="display:none">
-      <label><i class="ti ti-folder" aria-hidden="true"></i> Salvar em:</label>
-      <select id="savePastaSelect">
-        <option value="">Carregando...</option>
-      </select>
-      <button class="save-bar-btn" id="saveBarBtn" onclick="executarSave()">Salvar</button>
-    </div>
-    <div class="rb" id="resCont"></div>
-  </div>
-
 
 </main>
 </div>
@@ -1712,30 +1884,46 @@ function onAuthSuccess(user) {
   currentUser = user;
   document.getElementById('authOvl').style.display = 'none';
   var name = (user.user_metadata && user.user_metadata.nome) ? user.user_metadata.nome : user.email;
-  document.getElementById('hdrUserName').textContent = name;
-  // Mostra bloco de usuário no nav
-  var hdrUser = document.getElementById('hdrUser');
-  hdrUser.style.display = 'flex';
-  // Avatar: primeira letra do nome
-  var av = document.getElementById('navAvatar');
-  if(av) av.textContent = name.charAt(0).toUpperCase();
+  // Atualiza topnav
+  var topRight = document.getElementById('topNavRight');
+  if(topRight) topRight.style.display = 'flex';
+  var topItems = document.getElementById('topNavItems');
+  if(topItems) topItems.style.display = 'flex';
+  var topSep = document.getElementById('topNavSep');
+  if(topSep) topSep.style.display = 'block';
+
+  var topName = document.getElementById('topNavName');
+  if(topName) topName.textContent = name;
+  var topAv = document.getElementById('topNavAvatar');
+  if(topAv) topAv.textContent = name.charAt(0).toUpperCase();
+  // Greeting no dashboard
+  dashSetGreeting(name);
   // Carrega perfil completo em background, depois mostra onboarding se primeira vez
   profileInit().then(function(){ obShow(); });
+  // Inicia no dashboard
+  showView('dashboard');
 }
 
 async function authLogout() {
   if(supa) await supa.auth.signOut();
   currentUser = null;
   resultData = {};
-  document.getElementById('hdrUser').style.display = 'none';
-  document.getElementById('hdrUserName').textContent = '';
+  var topRight = document.getElementById('topNavRight');
+  if(topRight) topRight.style.display = 'none';
+  var topItems = document.getElementById('topNavItems');
+  if(topItems) topItems.style.display = 'none';
+  var topSep = document.getElementById('topNavSep');
+  if(topSep) topSep.style.display = 'none';
+
   document.getElementById('authEmail').value = '';
   document.getElementById('authPwd').value = '';
   document.getElementById('authErr').classList.remove('show');
   document.getElementById('authOvl').style.display = 'flex';
-  document.getElementById('vResult').style.display = 'none';
-  document.getElementById('vWelcome').style.display = 'flex';
-  showView('record');
+  var _vr = document.getElementById('vResult'); if(_vr) _vr.style.display = 'none';
+  var _ri3 = document.getElementById('recordInputState'); if(_ri3) _ri3.style.display='flex';
+  // Reseta flags de init para próximo login
+  _viewInited = {};
+  showView('dashboard');
 }
 
 window.addEventListener('DOMContentLoaded', async function() {
@@ -1749,10 +1937,17 @@ window.addEventListener('DOMContentLoaded', async function() {
       onAuthSuccess(sessionRes.data.session.user);
     }
     supa.auth.onAuthStateChange(function(event, session){
-      if(event === 'SIGNED_IN' && session) onAuthSuccess(session.user);
+      if(event === 'SIGNED_IN' && session){
+        // Só redireciona para dashboard no login inicial, não em token refresh
+        if(!currentUser){
+          onAuthSuccess(session.user);
+        } else {
+          // Token renovado silenciosamente — apenas atualiza o usuário sem navegar
+          currentUser = session.user;
+        }
+      }
       if(event === 'SIGNED_OUT'){
         currentUser = null;
-        document.getElementById('hdrUser').style.display = 'none';
       }
     });
   } catch(e) { console.error('Auth session check error:', e); }
@@ -1816,6 +2011,18 @@ var SECTIONS=[
   {id:"s15",num:"15",title:"Osler — Consultoria Clínica",fields:[{k:"osler_chat",l:"Habilitar chat com Osler após a anamnese"}]}
 ];
 
+
+function loadConsultaById(id) {
+  showView('history');
+  // Small delay so history panel loads, then try to open the consulta
+  setTimeout(function(){
+    var items = document.querySelectorAll('.hcard');
+    items.forEach(function(card){
+      if(card.dataset.id === String(id)) card.click();
+    });
+  }, 400);
+}
+
 var activeKeys={};
 SECTIONS.forEach(function(s){ getAllFields(s).forEach(function(f){ activeKeys[f.k]=true; }); });
 // Osler chat desabilitado por padrão (usuário habilita no painel Osler)
@@ -1832,97 +2039,328 @@ function getAllFields(s){
 function isActive(k){ return activeKeys[k]===true; }
 
 // ── VIEWS ──
+// Estado de inicialização por view — evita recarregar ao trocar de aba
+var _viewInited = {};
+
+function novaConsulta(){
+  // Limpa resultado atual e volta ao formulário
+  resultData = {};
+  currentConsultaId = null;
+  var resCont = document.getElementById('resCont');
+  if(resCont) resCont.innerHTML = '';
+  var vResult = document.getElementById('vResult');
+  if(vResult) vResult.style.display = 'none';
+  var recInput = document.getElementById('recordInputState');
+  if(recInput) recInput.style.display = 'flex';
+  showView('record');
+}
+
 function showView(v){
   // Atualiza nav items
-  ['record','history','customize','osler','profile','agenda','prescricao'].forEach(function(id){
-    var el = document.getElementById('nav-'+id);
+  ['dashboard','record','history','customize','osler','profile','agenda','prescricao'].forEach(function(id){
+    var el = document.getElementById('sb-'+id);
     if(el) el.classList.toggle('active', id===v);
   });
 
-  // Mostra/oculta painéis laterais
+  // Oculta todos os view-containers e full-screen views
   ['record','history','customize','osler','profile'].forEach(function(id){
     var p = document.getElementById('panel-'+id);
-    if(p) p.classList.toggle('hidden', id!==v);
+    if(p){ p.style.display='none'; p.classList.remove('show'); }
   });
-
-  // Agenda usa a área principal, não painel lateral
   var vAgenda = document.getElementById('vAgenda');
-  var vWelcome = document.getElementById('vWelcome');
-  var vResult = document.getElementById('vResult');
+  var vPrescricao = document.getElementById('vPrescricao');
+  var vDashboard = document.getElementById('vDashboard');
+  if(vAgenda){ vAgenda.style.display='none'; vAgenda.classList.remove('show'); }
+  if(vPrescricao){ vPrescricao.style.display='none'; vPrescricao.classList.remove('show'); }
+  if(vDashboard){ vDashboard.style.display='none'; vDashboard.classList.remove('show'); }
 
+  if(v === 'dashboard'){
+    if(vDashboard){ vDashboard.style.display='flex'; vDashboard.classList.add('show'); }
+    dashLoad();
+    return;
+  }
   if(v === 'agenda'){
     if(vAgenda){ vAgenda.style.display='flex'; vAgenda.classList.add('show'); }
-    var vP=document.getElementById('vPrescricao');
-    if(vP){ vP.style.display='none'; vP.classList.remove('show'); }
-    if(vWelcome) vWelcome.style.display='none';
-    if(vResult) vResult.style.display='none';
-    document.getElementById("vLoading").style.display="none";
-    agendaLoad();
-    agendaLoadPacientes();
+    // Agenda sempre recarrega pois dados mudam com frequência
+    agendaLoad(); agendaLoadPacientes();
     return;
-  } else if(v === 'prescricao'){
-    var vP=document.getElementById('vPrescricao');
-    if(vP){ vP.style.display='flex'; vP.classList.add('show'); }
-    if(vAgenda){ vAgenda.style.display='none'; vAgenda.classList.remove('show'); }
-    if(vWelcome) vWelcome.style.display='none';
-    if(vResult) vResult.style.display='none';
-    document.getElementById("vLoading").style.display="none";
-    prescLoad();
+  }
+  if(v === 'prescricao'){
+    if(vPrescricao){ vPrescricao.style.display='flex'; vPrescricao.classList.add('show'); }
+    // Prescrição só carrega na primeira vez; recarregar explicitamente com prescLoad()
+    if(!_viewInited['prescricao']){ prescLoad(); _viewInited['prescricao'] = true; }
     return;
-  } else {
-    if(vAgenda){ vAgenda.style.display='none'; vAgenda.classList.remove('show'); }
-    var vP=document.getElementById('vPrescricao');
-    if(vP){ vP.style.display='none'; vP.classList.remove('show'); }
   }
 
-  // Controla área principal (vWelcome / vResult / vLoading)
-  document.getElementById("vWelcome").style.display="none";
-  document.getElementById("vResult").style.display="none";
-  document.getElementById("vLoading").style.display="none";
+  // View-containers (record, history, customize, osler, profile)
+  var container = document.getElementById('panel-'+v);
+  if(container){ container.style.display='flex'; container.classList.add('show'); }
 
-  if(v==="history"){
-    loadHistory();
-    // Mantém a view principal visível se já tiver resultado
-    if(Object.keys(resultData).length>0){
-      document.getElementById("vResult").style.display="block";
+  if(v === 'record'){
+    var vResult = document.getElementById('vResult');
+    var vLoading = document.getElementById('vLoading');
+    var recInput = document.getElementById('recordInputState');
+    var resCont = document.getElementById('resCont');
+    // Só mostra resultado se resCont tiver conteúdo renderizado (não vindo do histórico)
+    var hasRenderedResult = resCont && resCont.children.length > 0;
+    if(hasRenderedResult){
+      if(vResult){ vResult.style.display='flex'; }
+      if(recInput) recInput.style.display='none';
     } else {
-      document.getElementById("vWelcome").style.display="flex";
+      if(recInput) recInput.style.display='flex';
+      if(vResult) vResult.style.display='none';
     }
-  } else if(v==="profile"){
-    profileLoad();
-    if(Object.keys(resultData).length>0){
-      document.getElementById("vResult").style.display="block";
-    } else {
-      document.getElementById("vWelcome").style.display="flex";
+    if(vLoading) vLoading.style.display='none';
+  } else if(v === 'history'){
+    // Só carrega lista na primeira vez — preserva estado aberto (anamnese, lista, pasta)
+    if(!_viewInited['history']){
+      loadHistory();
+      _viewInited['history'] = true;
     }
-  } else if(v==="osler"){
-    docLoadList();
-    if(Object.keys(resultData).length>0){
-      document.getElementById("vResult").style.display="block";
-    } else {
-      document.getElementById("vWelcome").style.display="flex";
-    }
-  } else if(v==="record"){
-    if(Object.keys(resultData).length>0){
-      document.getElementById("vResult").style.display="block";
-    } else {
-      document.getElementById("vWelcome").style.display="flex";
-    }
-  } else {
-    // customize / osler: mantém estado atual da main area
-    if(Object.keys(resultData).length>0){
-      document.getElementById("vResult").style.display="block";
-    } else {
-      document.getElementById("vWelcome").style.display="flex";
-    }
+    // Não força nenhum estado de display — mantém o que estava visível
+  } else if(v === 'profile'){
+    // Perfil só carrega na primeira vez
+    if(!_viewInited['profile']){ profileLoad(); _viewInited['profile'] = true; }
+  } else if(v === 'osler'){
+    // Osler só carrega na primeira vez
+    if(!_viewInited['osler']){ docLoadList(); _viewInited['osler'] = true; }
+  } else if(v === 'customize'){
+    // Personalização não precisa de init especial
   }
 }
 
-// ── TOGGLE NAV ──
+// Força recarga explícita de uma view (usar após salvar, criar, deletar)
+function reloadView(v){
+  _viewInited[v] = false;
+  showView(v);
+}
+
+// ── DASHBOARD ──
+function dashSetGreeting(name) {
+  var h = new Date().getHours();
+  var saud = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+  var firstName = (name || '').split(' ')[0];
+  var text = saud + (firstName ? ', Dr. ' + firstName : '') + '.';
+  var el = document.getElementById('dashGreeting');
+  if(el) el.textContent = text;
+
+}
+
+async function dashLoad() {
+  if(!supa || !currentUser) return;
+  dashSetGreeting(document.getElementById('topNavName') ? document.getElementById('topNavName').textContent : '');
+  // Mostra loading nos novos widgets
+  var elS = document.getElementById('dashStatusBody');
+  var elT = document.getElementById('dashTipoBody');
+  if(elS) elS.innerHTML = '<div class="dash-empty">Carregando...</div>';
+  if(elT) elT.innerHTML = '<div class="dash-empty">Carregando...</div>';
+  await Promise.all([dashLoadAgenda(), dashLoadResumo(), dashLoadRecentes()]);
+}
+
+async function dashLoadAgenda() {
+  var el = document.getElementById('dashAgendaBody');
+  if(!el) return;
+  el.innerHTML = '<div class="dash-empty">Carregando...</div>';
+  try {
+    var today = new Date();
+    var yyyy = today.getFullYear();
+    var mm = String(today.getMonth()+1).padStart(2,'0');
+    var dd = String(today.getDate()).padStart(2,'0');
+    var todayStr = yyyy+'-'+mm+'-'+dd;
+    var dateLabel = today.toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'});
+    dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
+
+    var token = await getToken();
+    var apiRes = await fetch('/api/gerenciar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'agenda_list', ano: parseInt(yyyy), mes: parseInt(mm) })
+    });
+    var apiData = apiRes.ok ? await apiRes.json() : {};
+    var allAgds = apiData.agendamentos || [];
+    // Filtra só os do dia de hoje
+    var data = allAgds.filter(function(a){ return a.data === todayStr; });
+    data.sort(function(a,b){ return (a.hora||'') > (b.hora||'') ? 1 : -1; });
+    var error = null;
+
+    if(!data || data.length === 0) {
+      el.innerHTML = '<div class="dash-agenda-date">'+dateLabel+'</div>'
+        + '<div class="dash-empty" style="padding:1.5rem 0;text-align:center;color:var(--cinza);font-size:12px;">Nenhum agendamento para hoje.</div>';
+      return;
+    }
+
+    // statusMap completo com todos os 5 status
+    var statusCfg = {
+      agendado:   { cls:'aconfirmar', txt:'Agendado' },
+      confirmado: { cls:'confirmado', txt:'Confirmado' },
+      compareceu: { cls:'compareceu', txt:'Compareceu' },
+      faltou:     { cls:'faltou',     txt:'Faltou' },
+      cancelado:  { cls:'cancelado',  txt:'Cancelado' },
+      a_confirmar:{ cls:'aconfirmar', txt:'A confirmar' }
+    };
+
+    var shown = data.slice(0, 6);
+    var html = '<div class="dash-agenda-date">'+dateLabel+'</div>';
+    shown.forEach(function(ag) {
+      var hora = (ag.hora || '').slice(0,5);
+      var cfg = statusCfg[ag.status] || { cls:'aconfirmar', txt: ag.status || 'Agendado' };
+      var tipoTxt = ag.tipo === 'primeira' ? 'Primeira consulta'
+        : ag.tipo === 'retorno' ? 'Retorno'
+        : ag.tipo === 'urgencia' ? 'Urgência'
+        : (ag.tipo_consulta || '');
+      html += '<div class="dash-ag-item">'
+        + '<div class="dash-ag-time">'+hora+'</div>'
+        + '<div class="dash-ag-info">'
+        +   '<div class="dash-ag-name">'+(ag.paciente_nome||'—')+'</div>'
+        +   '<div class="dash-ag-tipo">'+(tipoTxt||'Consulta')+'</div>'
+        + '</div>'
+        + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">'
+        +   '<div class="dash-ag-badge '+cfg.cls+'">'+cfg.txt+'</div>'
+        + '</div>'
+        + '</div>';
+    });
+    if(data.length > 6) {
+      html += '<div class="dash-ag-more" onclick="showView(&quot;agenda&quot;)">+ '+(data.length-6)+' compromisso'+(data.length-6>1?'s':'')+' &#9662;</div>';
+    }
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div class="dash-empty">Erro ao carregar agenda.</div>';
+  }
+}
+
+async function dashLoadResumo() {
+  // Targets os dois novos widgets separados
+  var elStatus = document.getElementById('dashStatusBody');
+  var elTipo   = document.getElementById('dashTipoBody');
+  if(!elStatus && !elTipo) return;
+  try {
+    var today = new Date();
+    var yyyy = today.getFullYear();
+    var mm = String(today.getMonth()+1).padStart(2,'0');
+    var dd = String(today.getDate()).padStart(2,'0');
+    var todayStr = yyyy+'-'+mm+'-'+dd;
+
+    // Query: agendamentos do dia
+    // Reutiliza o mesmo endpoint do backend para consistência com RLS
+    var token2 = await getToken();
+    var agApiRes = await fetch('/api/gerenciar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token2, acao: 'agenda_list', ano: parseInt(yyyy), mes: parseInt(mm) })
+    });
+    var agApiData = agApiRes.ok ? await agApiRes.json() : {};
+    var agds = (agApiData.agendamentos || []).filter(function(a){ return a.data === todayStr; });
+
+    var agendado   = agds.filter(function(a){ return a.status==='agendado'; }).length;
+    var confirmado = agds.filter(function(a){ return a.status==='confirmado'; }).length;
+    var compareceu = agds.filter(function(a){ return a.status==='compareceu'; }).length;
+    var faltou     = agds.filter(function(a){ return a.status==='faltou'; }).length;
+    var cancelado  = agds.filter(function(a){ return a.status==='cancelado'; }).length;
+    var primeira   = agds.filter(function(a){ return a.tipo==='primeira'; }).length;
+    var retorno    = agds.filter(function(a){ return a.tipo==='retorno'; }).length;
+    var urgencia   = agds.filter(function(a){ return a.tipo==='urgencia'; }).length;
+
+    function stat(num, label, color){
+      return '<div class="dash-stat" style="'+(color?'border-left:3px solid '+color+';':'')+'">'
+        +'<div class="dash-stat-num">'+num+'</div>'
+        +'<div class="dash-stat-label">'+label+'</div>'
+        +'</div>';
+    }
+
+    // Widget Status
+    var elStatus = document.getElementById('dashStatusBody');
+    if(elStatus){
+      elStatus.innerHTML = '<div class="dash-resumo-grid" style="grid-template-columns:1fr 1fr;">'
+        + stat(agendado,   'Agendado')
+        + stat(confirmado, 'Confirmado',   'var(--verde-m)')
+        + stat(compareceu, 'Compareceu',   'var(--verde)')
+        + stat(faltou,     'Faltou',       'var(--amber)')
+        + stat(cancelado,  'Cancelou',     'var(--red)')
+        + '</div>';
+    }
+
+    // Widget Tipo
+    var elTipo = document.getElementById('dashTipoBody');
+    if(elTipo){
+      elTipo.innerHTML = '<div class="dash-resumo-grid" style="grid-template-columns:1fr 1fr 1fr;">'
+        + stat(primeira,  'Primeira')
+        + stat(retorno,   'Retorno')
+        + stat(urgencia,  'Urgência',  'var(--amber)')
+        + '</div>';
+    }
+
+
+  } catch(e) {
+    console.error('dashLoadResumo error:', e);
+    el.innerHTML = '<div class="dash-empty">Erro ao carregar resumo.</div>';
+  }
+}
+
+async function dashLoadRecentes() {
+  var el = document.getElementById('dashRecentesBody');
+  if(!el) return;
+  el.innerHTML = '<div class="dash-empty">Carregando...</div>';
+  try {
+    var token = await getToken();
+    var res = await fetch('/api/consultas', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'list', sem_pasta: false, recentes: true, limit: 6 })
+    });
+    var json = res.ok ? await res.json() : {};
+    var data = (json.consultas || []).slice(0, 6);
+
+    if(!data || data.length === 0) {
+      el.innerHTML = '<div class="dash-empty">Nenhum atendimento registrado ainda.</div>';
+      return;
+    }
+
+    // Avatar — cor única, verde musgo profundo
+    var avatarColors = [
+      {bg:'#3A5530',fg:'#F7F4EE'}
+    ];
+
+    var html = '';
+    data.forEach(function(c, i) {
+      var nome = c.paciente_nome || 'Paciente';
+      var words = nome.trim().split(/\s+/);
+      var initials = words.length >= 2
+        ? (words[0][0] + words[words.length-1][0]).toUpperCase()
+        : words[0].slice(0,2).toUpperCase();
+      var av = avatarColors[i % avatarColors.length];
+      var dt = new Date(c.created_at);
+      var now = new Date();
+      var diffMin = Math.floor((now - dt) / 60000);
+      var timeStr;
+      if(diffMin < 1) timeStr = 'Agora';
+      else if(diffMin < 60) timeStr = 'Hoje, '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      else if(diffMin < 1440) timeStr = 'Hoje, '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      else timeStr = dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+      // Tenta extrair tipo de consulta do título ou pasta
+      var tipoMap = {'primeira':'Primeira consulta','retorno':'Retorno','urgencia':'Urgência','urgência':'Urgência'};
+      var tituloLow = (c.titulo || '').toLowerCase();
+      var tipoDetect = '';
+      for(var k in tipoMap){ if(tituloLow.indexOf(k) !== -1){ tipoDetect = tipoMap[k]; break; } }
+      var pasta = tipoDetect || c.pasta || c.titulo || 'Consulta';
+
+      html += '<div class="dash-rec-item" onclick="loadConsultaById(&quot;'+c.id+'&quot;)">'
+        + '<div class="dash-rec-avatar" style="background:'+av.bg+';color:'+av.fg+';">'+initials+'</div>'
+        + '<div class="dash-rec-info">'
+        +   '<div class="dash-rec-name">'+escapeHTML(nome)+'</div>'
+        +   '<div class="dash-rec-meta">'+timeStr+'</div>'
+        + '</div>'
+
+        + '</div>';
+    });
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div class="dash-empty">Erro ao carregar atendimentos.</div>';
+  }
+}
+
+// ── TOGGLE NAV (legacy — mantido para compatibilidade) ──
 function toggleNav(){
-  var nav = document.getElementById('mainNav');
-  nav.classList.toggle('open');
-  document.body.classList.toggle('nav-open');
+  // No-op com nova nav horizontal
 }
 
 // ── OSLER MODE ──
@@ -1952,7 +2390,7 @@ function oslerSetMode(m, btn){
 function toggleOslerEnabled(v){
   activeKeys['osler_chat'] = v;
   if(Object.keys(resultData).length>0){
-    document.getElementById("vResult").style.display="block";
+    document.getElementById("vResult").style.display="flex";
     renderResult(resultData);
   }
 }
@@ -2204,7 +2642,7 @@ function buildCustomize(){
         if(el) el.checked=on;
       });
       // Re-render instantly
-      if(Object.keys(resultData).length>0){document.getElementById("vResult").style.display="block";renderResult(resultData);}
+      if(Object.keys(resultData).length>0){document.getElementById("vResult").style.display="flex";renderResult(resultData);}
     });;
     hdr.addEventListener("click",function(e){
       if(e.target.tagName==="INPUT") return;
@@ -2249,7 +2687,7 @@ function mkChk(f){
     }
     // Re-render instantly if anamnese already generated
     if(Object.keys(resultData).length>0){
-      document.getElementById("vResult").style.display="block";
+      document.getElementById("vResult").style.display="flex";
       renderResult(resultData);
     }
   });
@@ -2282,8 +2720,8 @@ function processTranscript(){
   if(!txManual && !fullTx){ alert("Cole ou grave uma transcrição antes de processar."); return; }
 
   showView("record");
-  document.getElementById("vWelcome").style.display="none";
-  document.getElementById("vResult").style.display="none";
+  var _ri2 = document.getElementById("recordInputState"); if(_ri2) _ri2.style.display="none";
+  var _vr2 = document.getElementById("vResult"); if(_vr2) _vr2.style.display="none";
   document.getElementById("vLoading").style.display="flex";
 
   var fldMap={};SECTIONS.forEach(function(s){getAllFields(s).forEach(function(f){fldMap[f.k]=f.l;});});
@@ -2368,7 +2806,7 @@ function processTranscript(){
   .catch(function(err){
     clearInterval(mint);
     document.getElementById("vLoading").style.display="none";
-    document.getElementById("vWelcome").style.display="flex";
+    var _riW=document.getElementById("recordInputState");if(_riW)_riW.style.display="flex";;
     alert("Erro: "+err.message);
   });
 }
@@ -2591,11 +3029,17 @@ function oslerAddMsg(type, text){
   msgs.scrollTop=msgs.scrollHeight;
 }
 
-function renderResult(d){
-  document.getElementById("vLoading").style.display="none";
-  document.getElementById("vResult").style.display="block";
-  document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR");
-  var c=document.getElementById("resCont"); c.innerHTML="";
+function renderResult(d, targetContainer){
+  // targetContainer: elemento DOM onde renderizar (default: resCont em panel-record)
+  var isHistory = !!targetContainer;
+  if(!isHistory){
+    document.getElementById("vLoading").style.display="none";
+    var _riX=document.getElementById("recordInputState");if(_riX)_riX.style.display="none";
+    document.getElementById("vResult").style.display="flex";
+    document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR");
+  }
+  var c = targetContainer || document.getElementById("resCont");
+  c.innerHTML="";
 
   function ri(k,l){ return isActive(k)?mkField(k,l,d[k]):""; }
   function hasSome(ks){ return ks.some(function(k){return isActive(k);}); }
@@ -2800,7 +3244,7 @@ function renderResult(d){
 
 function renderRaw(txt){
   document.getElementById("vLoading").style.display="none";
-  document.getElementById("vResult").style.display="block";
+  document.getElementById("vResult").style.display="flex";
   document.getElementById("resMeta").textContent="Gerado em "+new Date().toLocaleString("pt-BR");
   document.getElementById("resCont").innerHTML="<div class=\"sc\"><div class=\"sch\" onclick=\"toggleSec(this)\"><div class=\"schl\"><div class=\"sct\">Anamnese</div></div><span class=\"scc open\">▾</span></div><div class=\"scb open\" style=\"white-space:pre-wrap;font-size:12px\">"+esc(txt)+"</div></div>";
 }
@@ -2910,16 +3354,16 @@ function buildHTML(secs,forPrint){
 
   var h = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Anamnese — " + (nomeMedico||'AnamIA') + "</title><style>";
   h += "body{font-family:Georgia,serif;font-size:11px;line-height:1.7;margin:2cm;color:#1A1814}";
-  h += ".cabecalho{border-bottom:2px solid #0A5A43;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;}";
+  h += ".cabecalho{border-bottom:2px solid #2A3F25;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;}";
   h += ".cab-left{}";
-  h += ".cab-nome{font-size:16px;font-weight:bold;color:#0A5A43;margin:0 0 2px;}";
-  h += ".cab-esp{font-size:11px;color:#0A5A43;margin:0 0 2px;}";
+  h += ".cab-nome{font-size:16px;font-weight:bold;color:#2A3F25;margin:0 0 2px;}";
+  h += ".cab-esp{font-size:11px;color:#2A3F25;margin:0 0 2px;}";
   h += ".cab-crm{font-size:10px;color:#555;margin:0;}";
   h += ".cab-right{text-align:right;font-size:10px;color:#555;line-height:1.6;}";
-  h += ".cab-logo{font-size:11px;font-weight:bold;color:#0A5A43;letter-spacing:.5px;margin-bottom:4px;}";
+  h += ".cab-logo{font-size:11px;font-weight:bold;color:#2A3F25;letter-spacing:.5px;margin-bottom:4px;}";
   h += ".doc-title{font-size:15px;font-weight:bold;color:#1A1814;margin:16px 0 2px;}";
   h += ".doc-meta{font-size:10px;color:#888;margin-bottom:12px;}";
-  h += "h2{font-size:12px;font-weight:bold;margin:14px 0 5px;border-bottom:1px solid #ccc;padding-bottom:2px;color:#0A5A43}";
+  h += "h2{font-size:12px;font-weight:bold;margin:14px 0 5px;border-bottom:1px solid #ccc;padding-bottom:2px;color:#2A3F25}";
   h += ".r{display:flex;gap:10px;margin:2px 0}.lb{min-width:150px;color:#555;font-size:10px}.vl{font-size:11px}";
   h += ".tx{font-size:11px;white-space:pre-wrap;background:#f9f7f2;border:1px solid #e2ddd6;border-radius:6px;padding:8px;margin:4px 0}";
   h += ".warn{background:#FFF3CD;border:1px solid #FAC775;padding:8px;font-size:10px;margin-top:20px;border-radius:6px}";
@@ -3124,6 +3568,8 @@ async function executarSave() {
     var meta = document.getElementById('resMeta');
     if(meta) meta.textContent += '  ·  ✓ Salvo';
     pendingSave = null;
+    dashLoadResumo();
+    dashLoadRecentes();
   } catch(e){
     console.error('executarSave exception:', e);
     alert('Erro inesperado ao salvar.');
@@ -3188,7 +3634,7 @@ async function loadHistory(){
     if(!res.ok){
       var errText = await res.text();
       console.error('Erro ao listar pastas:', res.status, errText);
-      box.innerHTML = '<div class="hempty">Erro ao carregar o histórico.</div>';
+      box.innerHTML = '<div class="hempty" style="padding:2rem;text-align:center;color:var(--cinza);">Erro ' + res.status + ' ao carregar o histórico.<br><small style=\'font-size:10px;opacity:.7;\'>' + (errText.slice(0,120)||'') + '</small><br><br><button onclick=\'loadHistory()\' style=\'margin-top:4px;padding:6px 14px;border:1px solid var(--cinza-l);border-radius:8px;background:var(--branco);cursor:pointer;font-size:12px;\'>Tentar novamente</button></div>';
       return;
     }
     var data = await res.json();
@@ -3197,7 +3643,7 @@ async function loadHistory(){
     renderFolders();
   } catch(e) {
     console.error('loadHistory exception:', e);
-    box.innerHTML = '<div class="hempty">Erro ao carregar o histórico.</div>';
+    box.innerHTML = '<div class="hempty" style="padding:2rem;text-align:center;color:var(--cinza);">Erro de conexão.<br><small style=\'font-size:10px;opacity:.7;\'>' + (e.message||'') + '</small><br><br><button onclick=\'loadHistory()\' style=\'margin-top:4px;padding:6px 14px;border:1px solid var(--cinza-l);border-radius:8px;background:var(--branco);cursor:pointer;font-size:12px;\'>Tentar novamente</button></div>';
   }
 }
 
@@ -3440,14 +3886,14 @@ async function hModalConfirm(){
       });
       if(r.status === 409){ alert('Já existe uma pasta com esse nome.'); return; }
       if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao criar pasta.'); return; }
-      hModalClose(); loadHistory();
+      hModalClose(); reloadView('history');
     } else if(ctx.tipo === 'renomear_pasta'){
       var r2 = await fetch('/api/gerenciar', {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ access_token: token, acao: 'pacientes_update', id: ctx.id, nome: valor })
       });
       if(!r2.ok){ var e2=await r2.text(); console.error(e2); alert('Erro ao renomear.'); return; }
-      hModalClose(); loadHistory();
+      hModalClose(); reloadView('history');
     } else if(ctx.tipo === 'renomear_consulta'){
       var r3 = await fetch('/api/gerenciar', {
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -3475,7 +3921,7 @@ async function excluirPasta(id, nome, numConsultas){
       body: JSON.stringify({ access_token: token, acao: 'pacientes_delete', id: id })
     });
     if(!r.ok){ var e=await r.text(); console.error(e); alert('Erro ao excluir pasta.'); return; }
-    loadHistory();
+    reloadView('history');
   } catch(e){ console.error('excluirPasta exception:', e); alert('Erro inesperado.'); }
 }
 
@@ -3522,17 +3968,32 @@ async function abrirConsulta(id){
 
     resultData = c.anamnese;
     currentConsultaId = c.id;
-    showView('record');
-    document.getElementById('vWelcome').style.display='none';
-    document.getElementById('vResult').style.display='block';
-    renderResult(resultData);
+
+    // Garante que panel-history está visível e nav ativa
+    document.querySelectorAll('.view-container').forEach(function(el){ el.style.display='none'; el.classList.remove('show'); });
+    document.querySelectorAll('.tn-item').forEach(function(el){ el.classList.remove('active'); });
+    var _hp = document.getElementById('panel-history');
+    if(_hp){ _hp.style.display='flex'; _hp.classList.add('show'); }
+    var _hn = document.getElementById('sb-history'); if(_hn) _hn.classList.add('active');
+
+    // Renderiza diretamente em histResCont — sem tocar em vResult (que está em panel-record)
+    var histResCont = document.getElementById('histResCont');
+    if(histResCont) renderResult(resultData, histResCont);
+
+    // Atualiza metadados do header do histórico
+    var histMeta = document.getElementById('histMeta');
+    if(histMeta) histMeta.textContent = 'Consulta salva em ' + fmtData(c.created_at);
+    var histName = document.getElementById('histPacName');
+    if(histName) histName.textContent = c.paciente_nome || 'Consulta';
+
+    // Troca para o estado de resultado dentro da view histórico
+    var hl = document.getElementById('histListState');
+    var hr = document.getElementById('histResultState');
+    if(hl) hl.style.display='none';
+    if(hr) hr.style.display='flex';
+
     setTimeout(function(){ anexosInit(); }, 100);
-    // Consulta ja salva — esconde barra de save
-    var saveBar = document.getElementById('saveBar');
-    if(saveBar) saveBar.style.display = 'none';
     pendingSave = null;
-    var meta = document.getElementById('resMeta');
-    if(meta) meta.textContent = 'Consulta salva em ' + fmtData(c.created_at) + '';
   } catch(e) {
     console.error('abrirConsulta exception:', e);
     alert('Erro ao abrir a consulta.');
@@ -3611,7 +4072,7 @@ async function moverConfirm(){
     } else if(histState.view === 'inside'){
       abrirPasta(null, 'Sem pasta');
     } else {
-      loadHistory();
+      reloadView('history');
     }
   } catch(e){
     console.error('moverConfirm exception:', e);
@@ -3956,7 +4417,7 @@ async function tcEncerrar() {
   if(audioBlob && audioBlob.size > 1000){
     if(confirm('Teleconsulta encerrada (' + Math.floor(duracaoSegundos/60) + 'min). Deseja transcrever e gerar a anamnese agora?')){
       showView('record');
-      document.getElementById('vWelcome').style.display = 'none';
+      var _riTC=document.getElementById("recordInputState");if(_riTC)_riTC.style.display="none";
       await tcTranscrever(audioBlob, duracaoSegundos);
     }
   } else {
@@ -4184,6 +4645,9 @@ async function agendaUpdateStatus(id, novoStatus) {
       var el = document.getElementById('agItem_' + id);
       if(el) el.outerHTML = adpBuildItem(a);
     }
+    // Atualiza resumo do dashboard em background
+    dashLoadResumo();
+    dashLoadAgenda();
   } catch(e){ console.error('agendaUpdateStatus error:', e); }
 }
 
@@ -4288,6 +4752,8 @@ async function agendaSave() {
     agendaModalClose();
     await agendaLoad();
     if(adpCurrentDate) adpOpen(adpCurrentDate);
+    dashLoadResumo();
+    dashLoadAgenda();
   } catch(e){ console.error('agendaSave error:', e); alert('Erro inesperado.'); }
   finally { btn.disabled = false; btn.textContent = amEditId ? 'Salvar alterações' : 'Salvar agendamento'; }
 }
@@ -4443,11 +4909,14 @@ function profileRender(p) {
   set('pBairro', p.bairro || '');
   set('pCidade', p.cidade || '');
   set('pUfEndereco', p.uf_endereco || '');
-  // Atualiza nav
-  var navName = document.getElementById('hdrUserName');
-  if(navName && nome) navName.textContent = nome;
-  var navAvatar = document.getElementById('navAvatar');
-  if(navAvatar && nome) navAvatar.textContent = nome.trim()[0].toUpperCase();
+  // Atualiza topnav
+  var topName = document.getElementById('topNavName');
+  if(topName && nome) topName.textContent = nome;
+  var topAv = document.getElementById('topNavAvatar');
+  if(topAv && nome) topAv.textContent = nome.trim()[0].toUpperCase();
+  var topRole = document.getElementById('topNavRole');
+  if(topRole && esp) topRole.textContent = esp;
+  dashSetGreeting(nome);
 }
 
 function cepFormat(v){
@@ -5487,10 +5956,11 @@ var pfAnvisaTimers={};
 function pfAnvisaBuscar(medId,q){
   clearTimeout(pfAnvisaTimers[medId]);
   var drop=document.getElementById(medId+'_drop');
-  if(!q||q.length<2){ if(drop){drop.classList.remove('open');drop.innerHTML='';} return; }
+  if(!q||q.length<3){ if(drop){drop.classList.remove('open');drop.innerHTML='';} return; }
   if(drop){ drop.innerHTML='<div class="pf-ac-loading">Buscando...</div>'; drop.classList.add('open'); }
   pfAnvisaTimers[medId]=setTimeout(async function(){
     try{
+      // Proxy via Vercel Function para contornar CORS da ANVISA
       var rows=await prescApi({acao:'anvisa_buscar',q:q});
       if(!drop) return;
       if(!rows||rows.length===0){ drop.innerHTML='<div class="pf-ac-loading">Nenhum resultado</div>'; return; }
@@ -5498,10 +5968,10 @@ function pfAnvisaBuscar(medId,q){
       rows.forEach(function(row){
         var item=document.createElement('div'); item.className='pf-ac-item';
         var sub=escapeHTML(row.substancia||'');
-        // Mostrar as primeiras apresentações como subtítulo
-        var apres=(row.apresentacoes||[]).slice(0,3).map(function(a){ return a.a; }).join(' · ');
+        var com=escapeHTML(row.nomeProduto||'');
+        var emp=escapeHTML(row.empresa||'');
         item.innerHTML='<div class="pai-sub">'+sub+'</div>'+
-          (apres?'<div class="pai-com">'+escapeHTML(apres)+'</div>':'');
+          '<div class="pai-com">'+(com||'')+(emp?' &middot; '+emp:'')+'</div>';
         item.addEventListener('mousedown',function(){ pfAnvisaSelect(medId,row); });
         drop.appendChild(item);
       });
@@ -5510,18 +5980,14 @@ function pfAnvisaBuscar(medId,q){
       console.error('pfAnvisaBuscar',e);
       if(drop) drop.innerHTML='<div class="pf-ac-loading" style="color:var(--red)">Erro: '+escapeHTML(e.message)+'</div>';
     }
-  },350);
+  },400);
 }
 
 function pfAnvisaSelect(medId,row){
   pfAcDrop(medId,false);
   var s=function(fid,val){ var el=document.getElementById(fid); if(el&&val) el.value=val; };
   s(medId+'_sub',row.substancia||'');
-  // Preencher dose com a primeira apresentação disponível se estiver vazio
-  var doseEl=document.getElementById(medId+'_dose');
-  if(doseEl && !doseEl.value && row.apresentacoes && row.apresentacoes[0]){
-    doseEl.value=row.apresentacoes[0].a;
-  }
+  s(medId+'_com',row.nomeProduto||'');
 }
 
 // ── COLETAR DADOS ──
@@ -5582,6 +6048,7 @@ async function pfGerarPdf(){
     var med=medArr&&medArr[0]?medArr[0]:{};
     pfGerarPdfDoc(dados,med);
     msg.textContent='Receita gerada!'; msg.style.color='var(--verde)';
+    dashLoadResumo();
   }catch(e){ msg.textContent='Erro: '+e.message; msg.style.color='var(--red)'; }
   finally{ btn.disabled=false; btn.innerHTML='<i class="ti ti-file-download" aria-hidden="true"></i> Gerar receita'; }
 }
@@ -5637,7 +6104,7 @@ function pfGerarPdfDoc(dados,med){
     '<div style="margin-top:40px;text-align:right;font-size:11px;">'+
     '<div style="display:inline-block;border-top:1px solid #000;padding-top:4px;min-width:200px;text-align:center;">Assinatura do médico</div></div>'+
     '<div class="no-print" style="text-align:center;margin-top:20px;">'+
-    '<button onclick="window.print()" style="padding:8px 20px;background:#0F6E56;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Imprimir / Salvar PDF</button>'+
+    '<button onclick="window.print()" style="padding:8px 20px;background:#3A5530;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Imprimir / Salvar PDF</button>'+
     ' <button onclick="window.close()" style="padding:8px 16px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;margin-left:8px;">Fechar</button>'+
     '</div></body></html>';
   var win=window.open('','_blank','width=700,height=900');
