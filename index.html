@@ -5867,6 +5867,7 @@ var pfPaciente = null;
 var pfMeds     = [];
 var pfRascId   = null;
 var pfMedCounter = 0;
+var pfExibirCpf = (localStorage.getItem('pf_exibir_cpf') !== 'false'); // default: true
 
 function prescFormAbrir(local){
   pfLocal=local; pfTipo=null; pfPaciente=null; pfMeds=[]; pfRascId=null; pfMedCounter=0;
@@ -5933,6 +5934,20 @@ function prescFormAbrir(local){
   // Ações
   var acts=document.createElement('div'); acts.className='pf-actions';
   var msgEl=document.createElement('div'); msgEl.id='pfMsg'; msgEl.style.cssText='font-size:12px;flex:1;align-self:center;';
+
+  // Checkbox: exibir CPF do médico na receita
+  var cpfLbl=document.createElement('label');
+  cpfLbl.style.cssText='display:flex;align-items:center;gap:6px;font-size:12px;color:var(--cinza-d);cursor:pointer;align-self:center;white-space:nowrap;';
+  var cpfChk=document.createElement('input');
+  cpfChk.type='checkbox'; cpfChk.id='pfExibirCpfChk';
+  cpfChk.checked = pfExibirCpf;
+  cpfChk.onchange=function(){
+    pfExibirCpf = this.checked;
+    localStorage.setItem('pf_exibir_cpf', pfExibirCpf ? 'true' : 'false');
+  };
+  cpfLbl.appendChild(cpfChk);
+  cpfLbl.appendChild(document.createTextNode('Exibir meu CPF na receita'));
+
   var btnRasc=document.createElement('button'); btnRasc.className='bts'; btnRasc.id='pfBtnRasc';
   btnRasc.style.padding='9px 16px';
   btnRasc.innerHTML='<i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar rascunho';
@@ -5941,7 +5956,7 @@ function prescFormAbrir(local){
   btnPdf.style.cssText='width:auto;padding:9px 18px;';
   btnPdf.innerHTML='<i class="ti ti-file-download" aria-hidden="true"></i> Gerar receita';
   btnPdf.onclick=pfGerarPdf;
-  acts.appendChild(msgEl); acts.appendChild(btnRasc); acts.appendChild(btnPdf);
+  acts.appendChild(msgEl); acts.appendChild(cpfLbl); acts.appendChild(btnRasc); acts.appendChild(btnPdf);
 
   wrap.appendChild(hdr); wrap.appendChild(s1.sec); wrap.appendChild(s2.sec);
   wrap.appendChild(s3.sec); wrap.appendChild(s4.sec); wrap.appendChild(acts);
@@ -6227,7 +6242,7 @@ function pfGerarPdfDoc(dados, med) {
     (local.cidade || '') + (local.uf ? ' - ' + local.uf : '')].filter(Boolean).join(', ');
   var nomeMed = esc(med.nome || '');
   var crmMed  = esc((med.crm || '') + (med.uf_crm ? ' - ' + med.uf_crm : ''));
-  var cpfMed  = (local.exibir_cpf_medico !== false && med.cpf) ? esc(med.cpf) : '';
+  var cpfMed  = (pfExibirCpf && med.cpf) ? esc(med.cpf) : '';
   var espMed  = esc(med.especialidade || '');
   var nomePac = esc(pac.nome || '');
   var cpfPac  = pac.cpf ? esc(pac.cpf) : '';
@@ -6315,8 +6330,30 @@ function pfGerarPdfDoc(dados, med) {
       '<div style="font-size:13px;font-weight:700;color:#000;margin-bottom:8px;">' +
         'Dr(a). ' + nomeMed +
       '</div>' +
-      '<hr style="border:none;border-top:2px solid #000;margin:0 0 10px;">'
+      '<hr style="border:none;border-top:1px solid #000;margin:0 0 10px;">'
     );
+  }
+
+  // ── TÍTULO EM BOX (Receita Simples / Antimicrobiano / Controle Especial) ──
+  function renderTituloBox(titulo) {
+    return '<div style="border:1px solid #000;text-align:center;font-weight:700;font-size:14px;padding:6px 0;margin-bottom:10px;">' +
+      titulo + '</div>';
+  }
+
+  // ── SEPARADOR DE SEÇÃO (traço contínuo de fora a fora) ──
+  function renderSeparador() {
+    return '<hr style="border:none;border-top:1px solid #000;margin:8px 0;">';
+  }
+
+  // ── BLOCO DE INFORMAÇÕES DO PACIENTE ──
+  function renderPaciente() {
+    var partes = [];
+    if (nomePac) partes.push('<span class="lbl">Paciente:</span> ' + (cpfPac ? cpfPac + ' - ' : '') + nomePac);
+    if (sexoPac) partes.push('<span class="lbl">Sexo:</span> ' + sexoPac);
+    if (idadePac) partes.push('<span class="lbl">Idade:</span> ' + idadePac);
+    var linha1 = partes.join('&nbsp;&nbsp;&nbsp;&nbsp;');
+    var linha2 = endPac ? '<div style="margin-top:2px;"><span class="lbl">Endereço:</span> ' + endPac + '</div>' : '';
+    return '<div style="font-size:11px;padding:4px 0;">' + linha1 + linha2 + '</div>';
   }
 
   // ════════════════════════════════════════════════
@@ -6326,20 +6363,10 @@ function pfGerarPdfDoc(dados, med) {
     html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Receita Simples</title>' +
       '<style>' + baseStyle + '</style></head><body style="padding:20px 28px;">' +
 
+      renderTituloBox('Receita Simples') +
       renderCabecalho() +
-
-      // paciente
-      '<div class="box">' +
-        '<span class="lbl">Paciente: </span>' + nomePac +
-        (cpfPac ? ' &nbsp;|&nbsp; <span class="lbl">CPF:</span> ' + cpfPac : '') +
-        (sexoPac ? ' &nbsp;|&nbsp; ' + sexoPac : '') +
-        (idadePac ? ' &nbsp;|&nbsp; ' + idadePac : '') +
-        (endPac ? '<br><span class="lbl">End:</span> ' + endPac : '') +
-      '</div>' +
-
-      // título
-      '<h1>Receituário Médico</h1>' +
-      '<hr style="border:none;border-top:1px solid #000;margin:4px 0 10px;">' +
+      renderPaciente() +
+      renderSeparador() +
 
       // itens
       '<table>' + renderItens(12) + '</table>' +
@@ -6367,18 +6394,11 @@ function pfGerarPdfDoc(dados, med) {
           '<span class="via-badge">' + nVia + 'ª VIA ' + (nVia===1?'FARMÁCIA':'PACIENTE') + '</span>' +
         '</div>' +
 
+        renderTituloBox('Receituário de Antimicrobiano') +
         renderCabecalho() +
+        renderPaciente() +
+        renderSeparador() +
 
-        '<div class="box">' +
-          '<span class="lbl">Paciente: </span>' + nomePac +
-          (cpfPac ? ' &nbsp;|&nbsp; <span class="lbl">CPF:</span> ' + cpfPac : '') +
-          (sexoPac ? ' &nbsp;|&nbsp; ' + sexoPac : '') +
-          (idadePac ? ' &nbsp;|&nbsp; ' + idadePac : '') +
-          (endPac ? '<br><span class="lbl">End:</span> ' + endPac : '') +
-        '</div>' +
-
-        '<h1>Receituário de Antimicrobiano</h1>' +
-        '<hr style="border:none;border-top:1px solid #000;margin:4px 0 8px;">' +
         '<table>' + renderItens(11) + '</table>' +
         (dados.observacoes ? '<div style="margin-top:8px;font-size:11px;">' + esc(dados.observacoes) + '</div>' : '') +
 
@@ -6422,30 +6442,22 @@ function pfGerarPdfDoc(dados, med) {
     function viaEspecial(nVia) {
       return '<div style="padding:20px 28px;' + (nVia === 1 ? 'page-break-after:always;' : '') + '">' +
 
-        '<h1 style="margin:0 0 6px;">Receituário de Controle Especial</h1>' +
-
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
           '<div style="font-size:10px;">N.º <strong>' + esc(String(numEspecial)) + '</strong></div>' +
           '<span class="via-badge">' + nVia + 'ª VIA ' + (nVia===1?'FARMÁCIA':'PACIENTE') + '</span>' +
         '</div>' +
 
+        renderTituloBox('Receituário de Controle Especial') +
+
         // paciente (topo, como no modelo CFM)
-        '<div class="box" style="margin-bottom:8px;">' +
-          '<div class="row"><span class="lbl">Paciente:</span> ' + nomePac +
-            (cpfPac ? '&nbsp;&nbsp;<span class="lbl">CPF:</span> ' + cpfPac : '') + '</div>' +
-          '<div class="row">' +
-            (endPac ? '<span class="lbl">Endereço:</span> ' + endPac + '&nbsp;&nbsp;' : '') +
-            (sexoPac ? '<span class="lbl">Sexo:</span> ' + sexoPac + '&nbsp;&nbsp;' : '') +
-            (idadePac ? '<span class="lbl">Idade:</span> ' + idadePac : '') +
-          '</div>' +
-          '<div class="row"><span class="lbl">UF:</span> ' + esc(local.uf || '') + '</div>' +
-        '</div>' +
+        renderPaciente() +
+        '<div style="font-size:11px;padding:0 0 4px;"><span class="lbl">UF:</span> ' + esc(local.uf || '') + '</div>' +
+        renderSeparador() +
 
         // emitente
         renderCabecalho() +
 
         // medicamentos
-        '<hr style="border:none;border-top:1px solid #000;margin:8px 0;">' +
         '<table>' + renderItens(11) + '</table>' +
         (dados.observacoes ? '<div style="margin-top:8px;font-size:11px;">' + esc(dados.observacoes) + '</div>' : '') +
 
