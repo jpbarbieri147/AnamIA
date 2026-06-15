@@ -6271,7 +6271,7 @@ function pfGerarPdfDoc(dados, med) {
       var qtd = m.quantidade ? 'Qtd: ' + esc(m.quantidade) : '';
       return '<tr><td style="padding:5px 0 2px;">' +
         '<div style="display:flex;align-items:baseline;font-size:' + fontSz + 'px;font-weight:400;">' +
-          '<span style="white-space:nowrap;">' + (i+1) + '. ' + nome + '</span>' +
+          '<span style="white-space:nowrap;font-weight:700;">' + (i+1) + '. ' + nome + '</span>' +
           '<span style="flex:1;border-bottom:1px dashed #000;margin:0 6px 2px;"></span>' +
           '<span>' + (i+1) + '</span>' +
         '</div>' +
@@ -6470,7 +6470,7 @@ function pfGerarPdfDoc(dados, med) {
   // ════════════════════════════════════════════════
   else if (tipo === 'antimicrobiano') {
     function viaAnti(nVia) {
-      return '<div style="padding:20px 28px;display:flex;flex-direction:column;min-height:257mm;box-sizing:border-box;' + (nVia === 1 ? 'page-break-after:always;' : '') + '">' +
+      return '<div style="padding:20px 28px;display:flex;flex-direction:column;min-height:235mm;box-sizing:border-box;' + (nVia === 1 ? 'page-break-after:always;' : '') + '">' +
 
         renderTituloBox('ANTIMICROBIANO') +
 
@@ -6491,7 +6491,7 @@ function pfGerarPdfDoc(dados, med) {
         // fixados ao fundo da página
         '<div style="margin-top:auto;">' +
           renderCompradorFornecedor() +
-          '<div style="margin-top:24px;text-align:right;">' +
+          '<div style="margin-top:40px;text-align:right;">' +
             '<span class="sig">Assinatura e Carimbo do Médico</span>' +
           '</div>' +
         '</div>' +
