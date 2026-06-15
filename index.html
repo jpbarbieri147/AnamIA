@@ -6270,7 +6270,7 @@ function pfGerarPdfDoc(dados, med) {
   var cpfPac  = pac.cpf ? esc(pac.cpf) : '';
   var sexoPac = esc(pac.sexo || '');
   var idadePac = idade(pac.data_nascimento);
-  var endPac  = (local.exibir_endereco_paciente && pac.endereco) ? esc(pac.endereco) : '';
+  var endPac  = pac.endereco ? esc(pac.endereco) : '';
 
   // ── itens ──
   function renderItens(fontSz) {
