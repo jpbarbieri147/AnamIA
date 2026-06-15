@@ -6234,7 +6234,14 @@ async function pfGerarPdf(){
     if(pfPaciente && pfPaciente.id){
       try{
         var pacCompleto = await prescApi({acao:'paciente_get', id: pfPaciente.id});
-        if(pacCompleto) dados.paciente = Object.assign({}, pfPaciente, pacCompleto);
+        if(pacCompleto){
+          var pacMerged = Object.assign({}, pfPaciente);
+          Object.keys(pacCompleto).forEach(function(k){
+            var v = pacCompleto[k];
+            if(v !== null && v !== undefined && v !== '') pacMerged[k] = v;
+          });
+          dados.paciente = pacMerged;
+        }
       }catch(e){ console.warn('paciente_get falhou, usando dados básicos:', e); }
     }
 
