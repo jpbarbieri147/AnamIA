@@ -6267,13 +6267,14 @@ function pfGerarPdfDoc(dados, med) {
       var nome = esc(m.substancia).replace(/\s*;\s*/g, ' + ');
       if (m.nomeComercial) nome += ' (' + esc(m.nomeComercial) + ')';
       if (m.dose) nome += ' ' + esc(m.dose);
-      var dashes = '';
-      var dashCount = Math.max(3, 60 - nome.length);
-      for (var p = 0; p < dashCount; p++) dashes += '-';
       var pos = m.posologia ? esc(m.posologia) + (m.duracao ? ' por ' + esc(m.duracao) : '') : '';
       var qtd = m.quantidade ? 'Qtd: ' + esc(m.quantidade) : '';
-      return '<tr><td style="padding:5px 0 2px;font-size:' + fontSz + 'px;font-weight:600;">' +
-        (i+1) + '. ' + nome + ' ' + dashes + ' ' + (i+1) +
+      return '<tr><td style="padding:5px 0 2px;">' +
+        '<div style="display:flex;align-items:baseline;font-size:' + fontSz + 'px;font-weight:400;">' +
+          '<span style="white-space:nowrap;">' + (i+1) + '. ' + nome + '</span>' +
+          '<span style="flex:1;border-bottom:1px dashed #000;margin:0 6px 2px;"></span>' +
+          '<span>' + (i+1) + '</span>' +
+        '</div>' +
         '</td></tr>' +
         (pos ? '<tr><td style="padding:0 0 2px 14px;font-size:' + (fontSz-1) + 'px;">' + pos + '</td></tr>' : '') +
         (qtd ? '<tr><td style="padding:0 0 4px 14px;font-size:' + (fontSz-2) + 'px;color:#555;">' + qtd + '</td></tr>' : '');
