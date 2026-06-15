@@ -6411,6 +6411,32 @@ function pfGerarPdfDoc(dados, med) {
     return '<div style="font-size:11px;padding:4px 0;">' + linha1 + linha2 + '</div>';
   }
 
+  // ── BOX IDENTIFICAÇÃO DO COMPRADOR / FORNECEDOR (lado a lado) ──
+  function renderCompradorFornecedor() {
+    return '<table style="width:100%;border-collapse:collapse;margin-top:14px;table-layout:fixed;">' +
+      '<tr>' +
+        '<td style="border:1px solid #000;padding:0;vertical-align:top;width:50%;">' +
+          '<div style="font-weight:700;font-size:11px;text-align:center;border-bottom:1px solid #000;padding:4px;">IDENTIFICAÇÃO DO COMPRADOR</div>' +
+          '<div style="font-size:11px;line-height:2.4;padding:6px 8px;">' +
+            'Nome:<span class="field-line" style="min-width:230px;"></span><br>' +
+            'Ident:<span class="field-line" style="min-width:110px;"></span>Órg. Emissor:<span class="field-line" style="min-width:80px;"></span><br>' +
+            'End:<span class="field-line" style="min-width:230px;"></span><br>' +
+            'Cidade:<span class="field-line" style="min-width:150px;"></span>UF:<span class="field-line" style="min-width:50px;"></span><br>' +
+            'Telefone:(<span class="field-line" style="min-width:40px;"></span>)<span class="field-line" style="min-width:130px;"></span>' +
+          '</div>' +
+        '</td>' +
+        '<td style="border:1px solid #000;padding:0;vertical-align:top;width:50%;">' +
+          '<div style="font-weight:700;font-size:11px;text-align:center;border-bottom:1px solid #000;padding:4px;">IDENTIFICAÇÃO DO FORNECEDOR</div>' +
+          '<div style="font-size:11px;text-align:center;padding:18px 8px 8px;">' +
+            '<div style="border-top:1px solid #000;width:80%;margin:0 auto 4px;"></div>' +
+            'ASSINATURA DO FARMACÊUTICO' +
+            '<div style="margin-top:22px;">DATA <span class="field-line" style="min-width:46px;"></span>/<span class="field-line" style="min-width:46px;"></span>/<span class="field-line" style="min-width:46px;"></span></div>' +
+          '</div>' +
+        '</td>' +
+      '</tr>' +
+    '</table>';
+  }
+
   // ════════════════════════════════════════════════
   // RECEITA SIMPLES
   // ════════════════════════════════════════════════
@@ -6452,34 +6478,25 @@ function pfGerarPdfDoc(dados, med) {
           '<span class="via-badge">' + nVia + 'ª VIA ' + (nVia===1?'FARMÁCIA':'PACIENTE') + '</span>' +
         '</div>' +
 
-        renderCabecalho() +
+        renderCabecalhoSimples() +
+        renderSeparador() +
         renderPaciente() +
         renderSeparador() +
 
         '<table>' + renderItens(11) + '</table>' +
         (dados.observacoes ? '<div style="margin-top:8px;font-size:11px;">' + esc(dados.observacoes) + '</div>' : '') +
 
-        '<div style="margin-top:32px;text-align:right;">' +
-          '<span class="sig">Assinatura e Carimbo do Médico</span>' +
-        '</div>' +
-
-        // identificação do comprador (só 1ª via)
-        (nVia === 1 ? '' +
-          '<div class="section-title" style="margin-top:12px;">Identificação do Comprador</div>' +
-          '<div style="font-size:11px;line-height:2.2;">' +
-            'Nome: <span class="field-line" style="min-width:200px;"></span>' +
-            ' RG: <span class="field-line" style="min-width:80px;"></span>' +
-            ' Data: <span class="field-line" style="min-width:80px;"></span><br>' +
-            'Endereço: <span class="field-line" style="min-width:260px;"></span>' +
-          '</div>' +
-          '<div class="section-title" style="margin-top:8px;">Identificação do Fornecedor</div>' +
-          '<div style="font-size:11px;line-height:2.2;">' +
-            'Farmacêutico Responsável: <span class="field-line" style="min-width:180px;"></span>' +
-            ' CRF/UF: <span class="field-line" style="min-width:80px;"></span><br>' +
-            'Assinatura: <span class="field-line" style="min-width:180px;"></span>' +
-            ' Data: <span class="field-line" style="min-width:80px;"></span>' +
+        // identificação do comprador/fornecedor (só 1ª via) + assinatura abaixo
+        (nVia === 1 ?
+          renderCompradorFornecedor() +
+          '<div style="margin-top:24px;text-align:right;">' +
+            '<span class="sig">Assinatura e Carimbo do Médico</span>' +
           '</div>'
-        : '') +
+        :
+          '<div style="margin-top:32px;text-align:right;">' +
+            '<span class="sig">Assinatura e Carimbo do Médico</span>' +
+          '</div>'
+        ) +
 
       '</div>';
     }
