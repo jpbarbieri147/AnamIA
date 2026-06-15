@@ -6211,11 +6211,12 @@ async function pfGerarPdf(){
       local_id:pfLocal.id,paciente_id:pfPaciente.id,tipo:dados.tipo,
       itens:dados.itens,observacoes:dados.observacoes,status:'rascunho'});
     if(dSave&&dSave[0]) pfRascId=dSave[0].id;
-    var token=await getToken();
-    var rMed=await fetch(SUPA_URL+'/rest/v1/medicos?id=eq.'+currentUser.id,
-      {headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}});
-    var medArr=await rMed.json();
-    var med=medArr&&medArr[0]?medArr[0]:{};
+    // Usa o perfil já carregado (via /api/gerenciar, sem problemas de RLS).
+    // Se ainda não foi carregado nesta sessão, busca agora.
+    if(!currentProfile || !currentProfile.nome){
+      await profileInit();
+    }
+    var med = currentProfile || {};
     pfGerarPdfDoc(dados,med);
     msg.textContent='Receita gerada!'; msg.style.color='var(--verde)';
     dashLoadResumo();
