@@ -6222,6 +6222,7 @@ async function pfGerarPdf(){
       local_id:pfLocal.id,paciente_id:pfPaciente.id,tipo:dados.tipo,
       itens:dados.itens,observacoes:dados.observacoes,status:'rascunho'});
     if(dSave&&dSave[0]) pfRascId=dSave[0].id;
+    var numeroEspecial = (dSave && dSave[0] && dSave[0].numero_especial) || null;
     // Usa o perfil já carregado (via /api/gerenciar, sem problemas de RLS).
     // Se ainda não foi carregado nesta sessão, busca agora.
     if(!currentProfile || !currentProfile.nome){
@@ -6245,14 +6246,14 @@ async function pfGerarPdf(){
       }catch(e){ console.warn('paciente_get falhou, usando dados básicos:', e); }
     }
 
-    pfGerarPdfDoc(dados,med);
+    pfGerarPdfDoc(dados,med,numeroEspecial);
     msg.textContent='Receita gerada!'; msg.style.color='var(--verde)';
     dashLoadResumo();
   }catch(e){ msg.textContent='Erro: '+e.message; msg.style.color='var(--red)'; }
   finally{ btn.disabled=false; btn.innerHTML='<i class="ti ti-file-download" aria-hidden="true"></i> Gerar receita'; }
 }
 
-function pfGerarPdfDoc(dados, med) {
+function pfGerarPdfDoc(dados, med, numeroEspecial) {
   var tipo = dados.tipo, pac = dados.paciente || {}, local = pfLocal || {};
 
   // ── utilidades ──
@@ -6519,8 +6520,7 @@ function pfGerarPdfDoc(dados, med) {
 
         renderTituloBox('ANTIMICROBIANO') +
 
-        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">' +
-          '<div style="font-size:10px;font-style:italic;">Receituário de Controle de Antimicrobianos — Lei 9.782/99</div>' +
+        '<div style="display:flex;justify-content:flex-end;margin-bottom:6px;">' +
           '<span class="via-badge">' + nVia + 'ª VIA ' + (nVia===1?'FARMÁCIA':'PACIENTE') + '</span>' +
         '</div>' +
 
@@ -6554,7 +6554,7 @@ function pfGerarPdfDoc(dados, med) {
   // CONTROLE ESPECIAL — TIPO B (2 vias)
   // ════════════════════════════════════════════════
   else if (tipo === 'especial_b') {
-    var numEspecial = (pfRascId || '______');
+    var numEspecial = numeroEspecial || '______';
 
     function viaEspecial(nVia) {
       return '<div style="padding:20px 28px;display:flex;flex-direction:column;min-height:235mm;box-sizing:border-box;' + (nVia === 1 ? 'page-break-after:always;' : '') + '">' +
@@ -6567,7 +6567,6 @@ function pfGerarPdfDoc(dados, med) {
 
         // paciente (topo, como no modelo CFM)
         renderPaciente() +
-        '<div style="font-size:11px;padding:0 0 4px;"><span class="lbl">UF:</span> ' + esc(local.uf || '') + '</div>' +
         renderSeparador() +
 
         // medicamentos
