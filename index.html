@@ -6334,6 +6334,49 @@ function pfGerarPdfDoc(dados, med) {
     );
   }
 
+  // ── CABEÇALHO EXCLUSIVO DA RECEITA SIMPLES ──
+  // Esquerda: Clínica / Endereço / Dr(a). Nome
+  // Direita:  Data de emissão / CRM / CPF (se habilitado)
+  function renderCabecalhoSimples() {
+    return (
+      '<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">' +
+        // Linha 1: Clínica | Data de emissão
+        '<tr>' +
+          '<td style="font-size:11px;font-weight:700;padding:3px 0;vertical-align:top;">' +
+            esc(local.nome || '') +
+          '</td>' +
+          '<td style="font-size:11px;text-align:right;vertical-align:top;white-space:nowrap;">' +
+            '<span style="font-weight:700;">Data de emissão:</span>&nbsp;&nbsp;' + dataEmissao +
+          '</td>' +
+        '</tr>' +
+        // Linha 2: Endereço | (vazio)
+        '<tr>' +
+          '<td style="font-size:11px;padding:3px 0;vertical-align:top;">' +
+            '<span style="font-weight:700;">Endereço:</span>&nbsp;&nbsp;' + esc(endLocal) +
+          '</td>' +
+          '<td></td>' +
+        '</tr>' +
+        // Linha 3: Dr(a). Nome | CRM
+        '<tr>' +
+          '<td style="font-size:13px;font-weight:700;padding:6px 0 0;vertical-align:top;">' +
+            'Dr(a). ' + nomeMed +
+          '</td>' +
+          '<td style="font-size:11px;text-align:right;vertical-align:top;white-space:nowrap;padding:6px 0 0;">' +
+            '<span style="font-weight:700;">CRM:</span>&nbsp;&nbsp;' + crmMed +
+          '</td>' +
+        '</tr>' +
+        // Linha 4: (vazio) | CPF (se habilitado)
+        (cpfMed ?
+        '<tr>' +
+          '<td></td>' +
+          '<td style="font-size:11px;text-align:right;vertical-align:top;white-space:nowrap;padding:2px 0 0;">' +
+            '<span style="font-weight:700;">CPF:</span>&nbsp;&nbsp;' + cpfMed +
+          '</td>' +
+        '</tr>' : '') +
+      '</table>'
+    );
+  }
+
   // ── TÍTULO EM BOX (Receita Simples / Antimicrobiano / Controle Especial) ──
   function renderTituloBox(titulo) {
     return '<div style="border:1px solid #000;text-align:center;font-weight:700;font-size:14px;padding:6px 0;margin-bottom:10px;">' +
@@ -6363,8 +6406,9 @@ function pfGerarPdfDoc(dados, med) {
     html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Receita Simples</title>' +
       '<style>' + baseStyle + '</style></head><body style="padding:20px 28px;">' +
 
-      renderTituloBox('Receita Simples') +
-      renderCabecalho() +
+      renderTituloBox('RECEITA SIMPLES') +
+      renderCabecalhoSimples() +
+      renderSeparador() +
       renderPaciente() +
       renderSeparador() +
 
@@ -6389,12 +6433,13 @@ function pfGerarPdfDoc(dados, med) {
     function viaAnti(nVia) {
       return '<div style="padding:20px 28px;' + (nVia === 1 ? 'page-break-after:always;' : '') + '">' +
 
+        renderTituloBox('ANTIMICROBIANO') +
+
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">' +
           '<div style="font-size:10px;font-style:italic;">Receituário de Controle de Antimicrobianos — Lei 9.782/99</div>' +
           '<span class="via-badge">' + nVia + 'ª VIA ' + (nVia===1?'FARMÁCIA':'PACIENTE') + '</span>' +
         '</div>' +
 
-        renderTituloBox('Receituário de Antimicrobiano') +
         renderCabecalho() +
         renderPaciente() +
         renderSeparador() +
@@ -6442,12 +6487,12 @@ function pfGerarPdfDoc(dados, med) {
     function viaEspecial(nVia) {
       return '<div style="padding:20px 28px;' + (nVia === 1 ? 'page-break-after:always;' : '') + '">' +
 
+        renderTituloBox('RECEITUÁRIO DE CONTROLE ESPECIAL') +
+
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
           '<div style="font-size:10px;">N.º <strong>' + esc(String(numEspecial)) + '</strong></div>' +
           '<span class="via-badge">' + nVia + 'ª VIA ' + (nVia===1?'FARMÁCIA':'PACIENTE') + '</span>' +
         '</div>' +
-
-        renderTituloBox('Receituário de Controle Especial') +
 
         // paciente (topo, como no modelo CFM)
         renderPaciente() +
