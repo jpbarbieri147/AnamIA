@@ -205,6 +205,18 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, data: result.data[0] });
     }
 
+    // ── PACIENTE_GET — registro completo (cpf, sexo, data_nascimento, endereco) ──
+    if (acao === 'paciente_get') {
+      const { id } = payload;
+      if (!id) return res.status(400).json({ error: 'ID obrigatório' });
+      const result = await supaFetch(
+        `pacientes?id=eq.${id}&medico_id=eq.${uid}&limit=1`
+      );
+      if (!result.ok || !result.data?.[0])
+        return res.status(404).json({ error: 'Paciente não encontrado' });
+      return res.status(200).json({ ok: true, data: result.data[0] });
+    }
+
     // ── PACIENTE_SAVE ──
     if (acao === 'paciente_save') {
       const { nome, cpf, sexo, data_nascimento, endereco } = payload;

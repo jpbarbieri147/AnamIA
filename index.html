@@ -6217,6 +6217,16 @@ async function pfGerarPdf(){
       await profileInit();
     }
     var med = currentProfile || {};
+
+    // Busca o registro completo do paciente (cpf, sexo, data_nascimento, endereco),
+    // pois a busca/dropdown pode não retornar todos os campos do cadastro.
+    if(pfPaciente && pfPaciente.id){
+      try{
+        var pacCompleto = await prescApi({acao:'paciente_get', id: pfPaciente.id});
+        if(pacCompleto) dados.paciente = Object.assign({}, pfPaciente, pacCompleto);
+      }catch(e){ console.warn('paciente_get falhou, usando dados básicos:', e); }
+    }
+
     pfGerarPdfDoc(dados,med);
     msg.textContent='Receita gerada!'; msg.style.color='var(--verde)';
     dashLoadResumo();
@@ -6392,7 +6402,8 @@ function pfGerarPdfDoc(dados, med) {
   // ── BLOCO DE INFORMAÇÕES DO PACIENTE ──
   function renderPaciente() {
     var partes = [];
-    if (nomePac) partes.push('<span class="lbl">Paciente:</span> ' + (cpfPac ? cpfPac + ' - ' : '') + nomePac);
+    if (nomePac) partes.push('<span class="lbl">Paciente:</span> ' + nomePac);
+    if (cpfPac) partes.push('<span class="lbl">CPF:</span> ' + cpfPac);
     if (sexoPac) partes.push('<span class="lbl">Sexo:</span> ' + sexoPac);
     if (idadePac) partes.push('<span class="lbl">Idade:</span> ' + idadePac);
     var linha1 = partes.join('&nbsp;&nbsp;&nbsp;&nbsp;');
