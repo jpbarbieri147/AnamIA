@@ -1560,6 +1560,10 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
             </div>
           </div>
           <div class="profile-field">
+            <div class="profile-label">CPF</div>
+            <input type="text" class="profile-input" id="pCpf" placeholder="000.000.000-00" maxlength="14"/>
+          </div>
+          <div class="profile-field">
             <div class="profile-label">Telefone / WhatsApp</div>
             <input type="tel" class="profile-input" id="pTelefone" placeholder="(11) 99999-9999"/>
           </div>
@@ -5047,6 +5051,12 @@ function profileRender(p) {
   set('pEspecialidade', esp);
   set('pCrm', crm);
   set('pUfCrm', uf);
+  set('pCpf', p.cpf || '');
+  // Aplica máscara visual ao CPF já carregado
+  var cpfEl = document.getElementById('pCpf');
+  if(cpfEl && cpfEl.value) npCpfMask(cpfEl);
+  // Garante máscara ao digitar
+  if(cpfEl) cpfEl.oninput = function(){ npCpfMask(this); };
   set('pTelefone', p.telefone || '');
   set('pEmailContato', p.email_contato || '');
   // Campos de endereço
@@ -5123,6 +5133,7 @@ async function profileSave(btnId) {
         nome: nome,
         crm: get('pCrm'),
         uf_crm: get('pUfCrm').toUpperCase(),
+        cpf: get('pCpf').replace(/\D/g,''),
         especialidade: get('pEspecialidade'),
         telefone: get('pTelefone'),
         email_contato: get('pEmailContato'),
@@ -6438,6 +6449,37 @@ function pfGerarPdfDoc(dados, med) {
     '</table>';
   }
 
+  // ── BOX IDENTIFICAÇÃO DO EMITENTE (Controle Especial) ──
+  // Esquerda: box com Dr(a) Nome, CPF/CRM, Endereço, Cidade/UF
+  // Direita: Data de Emissão + indicação das vias
+  function renderEmitenteBox() {
+    return '<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">' +
+      '<tr>' +
+        '<td style="border:1px solid #000;vertical-align:top;width:72%;padding:0;">' +
+          '<div style="font-weight:700;font-size:12px;text-align:center;border-bottom:1px solid #000;padding:5px;">IDENTIFICAÇÃO DO EMITENTE</div>' +
+          '<div style="padding:8px 10px;">' +
+            '<div style="font-size:12px;font-weight:700;color:#3A5530;margin-bottom:6px;">Dr(a). ' + nomeMed + '</div>' +
+            '<div style="font-size:11px;margin-bottom:4px;">' +
+              (cpfMed ? '<span style="font-weight:700;">CPF:</span> ' + cpfMed + '&nbsp;&nbsp;&nbsp;&nbsp;' : '') +
+              '<span style="font-weight:700;">CRM:</span> ' + crmMed +
+            '</div>' +
+            '<div style="font-size:11px;margin-bottom:4px;"><span style="font-weight:700;">Endereço:</span> ' + esc(endLocal) + '</div>' +
+            '<div style="font-size:11px;">' +
+              '<span style="font-weight:700;">Cidade:</span> ' + esc(local.cidade || '') +
+              '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight:700;">UF:</span> ' + esc(local.uf || '') +
+            '</div>' +
+          '</div>' +
+        '</td>' +
+        '<td style="vertical-align:top;width:28%;padding:6px 0 0 14px;font-size:11px;">' +
+          '<div><span style="font-weight:700;">Data de Emissão:</span> ' + dataEmissao + '</div>' +
+          '<div style="margin-top:18px;font-weight:700;line-height:1.8;">' +
+            '1ª VIA FARMÁCIA<br>2ª VIA PACIENTE' +
+          '</div>' +
+        '</td>' +
+      '</tr>' +
+    '</table>';
+  }
+
   // ════════════════════════════════════════════════
   // RECEITA SIMPLES
   // ════════════════════════════════════════════════
@@ -6516,18 +6558,14 @@ function pfGerarPdfDoc(dados, med) {
 
         renderTituloBox('RECEITUÁRIO DE CONTROLE ESPECIAL') +
 
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
-          '<div style="font-size:10px;">N.º <strong>' + esc(String(numEspecial)) + '</strong></div>' +
-          '<span class="via-badge">' + nVia + 'ª VIA ' + (nVia===1?'FARMÁCIA':'PACIENTE') + '</span>' +
-        '</div>' +
+        '<div style="font-size:10px;margin-bottom:4px;">N.º <strong>' + esc(String(numEspecial)) + '</strong></div>' +
+
+        renderEmitenteBox() +
 
         // paciente (topo, como no modelo CFM)
         renderPaciente() +
         '<div style="font-size:11px;padding:0 0 4px;"><span class="lbl">UF:</span> ' + esc(local.uf || '') + '</div>' +
         renderSeparador() +
-
-        // emitente
-        renderCabecalho() +
 
         // medicamentos
         '<table>' + renderItens(11) + '</table>' +
