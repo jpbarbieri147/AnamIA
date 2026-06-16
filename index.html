@@ -984,7 +984,7 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .lta:focus{border-color:var(--verde);background:var(--branco);}
 
 /* ── SYNTHESIS CARDS ── */
-.syn{background:var(--branco);border:1.5px solid #FAC775;border-radius:var(--r);margin-bottom:.85rem;overflow:hidden;box-shadow:var(--sh-sm);}
+.syn{background:var(--branco);border:1.5px solid #FAC775;border-radius:var(--r);margin-bottom:.85rem;overflow:visible;box-shadow:var(--sh-sm);}
 .synh{padding:15px 18px;background:var(--amber-l);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
 .syt{font-family:var(--font-serif);font-weight:500;font-size:16px;color:var(--amber);letter-spacing:-.2px;}
 .sys2{font-size:10px;color:#BA7517;margin-top:1px;}
@@ -3518,6 +3518,8 @@ function renderResult(d, targetContainer){
     '<div class="osler-disclaimer">As respostas não substituem julgamento médico, literatura científica ou consulta com especialista.</div>'
   ].join("");
   c.appendChild(oslerWrap);
+  // Inicializa comportamento de placeholder nos campos da anamnese
+  setTimeout(function(){ anamnesePlaceholderInit(c); }, 50);
 }
 
 function renderRaw(txt){
@@ -4395,6 +4397,8 @@ async function abrirConsulta(id){
         });
         // Listener para mostrar botão de salvar ao editar qualquer campo
         histResCont.addEventListener('input', histMarcaAlterado, { once: false });
+        // Inicializa placeholder nos campos da anamnese do histórico
+        anamnesePlaceholderInit(histResCont);
       }
     }, 300);
 
@@ -7617,6 +7621,43 @@ function prescricaoPreencherDaAnamnese(meds, pacNome){
       el = document.getElementById(base + '_pos');  if(el && med.posologia) el.value = med.posologia;
       el = document.getElementById(base + '_dur');  if(el && med.duracao) el.value = med.duracao;
     });
+  });
+}
+
+
+// ── PLACEHOLDER BEHAVIOR para campos da anamnese ──
+var ANAMNESE_PLACEHOLDERS = [
+  'Não solicitado', 'Aguardando complementação da anamnese e exame físico. (Revisão médica obrigatória.)',
+  'Não gerado', 'Não investigado', 'Não examinado', 'Não informado'
+];
+
+function anamnesePlaceholderInit(container) {
+  if (!container) return;
+  container.querySelectorAll('.lta, .synta, .sdef-input').forEach(function(el) {
+    var orig = el.value !== undefined ? el.value : el.textContent;
+    var isPlaceholder = ANAMNESE_PLACEHOLDERS.some(function(p) {
+      return orig.trim().toLowerCase() === p.toLowerCase();
+    });
+    if (!isPlaceholder) return;
+
+    el.addEventListener('focus', function() {
+      var cur = (this.value !== undefined ? this.value : this.textContent).trim();
+      var isP = ANAMNESE_PLACEHOLDERS.some(function(p){ return cur.toLowerCase() === p.toLowerCase(); });
+      if (isP) {
+        if (this.value !== undefined) this.value = '';
+        else this.textContent = '';
+        this.classList.remove('placeholder-active');
+      }
+    });
+    el.addEventListener('blur', function() {
+      var cur = (this.value !== undefined ? this.value : this.textContent).trim();
+      if (!cur) {
+        if (this.value !== undefined) this.value = orig;
+        else this.textContent = orig;
+        this.classList.add('placeholder-active');
+      }
+    });
+    el.classList.add('placeholder-active');
   });
 }
 
