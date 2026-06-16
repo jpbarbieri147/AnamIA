@@ -162,9 +162,12 @@ export default async function handler(req, res) {
     // ===================== PACIENTES (PASTAS) =====================
 
     if (acao === 'pacientes_list') {
-      const pacUrl = SUPA_URL + '/rest/v1/pacientes'
-        + '?select=id,nome,created_at,updated_at'
-        + '&medico_id=eq.' + encodeURIComponent(uid);
+      const { q } = body;
+      let pacUrl = SUPA_URL + '/rest/v1/pacientes'
+        + '?select=id,nome,cpf,sexo,data_nascimento,telefone,endereco,created_at,updated_at'
+        + '&medico_id=eq.' + encodeURIComponent(uid)
+        + '&order=nome.asc';
+      if (q) pacUrl += '&nome_normalizado=ilike.' + encodeURIComponent('*' + normalizar(q) + '*');
       const pacResp = await fetch(pacUrl, { method: 'GET', headers: H });
       if (!pacResp.ok) return res.status(500).json({ error: 'List pacientes failed: ' + await pacResp.text() });
       const pacientes = await pacResp.json();
@@ -195,42 +198,66 @@ export default async function handler(req, res) {
     }
 
     if (acao === 'pacientes_create') {
-      const nomeLimpo = body.nome ? String(body.nome).trim() : '';
-      if (!nomeLimpo) return res.status(400).json({ error: 'Nome da pasta vazio' });
+      const { nome, cpf, sexo, data_nascimento, telefone, endereco } = body;
+      const nomeLimpo = nome ? String(nome).trim() : '';
+      if (!nomeLimpo) return res.status(400).json({ error: 'Nome obrigatório' });
       const nomeNorm = normalizar(nomeLimpo);
+      const cpfLimpo = cpf ? String(cpf).replace(/\D/g, '') : null;
 
+      // Verifica duplicata por nome normalizado
       const findUrl = SUPA_URL + '/rest/v1/pacientes'
-        + '?select=id&medico_id=eq.' + encodeURIComponent(uid)
+        + '?select=id,nome&medico_id=eq.' + encodeURIComponent(uid)
         + '&nome_normalizado=eq.' + encodeURIComponent(nomeNorm) + '&limit=1';
       const findResp = await fetch(findUrl, { method: 'GET', headers: H });
       if (findResp.ok) {
         const found = await findResp.json();
-        if (found && found.length > 0) return res.status(409).json({ error: 'Ja existe uma pasta com esse nome', id: found[0].id });
+        if (found && found.length > 0) return res.status(409).json({ error: 'Já existe um paciente com esse nome', id: found[0].id, nome: found[0].nome });
       }
+
       const createResp = await fetch(SUPA_URL + '/rest/v1/pacientes', {
         method: 'POST', headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
-        body: JSON.stringify({ medico_id: uid, nome: nomeLimpo, nome_normalizado: nomeNorm })
+        body: JSON.stringify({
+          medico_id: uid,
+          nome: nomeLimpo,
+          nome_normalizado: nomeNorm,
+          cpf: cpfLimpo || null,
+          sexo: sexo || null,
+          data_nascimento: data_nascimento || null,
+          telefone: telefone ? String(telefone).replace(/\D/g,'') : null,
+          endereco: endereco ? String(endereco).trim() : null
+        })
       });
       if (!createResp.ok) return res.status(500).json({ error: 'Create failed: ' + await createResp.text() });
       const created = await createResp.json();
-      return res.status(200).json({ id: created[0] && created[0].id, nome: nomeLimpo });
+      return res.status(200).json(created[0] || {});
     }
 
     if (acao === 'pacientes_update') {
       if (!body.id) return res.status(400).json({ error: 'Missing id' });
-      const nomeLimpo = body.nome ? String(body.nome).trim() : '';
-      if (!nomeLimpo) return res.status(400).json({ error: 'Nome vazio' });
+      const { id, nome, cpf, sexo, data_nascimento, telefone, endereco } = body;
+      const nomeLimpo = nome ? String(nome).trim() : '';
+      if (!nomeLimpo) return res.status(400).json({ error: 'Nome obrigatório' });
+      const cpfLimpo = cpf ? String(cpf).replace(/\D/g, '') : null;
       const updUrl = SUPA_URL + '/rest/v1/pacientes'
-        + '?id=eq.' + encodeURIComponent(body.id)
+        + '?id=eq.' + encodeURIComponent(id)
         + '&medico_id=eq.' + encodeURIComponent(uid);
       const updResp = await fetch(updUrl, {
         method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
-        body: JSON.stringify({ nome: nomeLimpo, nome_normalizado: normalizar(nomeLimpo) })
+        body: JSON.stringify({
+          nome: nomeLimpo,
+          nome_normalizado: normalizar(nomeLimpo),
+          cpf: cpfLimpo || null,
+          sexo: sexo || null,
+          data_nascimento: data_nascimento || null,
+          telefone: telefone ? String(telefone).replace(/\D/g,'') : null,
+          endereco: endereco ? String(endereco).trim() : null,
+          updated_at: new Date().toISOString()
+        })
       });
       if (!updResp.ok) return res.status(500).json({ error: 'Update failed: ' + await updResp.text() });
       const updated = await updResp.json();
-      if (!updated || updated.length === 0) return res.status(404).json({ error: 'Pasta nao encontrada' });
-      return res.status(200).json({ id: body.id, nome: nomeLimpo });
+      if (!updated || updated.length === 0) return res.status(404).json({ error: 'Paciente não encontrado' });
+      return res.status(200).json(updated[0]);
     }
 
     if (acao === 'pacientes_delete') {

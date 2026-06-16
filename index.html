@@ -149,6 +149,14 @@ body{
 .vagenda{display:none;flex-direction:column;width:100%;height:100%;overflow:hidden;}
 .vagenda.show{display:flex;}
 .vprescricao{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
+.vpacientes{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
+.pac-card{background:var(--branco);border:1px solid var(--cinza-l);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:box-shadow .15s;margin-bottom:8px;}
+.pac-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08);}
+.pac-avatar{width:40px;height:40px;border-radius:50%;background:var(--verde-l);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--verde);flex-shrink:0;}
+.pac-info{flex:1;min-width:0;}
+.pac-nome{font-size:13px;font-weight:600;color:var(--preto);}
+.pac-meta{font-size:11px;color:var(--cinza);margin-top:2px;}
+.pac-acoes{display:flex;gap:6px;flex-shrink:0;}
 .vprescricao.show{display:flex;}
 .presc-hdr{padding:2rem 2.5rem 1.25rem;border-bottom:1px solid var(--cinza-l);background:var(--pergaminho);flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;}
 .presc-hdr h1{font-family:var(--font-serif);font-size:26px;font-weight:400;color:var(--preto);letter-spacing:-.3px;margin-bottom:3px;}
@@ -1256,6 +1264,10 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
       <span class="tn-item-ico"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg></span>
       Histórico
     </button>
+    <button class="tn-item" id="sb-pacientes" onclick="showView('pacientes')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><line x1="16" y1="11" x2="22" y2="11"/><line x1="19" y1="8" x2="19" y2="14"/></svg></span>
+      Pacientes
+    </button>
     <button class="tn-item" id="sb-prescricao" onclick="showView('prescricao')">
       <span class="tn-item-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></span>
       Prescrição
@@ -1646,6 +1658,79 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
       <div class="cal-dow">Sáb</div>
     </div>
     <div class="cal-grid" id="calGrid"></div>
+  </div>
+
+  <!-- PACIENTES -->
+  <div class="vpacientes" id="vPacientes">
+    <div class="presc-hdr">
+      <div>
+        <h1>Pacientes</h1>
+        <p>Cadastre e gerencie os pacientes da sua clínica</p>
+      </div>
+      <button class="pbtn" id="pacNovoBtnHdr" style="width:auto;padding:9px 18px;" onclick="pacAbriModal()">
+        <i class="ti ti-user-plus" aria-hidden="true"></i> Novo paciente
+      </button>
+    </div>
+    <div class="presc-body">
+      <div style="margin-bottom:14px;">
+        <input type="text" id="pacSearch" class="pf-inp" placeholder="Buscar por nome..." style="max-width:360px;"
+          oninput="pacBuscar(this.value)">
+      </div>
+      <div id="pacList"></div>
+    </div>
+  </div>
+
+  <!-- MODAL PACIENTE -->
+  <div class="hmodal-ovl" id="pacModalOvl" onclick="if(event.target===this)pacFecharModal()">
+    <div class="hmodal" style="max-width:520px;width:100%;">
+      <div class="hmodal-hdr">
+        <span id="pacModalTitulo">Novo paciente</span>
+        <button class="hmodal-close" onclick="pacFecharModal()">×</button>
+      </div>
+      <div class="hmodal-body" style="display:flex;flex-direction:column;gap:12px;">
+        <input type="hidden" id="pacModalId">
+        <div>
+          <div class="profile-label">Nome completo *</div>
+          <input type="text" class="profile-input" id="pacNome" placeholder="Nome do paciente">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <div class="profile-label">CPF</div>
+            <input type="text" class="profile-input" id="pacCpf" placeholder="000.000.000-00" maxlength="14" oninput="npCpfMask(this)">
+          </div>
+          <div>
+            <div class="profile-label">Data de nascimento</div>
+            <input type="date" class="profile-input" id="pacNasc">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <div class="profile-label">Sexo</div>
+            <select class="profile-input" id="pacSexo">
+              <option value="">Não informado</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Feminino">Feminino</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div>
+            <div class="profile-label">Telefone</div>
+            <input type="text" class="profile-input" id="pacTel" placeholder="(11) 99999-9999" maxlength="15">
+          </div>
+        </div>
+        <div>
+          <div class="profile-label">Endereço completo</div>
+          <input type="text" class="profile-input" id="pacEnd" placeholder="Rua, nº, bairro, cidade - UF">
+        </div>
+        <div id="pacModalMsg" style="font-size:12px;min-height:14px;"></div>
+      </div>
+      <div class="hmodal-ftr">
+        <button class="bts" onclick="pacFecharModal()">Cancelar</button>
+        <button class="pbtn" id="pacSalvarBtn" style="width:auto;padding:9px 20px;" onclick="pacSalvar()">
+          <i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar paciente
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- PRESCRIÇÃO -->
@@ -2066,7 +2151,7 @@ function showView(v){
   // Fecha painel de agendamento ao navegar entre views
   if(typeof adpClose === 'function') adpClose();
   // Atualiza nav items
-  ['dashboard','record','history','customize','osler','profile','agenda','prescricao'].forEach(function(id){
+  ['dashboard','record','history','customize','osler','profile','agenda','prescricao','pacientes'].forEach(function(id){
     var el = document.getElementById('sb-'+id);
     if(el) el.classList.toggle('active', id===v);
   });
@@ -2079,9 +2164,11 @@ function showView(v){
   var vAgenda = document.getElementById('vAgenda');
   var vPrescricao = document.getElementById('vPrescricao');
   var vDashboard = document.getElementById('vDashboard');
+  var vPacientes = document.getElementById('vPacientes');
   if(vAgenda){ vAgenda.style.display='none'; vAgenda.classList.remove('show'); }
   if(vPrescricao){ vPrescricao.style.display='none'; vPrescricao.classList.remove('show'); }
   if(vDashboard){ vDashboard.style.display='none'; vDashboard.classList.remove('show'); }
+  if(vPacientes){ vPacientes.style.display='none'; vPacientes.classList.remove('show'); }
 
   if(v === 'dashboard'){
     if(vDashboard){ vDashboard.style.display='flex'; vDashboard.classList.add('show'); }
@@ -2092,6 +2179,11 @@ function showView(v){
     if(vAgenda){ vAgenda.style.display='flex'; vAgenda.classList.add('show'); }
     // Agenda sempre recarrega pois dados mudam com frequência
     agendaLoad(); agendaLoadPacientes();
+    return;
+  }
+  if(v === 'pacientes'){
+    if(vPacientes){ vPacientes.style.display='flex'; vPacientes.classList.add('show'); }
+    if(!_viewInited['pacientes']){ pacientesLoad(); _viewInited['pacientes']=true; }
     return;
   }
   if(v === 'prescricao'){
@@ -6612,6 +6704,155 @@ function pfGerarPdfDoc(dados, med, numeroEspecial) {
   var win = window.open('', '_blank', 'width=760,height=960');
   if (win) { win.document.write(html); win.document.close(); }
 }
+
+// ══════════════════════════════════════════════
+// MÓDULO PACIENTES
+// ══════════════════════════════════════════════
+var _pacientes = [];
+var _pacEditId = null;
+
+async function pacientesLoad(q){
+  var list = document.getElementById('pacList');
+  if(!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--cinza);font-size:13px;"><i class="ti ti-loader"></i> Carregando...</div>';
+  try {
+    var token = await getToken();
+    var res = await fetch('/api/gerenciar',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'pacientes_list', q: q||'' })
+    });
+    var data = await res.json();
+    _pacientes = data.pacientes || [];
+    pacRenderList(_pacientes);
+  } catch(e){
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--red);font-size:13px;">Erro: '+escapeHTML(e.message)+'</div>';
+  }
+}
+
+var _pacBuscarTimer = null;
+function pacBuscar(q){
+  clearTimeout(_pacBuscarTimer);
+  _pacBuscarTimer = setTimeout(function(){ pacientesLoad(q); }, 350);
+}
+
+function pacRenderList(pacs){
+  var list = document.getElementById('pacList');
+  if(!list) return;
+  if(!pacs.length){
+    list.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--cinza);font-size:13px;">Nenhum paciente cadastrado ainda.<br><br>'+
+      '<button class="pbtn" style="width:auto;padding:9px 18px;" onclick="pacAbriModal()"><i class="ti ti-user-plus"></i> Cadastrar primeiro paciente</button></div>';
+    return;
+  }
+  list.innerHTML = '';
+  pacs.forEach(function(p){
+    var card = document.createElement('div'); card.className='pac-card';
+    var inicial = (p.nome||'?').trim()[0].toUpperCase();
+    var meta = [];
+    if(p.cpf) meta.push('CPF: '+p.cpf);
+    if(p.sexo) meta.push(p.sexo);
+    if(p.data_nascimento){ var d=new Date(p.data_nascimento+'T00:00:00'); meta.push(calcIdadePac(d)+' anos'); }
+    if(p.telefone) meta.push(p.telefone);
+    card.innerHTML =
+      '<div class="pac-avatar">'+inicial+'</div>'+
+      '<div class="pac-info">'+
+        '<div class="pac-nome">'+escapeHTML(p.nome)+'</div>'+
+        (meta.length ? '<div class="pac-meta">'+escapeHTML(meta.join(' · '))+'</div>' : '')+
+        (p.endereco ? '<div class="pac-meta">'+escapeHTML(p.endereco)+'</div>' : '')+
+      '</div>'+
+      '<div class="pac-acoes">'+
+        '<button class="bts" style="font-size:11px;padding:5px 10px;" onclick="pacEditar(\''+p.id+'\')"><i class="ti ti-pencil"></i></button>'+
+        '<button class="bts" style="font-size:11px;padding:5px 10px;color:var(--red);" onclick="pacDeletar(\''+p.id+'\',\''+escapeHTML(p.nome)+'\')"><i class="ti ti-trash"></i></button>'+
+      '</div>';
+    list.appendChild(card);
+  });
+}
+
+function calcIdadePac(nasc){
+  var h=new Date(); var a=h.getFullYear()-nasc.getFullYear();
+  if(h.getMonth()<nasc.getMonth()||(h.getMonth()===nasc.getMonth()&&h.getDate()<nasc.getDate())) a--;
+  return a;
+}
+
+function pacAbriModal(id){
+  _pacEditId = id || null;
+  var titulo = document.getElementById('pacModalTitulo');
+  if(titulo) titulo.textContent = id ? 'Editar paciente' : 'Novo paciente';
+  ['pacNome','pacCpf','pacNasc','pacEnd','pacTel'].forEach(function(f){
+    var el=document.getElementById(f); if(el) el.value='';
+  });
+  var sel=document.getElementById('pacSexo'); if(sel) sel.value='';
+  var msg=document.getElementById('pacModalMsg'); if(msg) msg.textContent='';
+  if(id){
+    var p = _pacientes.find(function(x){ return x.id===id; });
+    if(p){
+      var set=function(fid,val){ var el=document.getElementById(fid); if(el&&val!=null) el.value=val||''; };
+      set('pacNome',p.nome);
+      if(p.cpf){ var el=document.getElementById('pacCpf'); if(el){ el.value=p.cpf; npCpfMask(el); } }
+      set('pacNasc',p.data_nascimento);
+      if(document.getElementById('pacSexo')) document.getElementById('pacSexo').value=p.sexo||'';
+      set('pacTel',p.telefone);
+      set('pacEnd',p.endereco);
+    }
+  }
+  document.getElementById('pacModalOvl').classList.add('open');
+}
+
+function pacFecharModal(){
+  document.getElementById('pacModalOvl').classList.remove('open');
+  _pacEditId = null;
+}
+
+async function pacSalvar(){
+  var msg = document.getElementById('pacModalMsg');
+  var btn = document.getElementById('pacSalvarBtn');
+  var nome = (document.getElementById('pacNome')||{}).value||'';
+  if(!nome.trim()){ if(msg){msg.textContent='Nome obrigatório.';msg.style.color='var(--red)';} return; }
+  if(msg) msg.textContent=''; if(btn) btn.disabled=true;
+  try {
+    var token = await getToken();
+    var payload = {
+      access_token: token,
+      acao: _pacEditId ? 'pacientes_update' : 'pacientes_create',
+      nome: nome.trim(),
+      cpf: ((document.getElementById('pacCpf')||{}).value||'').replace(/\D/g,'')||null,
+      sexo: (document.getElementById('pacSexo')||{}).value||null,
+      data_nascimento: (document.getElementById('pacNasc')||{}).value||null,
+      telefone: ((document.getElementById('pacTel')||{}).value||'').replace(/\D/g,'')||null,
+      endereco: (document.getElementById('pacEnd')||{}).value||null
+    };
+    if(_pacEditId) payload.id = _pacEditId;
+    var res = await fetch('/api/gerenciar',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    var data = await res.json();
+    if(!res.ok){
+      if(msg){msg.textContent=data.error||'Erro ao salvar.';msg.style.color='var(--red)';}
+      return;
+    }
+    pacFecharModal();
+    reloadView('pacientes');
+  } catch(e){
+    if(msg){msg.textContent='Erro: '+e.message;msg.style.color='var(--red)';}
+  } finally {
+    if(btn) btn.disabled=false;
+  }
+}
+
+function pacEditar(id){ pacAbriModal(id); }
+
+async function pacDeletar(id, nome){
+  if(!confirm('Excluir o paciente "'+nome+'"?\nAs consultas vinculadas não serão excluídas.')) return;
+  try {
+    var token = await getToken();
+    await fetch('/api/gerenciar',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'pacientes_delete', id: id })
+    });
+    reloadView('pacientes');
+  } catch(e){ alert('Erro ao excluir: '+e.message); }
+}
+// ── FIM MÓDULO PACIENTES ──
 
 // ── GERENCIAR PACIENTES ──
 async function pfGerenciarPacientes(){
