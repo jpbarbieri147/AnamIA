@@ -2358,7 +2358,23 @@ window.addEventListener('DOMContentLoaded', async function() {
   try {
     var sessionRes = await supa.auth.getSession();
     if(sessionRes.data && sessionRes.data.session && sessionRes.data.session.user){
-      onAuthSuccess(sessionRes.data.session.user);
+      // Verifica se MFA precisa ser completado antes de dar acesso
+      var { data: aalCheck } = await supa.auth.mfa.getAuthenticatorAssuranceLevel();
+      if(aalCheck && aalCheck.nextLevel === 'aal2' && aalCheck.currentLevel !== 'aal2'){
+        // Sessão pré-MFA — exige verificação
+        document.getElementById('authOvl').style.display = 'flex';
+        var factorsCheck = await supa.auth.mfa.listFactors();
+        var totpCheck = factorsCheck.data && factorsCheck.data.totp &&
+          factorsCheck.data.totp.find(function(f){ return f.status === 'verified'; });
+        _mfaFactorId = totpCheck ? totpCheck.id : null;
+        if(_mfaFactorId){
+          document.getElementById('authStepLogin').style.display = 'none';
+          document.getElementById('authStepMfa').style.display = 'block';
+          setTimeout(function(){ var c=document.getElementById('mfaCode'); if(c) c.focus(); }, 100);
+        }
+      } else {
+        onAuthSuccess(sessionRes.data.session.user);
+      }
     }
     supa.auth.onAuthStateChange(function(event, session){
       if(event === 'SIGNED_IN' && session){
