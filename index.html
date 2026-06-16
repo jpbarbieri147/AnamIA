@@ -3820,10 +3820,10 @@ async function executarSave() {
       duracao_segundos: secs || null
     };
 
-    var res = await fetch('/api/save', {
+    var res = await fetch('/api/consultas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: token, payload: payload })
+      body: JSON.stringify({ access_token: token, acao: 'save', payload: payload })
     });
 
     if(!res.ok){
@@ -3899,10 +3899,10 @@ async function salvarAlteracoesConsulta(){
       anamnese: data
     };
 
-    var res = await fetch('/api/save', {
+    var res = await fetch('/api/consultas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: token, payload: payload })
+      body: JSON.stringify({ access_token: token, acao: 'save', payload: payload })
     });
 
     if(!res.ok){
@@ -4037,9 +4037,6 @@ function renderFolders(){
     + '<input type="text" class="hsearch" id="hSearchInput" placeholder="Buscar paciente..." '
     +   'value="' + escapeHTML(histState.search) + '" oninput="onSearchInput(this.value)"/>'
     + '<div class="htools-row">'
-    + '<button class="hnewbtn" onclick="hModalNovaPasta()">'
-    +   '<svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
-    +   'Nova pasta</button>'
     + '<select class="hsort" onchange="onSortChange(this.value)">'
     +   '<option value="recente"' + (histState.sort==='recente'?' selected':'') + '>Mais recente</option>'
     +   '<option value="antigo"' + (histState.sort==='antigo'?' selected':'') + '>Mais antigo</option>'
@@ -5636,7 +5633,13 @@ function cidSearch(input, idx) {
   if(cidLoading) return;
   cidLoading = true;
   var capturedIdx = cidActiveIdx;
-  fetch('/api/cid?q=' + encodeURIComponent(q))
+  getToken().then(function(token){
+    return fetch('/api/gerenciar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: token, acao: 'cid_buscar', q: q })
+    });
+  })
     .then(function(r){ return r.json(); })
     .then(function(data){
       cidLoading = false;
