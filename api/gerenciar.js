@@ -347,6 +347,28 @@ export default async function handler(req, res) {
       return res.status(200).json({ results: [...priority, ...secondary].slice(0, 10) });
     }
 
+    // ── AUDIT_LOG ──
+    if (acao === 'audit_log') {
+      const { log_acao, log_recurso, log_recurso_id, log_detalhes } = body;
+      if (!log_acao || !log_recurso) return res.status(400).json({ error: 'log_acao e log_recurso obrigatórios' });
+
+      const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || null;
+
+      await fetch(SUPA_URL + '/rest/v1/audit_log', {
+        method: 'POST',
+        headers: Object.assign({}, H, { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({
+          medico_id: uid,
+          acao: log_acao,
+          recurso: log_recurso,
+          recurso_id: log_recurso_id || null,
+          detalhes: log_detalhes || null,
+          ip: ip ? String(ip).split(',')[0].trim() : null
+        })
+      });
+      return res.status(200).json({ ok: true });
+    }
+
     return res.status(400).json({ error: 'Acao desconhecida: ' + acao });
   } catch (e) {
     return res.status(500).json({ error: String(e && e.message ? e.message : e) });

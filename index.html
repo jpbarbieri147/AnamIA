@@ -1650,6 +1650,38 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
           <button type="button" class="profile-save-btn" id="enderecoSaveBtn" onclick="event.stopPropagation();profileSave('enderecoSaveBtn')">Salvar endereço</button>
         </div>
       </div>
+      <!-- SEÇÃO SEGURANÇA -->
+      <div class="profile-section">
+        <div class="profile-section-title">Segurança</div>
+        <div class="profile-section-body">
+
+          <!-- 2FA -->
+          <div style="background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:12px;padding:14px 16px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--preto);">Autenticação de dois fatores (2FA)</div>
+                <div style="font-size:11px;color:var(--cinza);margin-top:3px;">Proteja sua conta com um código gerado pelo aplicativo Google Authenticator ou similar.</div>
+              </div>
+              <div id="mfaStatusBadge" style="flex-shrink:0;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--cinza-l);color:var(--cinza);">Verificando...</div>
+            </div>
+            <div id="mfaActions" style="margin-top:12px;display:flex;gap:8px;"></div>
+            <div id="mfaSetupArea" style="margin-top:14px;display:none;"></div>
+          </div>
+
+          <!-- Alterar senha -->
+          <div style="background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:12px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:600;color:var(--preto);margin-bottom:10px;">Alterar senha</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <input type="password" class="profile-input" id="pSenhaAtual" placeholder="Senha atual">
+              <input type="password" class="profile-input" id="pSenhaNova" placeholder="Nova senha (mín. 8 caracteres)">
+              <input type="password" class="profile-input" id="pSenhaConf" placeholder="Confirmar nova senha">
+              <div id="senhaMsg" style="font-size:11px;min-height:14px;"></div>
+              <button type="button" class="profile-save-btn" style="align-self:flex-start;" onclick="alterarSenha()">Alterar senha</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
     <div style="text-align:center;padding-top:4px;">
       <a onclick="obShowAgain()" style="font-size:11px;color:var(--cinza);text-decoration:underline;cursor:pointer;">Ver introdução novamente</a>
@@ -2095,6 +2127,10 @@ function authShowError(msg) {
   el.classList.add('show');
 }
 
+var _mfaFactorId = null; // armazena o factorId durante o fluxo MFA
+
+function mfaCodeFilter(el){ el.value = el.value.replace(/\D/g,'').substring(0,6); }
+
 async function authSubmit() {
   if(!supa){ authShowError('Erro de conexão. Recarregue a página.'); return; }
   var email = document.getElementById('authEmail').value.trim();
@@ -2109,10 +2145,32 @@ async function authSubmit() {
   if(authCurrentMode === 'login') {
     var res = await supa.auth.signInWithPassword({email: email, password: pwd});
     if(res.error){
+      // Verifica se é MFA obrigatório
+      if(res.error.message && res.error.message.includes('MFA') || (res.data && res.data.session === null && res.error.status === 401)) {
+        // Supabase pode retornar NextFactor no erro — tenta verificar via listFactors
+        btn.disabled=false; btn.textContent='Entrar';
+        authShowError(res.error.message); return;
+      }
       var msg = res.error.message === 'Invalid login credentials'
         ? 'E-mail ou senha incorretos.' : res.error.message;
       authShowError(msg); btn.disabled=false; btn.textContent='Entrar'; return;
     }
+
+    // Verifica se MFA é necessário após login
+    var { data: aalData } = await supa.auth.mfa.getAuthenticatorAssuranceLevel();
+    if(aalData && aalData.nextLevel === 'aal2' && aalData.currentLevel !== 'aal2') {
+      // Usuário tem 2FA ativo — exige verificação
+      btn.disabled=false; btn.textContent='Entrar';
+      var factors = await supa.auth.mfa.listFactors();
+      var totp = factors.data && factors.data.totp && factors.data.totp[0];
+      _mfaFactorId = totp ? totp.id : null;
+      // Mostra step de MFA
+      document.getElementById('authStepLogin').style.display = 'none';
+      document.getElementById('authStepMfa').style.display = 'block';
+      setTimeout(function(){ var c=document.getElementById('mfaCode'); if(c) c.focus(); }, 100);
+      return;
+    }
+
     onAuthSuccess(res.data.user);
   } else {
     var nome = document.getElementById('authName').value.trim() || email;
@@ -2128,6 +2186,53 @@ async function authSubmit() {
       authMode('login');
     }
   }
+}
+
+async function mfaSubmit() {
+  var code = (document.getElementById('mfaCode')||{}).value||'';
+  var btn  = document.getElementById('mfaBtn');
+  var err  = document.getElementById('mfaErr');
+  if(code.length !== 6){
+    if(err){ err.textContent='Digite os 6 dígitos.'; err.classList.add('show'); } return;
+  }
+  if(err) err.classList.remove('show');
+  if(btn){ btn.disabled=true; btn.textContent='Verificando...'; }
+
+  try {
+    // Cria challenge
+    var { data: challengeData, error: challengeErr } = await supa.auth.mfa.challenge({ factorId: _mfaFactorId });
+    if(challengeErr) throw challengeErr;
+
+    // Verifica o código
+    var { data: verifyData, error: verifyErr } = await supa.auth.mfa.verify({
+      factorId: _mfaFactorId,
+      challengeId: challengeData.id,
+      code: code
+    });
+    if(verifyErr) throw verifyErr;
+
+    // Sucesso — obtém sessão atualizada
+    var { data: sessionData } = await supa.auth.getSession();
+    _mfaFactorId = null;
+    document.getElementById('authStepMfa').style.display = 'none';
+    document.getElementById('authStepLogin').style.display = 'block';
+    document.getElementById('mfaCode').value = '';
+    onAuthSuccess(sessionData.session.user);
+
+  } catch(e) {
+    if(err){ err.textContent = 'Código inválido ou expirado. Tente novamente.'; err.classList.add('show'); }
+    if(btn){ btn.disabled=false; btn.textContent='Verificar'; }
+  }
+}
+
+function mfaVoltar() {
+  _mfaFactorId = null;
+  document.getElementById('mfaCode').value = '';
+  document.getElementById('mfaErr').classList.remove('show');
+  document.getElementById('authStepMfa').style.display = 'none';
+  document.getElementById('authStepLogin').style.display = 'block';
+  // Faz signOut para limpar a sessão parcial (pré-MFA)
+  if(supa) supa.auth.signOut();
 }
 
 function onAuthSuccess(user) {
@@ -2154,6 +2259,8 @@ function onAuthSuccess(user) {
   showView('dashboard');
   // Inicia monitoramento de inatividade
   inactivityStart();
+  // Registra login na auditoria
+  auditLog('login', 'auth', currentUser.id, { email: currentUser.email });
 }
 
 async function authLogout() {
@@ -2457,6 +2564,8 @@ function showView(v){
   } else if(v === 'profile'){
     // Perfil só carrega na primeira vez
     if(!_viewInited['profile']){ profileLoad(); _viewInited['profile'] = true; }
+    // Status 2FA sempre atualizado ao abrir o perfil
+    mfaLoad();
   } else if(v === 'osler'){
     // Osler só carrega na primeira vez
     if(!_viewInited['osler']){ docLoadList(); _viewInited['osler'] = true; }
@@ -3906,6 +4015,7 @@ async function executarSave() {
     var saved = await res.json();
     currentConsultaId = saved.id;
     console.log('Consulta salva, id:', saved.id);
+    auditLog('consulta_criada', 'consultas', saved.id, null);
     // Atualiza upload zones com o ID da consulta
     anexosInit();
 
@@ -7727,6 +7837,183 @@ function anamnesePlaceholderInit(container) {
   });
 }
 
+// ══════════════════════════════════════════════
+// AUDITORIA
+// ══════════════════════════════════════════════
+async function auditLog(acao, recurso, recurso_id, detalhes) {
+  try {
+    var token = await getToken();
+    if(!token || !currentUser) return;
+    fetch('/api/gerenciar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_token: token,
+        acao: 'audit_log',
+        log_acao: acao,
+        log_recurso: recurso,
+        log_recurso_id: recurso_id || null,
+        log_detalhes: detalhes || null
+      })
+    }).catch(function(e){ console.warn('auditLog falhou:', e); });
+  } catch(e) { console.warn('auditLog exception:', e); }
+}
+
+// ══════════════════════════════════════════════
+// 2FA — TOTP via Supabase MFA
+// ══════════════════════════════════════════════
+async function mfaLoad() {
+  var badge  = document.getElementById('mfaStatusBadge');
+  var actions = document.getElementById('mfaActions');
+  if(!badge || !actions || !supa) return;
+
+  try {
+    var { data, error } = await supa.auth.mfa.listFactors();
+    if(error) throw error;
+
+    var totp = data && data.totp && data.totp.find(function(f){ return f.status === 'verified'; });
+
+    if(totp) {
+      badge.textContent = 'Ativado';
+      badge.style.background = 'var(--verde-l)';
+      badge.style.color = 'var(--verde)';
+      actions.innerHTML =
+        '<button class="bts" style="font-size:12px;color:var(--red);" onclick="mfaDesativar(\'' + totp.id + '\')">' +
+        '<i class="ti ti-shield-off"></i> Desativar 2FA</button>';
+    } else {
+      badge.textContent = 'Desativado';
+      badge.style.background = 'var(--cinza-l)';
+      badge.style.color = 'var(--cinza)';
+      actions.innerHTML =
+        '<button class="pbtn" style="width:auto;padding:8px 16px;font-size:12px;" onclick="mfaIniciarSetup()">' +
+        '<i class="ti ti-shield-check"></i> Ativar 2FA</button>';
+    }
+  } catch(e) {
+    badge.textContent = 'Erro';
+    console.error('mfaLoad:', e);
+  }
+}
+
+async function mfaIniciarSetup() {
+  var area = document.getElementById('mfaSetupArea');
+  if(!area) return;
+  area.style.display = 'block';
+  area.innerHTML = '<div style="font-size:12px;color:var(--cinza);">Gerando QR Code...</div>';
+
+  try {
+    var { data, error } = await supa.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'AnamIA' });
+    if(error) throw error;
+
+    var qrUrl = data.totp.qr_code;
+    var secret = data.totp.secret;
+    var factorId = data.id;
+
+    area.innerHTML =
+      '<div style="font-size:12px;margin-bottom:8px;">Escaneie o QR Code com o <strong>Google Authenticator</strong>, <strong>Authy</strong> ou aplicativo similar:</div>' +
+      '<img src="' + escapeHTML(qrUrl) + '" style="width:160px;height:160px;border:1px solid var(--cinza-l);border-radius:8px;display:block;margin-bottom:8px;">' +
+      '<div style="font-size:11px;color:var(--cinza);margin-bottom:8px;">Ou use o código manual: <strong>' + escapeHTML(secret) + '</strong></div>' +
+      '<div style="font-size:12px;font-weight:600;margin-bottom:6px;">Digite o código gerado pelo aplicativo:</div>' +
+      '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<input type="text" id="mfaVerifyCode" class="profile-input" placeholder="000000" maxlength="6" style="width:120px;letter-spacing:4px;font-size:16px;text-align:center;" oninput="mfaCodeFilter(this)">' +
+        '<button class="pbtn" style="width:auto;padding:8px 14px;font-size:12px;" onclick="mfaVerificar(\'' + factorId + '\')">' +
+          '<i class="ti ti-check"></i> Verificar e ativar</button>' +
+        '<button class="bts" style="font-size:12px;" onclick="mfaCancelarSetup(\'' + factorId + '\')">' +
+          'Cancelar</button>' +
+      '</div>' +
+      '<div id="mfaVerifyMsg" style="font-size:11px;margin-top:6px;min-height:14px;"></div>';
+
+  } catch(e) {
+    area.innerHTML = '<div style="font-size:12px;color:var(--red);">Erro ao gerar QR Code: ' + escapeHTML(e.message) + '</div>';
+  }
+}
+
+async function mfaVerificar(factorId) {
+  var code = (document.getElementById('mfaVerifyCode')||{}).value||'';
+  var msg  = document.getElementById('mfaVerifyMsg');
+  if(code.length !== 6){ if(msg) msg.innerHTML = '<span style="color:var(--red);">Digite os 6 dígitos.</span>'; return; }
+
+  try {
+    var challengeRes = await supa.auth.mfa.challenge({ factorId: factorId });
+    if(challengeRes.error) throw challengeRes.error;
+
+    var verifyRes = await supa.auth.mfa.verify({
+      factorId: factorId,
+      challengeId: challengeRes.data.id,
+      code: code
+    });
+    if(verifyRes.error) throw verifyRes.error;
+
+    auditLog('2fa_ativado', 'auth', null, null);
+    var area = document.getElementById('mfaSetupArea');
+    if(area) area.style.display = 'none';
+    await mfaLoad();
+    alert('2FA ativado com sucesso! Sua conta está protegida.');
+
+  } catch(e) {
+    if(msg) msg.innerHTML = '<span style="color:var(--red);">Código inválido ou expirado. Tente novamente.</span>';
+  }
+}
+
+async function mfaCancelarSetup(factorId) {
+  try {
+    await supa.auth.mfa.unenroll({ factorId: factorId });
+  } catch(e) { console.warn('mfaCancelarSetup:', e); }
+  var area = document.getElementById('mfaSetupArea');
+  if(area){ area.style.display = 'none'; area.innerHTML = ''; }
+}
+
+async function mfaDesativar(factorId) {
+  if(!confirm('Deseja realmente desativar o 2FA? Sua conta ficará menos protegida.')) return;
+  try {
+    var { error } = await supa.auth.mfa.unenroll({ factorId: factorId });
+    if(error) throw error;
+    auditLog('2fa_desativado', 'auth', null, null);
+    await mfaLoad();
+    alert('2FA desativado.');
+  } catch(e) {
+    alert('Erro ao desativar 2FA: ' + e.message);
+  }
+}
+
+// ── ALTERAR SENHA ──
+async function alterarSenha() {
+  var atual  = (document.getElementById('pSenhaAtual')||{}).value||'';
+  var nova   = (document.getElementById('pSenhaNova')||{}).value||'';
+  var conf   = (document.getElementById('pSenhaConf')||{}).value||'';
+  var msg    = document.getElementById('senhaMsg');
+
+  if(!atual || !nova || !conf){
+    if(msg){ msg.textContent='Preencha todos os campos.'; msg.style.color='var(--red)'; } return;
+  }
+  if(nova.length < 8){
+    if(msg){ msg.textContent='A nova senha deve ter ao menos 8 caracteres.'; msg.style.color='var(--red)'; } return;
+  }
+  if(nova !== conf){
+    if(msg){ msg.textContent='As senhas não conferem.'; msg.style.color='var(--red)'; } return;
+  }
+
+  try {
+    // Reautentica com senha atual
+    var { error: signInErr } = await supa.auth.signInWithPassword({
+      email: currentUser.email, password: atual
+    });
+    if(signInErr){ if(msg){ msg.textContent='Senha atual incorreta.'; msg.style.color='var(--red)'; } return; }
+
+    var { error } = await supa.auth.updateUser({ password: nova });
+    if(error) throw error;
+
+    auditLog('senha_alterada', 'auth', null, null);
+    document.getElementById('pSenhaAtual').value = '';
+    document.getElementById('pSenhaNova').value = '';
+    document.getElementById('pSenhaConf').value = '';
+    if(msg){ msg.textContent='Senha alterada com sucesso!'; msg.style.color='var(--verde)'; }
+    setTimeout(function(){ if(msg) msg.textContent=''; }, 4000);
+
+  } catch(e) {
+    if(msg){ msg.textContent='Erro: '+e.message; msg.style.color='var(--red)'; }
+  }
+}
+
 // ── INIT ──
 buildCustomize();
 </script>
@@ -7771,27 +8058,48 @@ buildCustomize();
       </div>
       <span class="logo-wordmark">Anam<em>IA</em></span>
     </div>
-    <div class="auth-title" id="authTitle">Entrar</div>
-    <div class="auth-sub" id="authSub">Acesse sua conta para continuar.</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="authTabLogin" onclick="authMode('login')">Entrar</button>
-      <button class="auth-tab" id="authTabRegister" onclick="authMode('register')">Criar conta</button>
+
+    <!-- Step 1: Login normal -->
+    <div id="authStepLogin">
+      <div class="auth-title" id="authTitle">Entrar</div>
+      <div class="auth-sub" id="authSub">Acesse sua conta para continuar.</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="authTabLogin" onclick="authMode('login')">Entrar</button>
+        <button class="auth-tab" id="authTabRegister" onclick="authMode('register')">Criar conta</button>
+      </div>
+      <div class="auth-err" id="authErr"></div>
+      <div class="auth-field" id="authNameField" style="display:none">
+        <label>Nome completo</label>
+        <input type="text" id="authName" placeholder="Dr. João Pedro Barbieri" autocomplete="name"/>
+      </div>
+      <div class="auth-field">
+        <label>E-mail</label>
+        <input type="email" id="authEmail" placeholder="seu@email.com" autocomplete="email"/>
+      </div>
+      <div class="auth-field">
+        <label>Senha</label>
+        <input type="password" id="authPwd" placeholder="••••••••" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')authSubmit()"/>
+      </div>
+      <button class="auth-btn" id="authBtn" onclick="authSubmit()">Entrar</button>
     </div>
-    <div class="auth-err" id="authErr"></div>
-    <div class="auth-field" id="authNameField" style="display:none">
-      <label>Nome completo</label>
-      <input type="text" id="authName" placeholder="Dr. João Pedro Barbieri" autocomplete="name"/>
+
+    <!-- Step 2: Verificação MFA -->
+    <div id="authStepMfa" style="display:none;">
+      <div class="auth-title">Verificação em duas etapas</div>
+      <div class="auth-sub" style="margin-bottom:20px;">Digite o código de 6 dígitos gerado pelo seu aplicativo autenticador.</div>
+      <div class="auth-err" id="mfaErr"></div>
+      <div class="auth-field">
+        <label>Código de verificação</label>
+        <input type="text" id="mfaCode" placeholder="000000" maxlength="6"
+          style="letter-spacing:6px;font-size:20px;text-align:center;font-weight:600;"
+          oninput="this.value=this.value.replace(/\D/g,'')"
+          onkeydown="if(event.key==='Enter')mfaSubmit()"/>
+      </div>
+      <button class="auth-btn" id="mfaBtn" onclick="mfaSubmit()">Verificar</button>
+      <button style="width:100%;margin-top:8px;background:none;border:none;color:var(--cinza);font-size:12px;cursor:pointer;padding:4px;" onclick="mfaVoltar()">← Voltar ao login</button>
     </div>
-    <div class="auth-field">
-      <label>E-mail</label>
-      <input type="email" id="authEmail" placeholder="seu@email.com" autocomplete="email"/>
-    </div>
-    <div class="auth-field">
-      <label>Senha</label>
-      <input type="password" id="authPwd" placeholder="••••••••" autocomplete="current-password"
-        onkeydown="if(event.key==='Enter')authSubmit()"/>
-    </div>
-    <button class="auth-btn" id="authBtn" onclick="authSubmit()">Entrar</button>
+
   </div>
 </div>
 
