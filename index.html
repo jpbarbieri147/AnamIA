@@ -1232,7 +1232,9 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .auth-btn:disabled{opacity:.6;cursor:not-allowed;}
 /* hdr-user legacy — substituído pelo nav-user */
 </style>
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.30.0/dist/tabler-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.30.0/dist/tabler-icons.min.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.30.0/dist/fonts/tabler-icons.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
 
@@ -5904,9 +5906,6 @@ async function prescLoad(){
           '<button class="bts" onclick="laGerenciar()" style="padding:9px 16px;font-size:12px;">',
             '<i class="ti ti-settings" aria-hidden="true"></i> Gerenciar locais',
           '</button>',
-          '<button class="bts" onclick="pfGerenciarPacientes()" style="padding:9px 16px;font-size:12px;">',
-            '<i class="ti ti-users" aria-hidden="true"></i> Gerenciar pacientes',
-          '</button>',
         '</div>'
       ].join('');
     } else {
@@ -6117,12 +6116,7 @@ function pfRenderPacSearch(area){
   inp.onblur=function(){ setTimeout(function(){ pfPacDrop(false); },200); };
   var drop=document.createElement('div'); drop.className='pf-search-drop'; drop.id='pfPacDrop';
   wrap.appendChild(lbl); wrap.appendChild(inp); wrap.appendChild(drop);
-  var novBtn=document.createElement('div'); novBtn.style.marginTop='.5rem';
-  var nb=document.createElement('button'); nb.className='bts';
-  nb.style.cssText='font-size:12px;padding:6px 10px;';
-  nb.innerHTML='<i class="ti ti-user-plus" aria-hidden="true"></i> Novo paciente';
-  nb.onclick=pfNovoPacModal;
-  novBtn.appendChild(nb); area.appendChild(wrap); area.appendChild(novBtn);
+  area.appendChild(wrap);
 }
 
 var pfPacTimer=null;
