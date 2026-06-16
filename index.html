@@ -152,9 +152,10 @@ body{
 .vpacientes{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
 .vatestados{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
 .vexames{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
-.pac-card{background:var(--branco);border:1px solid var(--cinza-l);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:box-shadow .15s;margin-bottom:8px;}
-.pac-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08);}
-.pac-avatar{width:40px;height:40px;border-radius:50%;background:var(--verde-l);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--verde);flex-shrink:0;}
+.pac-grid{display:flex;flex-wrap:wrap;gap:12px;}
+.pac-card{background:var(--branco);border:1px solid var(--cinza-l);border-radius:16px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:box-shadow .15s,transform .15s;width:120px;text-align:center;box-sizing:border-box;}
+.pac-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.10);transform:translateY(-2px);}
+.pac-avatar{width:56px;height:56px;border-radius:50%;background:var(--verde-l);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--verde);flex-shrink:0;}
 .pac-info{flex:1;min-width:0;}
 .pac-nome{font-size:13px;font-weight:600;color:var(--preto);}
 .pac-meta{font-size:11px;color:var(--cinza);margin-top:2px;}
@@ -921,7 +922,7 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
   background:var(--branco);
   border:1px solid var(--cinza-l);
   border-radius:var(--r);
-  margin-bottom:.85rem;overflow:hidden;
+  margin-bottom:.85rem;overflow:visible;
   box-shadow:var(--sh-sm);
   transition:box-shadow .18s ease, border-color .18s ease;
 }
@@ -930,6 +931,7 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
   padding:15px 18px;
   display:flex;align-items:center;justify-content:space-between;
   cursor:pointer;user-select:none;
+  border-radius:var(--r) var(--r) 0 0;
   transition:background .12s;
 }
 .sch:hover{background:var(--verde-ll);}
@@ -937,7 +939,7 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .sct{font-family:var(--font-serif);font-weight:500;font-size:16px;color:var(--preto);letter-spacing:-.2px;}
 .scc{color:var(--cinza);transition:transform .2s;font-size:14px;}
 .scc.open{transform:rotate(180deg);}
-.scb{padding:16px 18px;border-top:1px solid var(--cinza-l);display:none;}
+.scb{padding:16px 18px;border-top:1px solid var(--cinza-l);display:none;border-radius:0 0 var(--r) var(--r);}
 .scb.open{display:block;}
 .sub{margin-bottom:14px;}
 .subt{
@@ -985,10 +987,10 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 
 /* ── SYNTHESIS CARDS ── */
 .syn{background:var(--branco);border:1.5px solid #FAC775;border-radius:var(--r);margin-bottom:.85rem;overflow:visible;box-shadow:var(--sh-sm);}
-.synh{padding:15px 18px;background:var(--amber-l);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.synh{padding:15px 18px;background:var(--amber-l);border-radius:var(--r) var(--r) 0 0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
 .syt{font-family:var(--font-serif);font-weight:500;font-size:16px;color:var(--amber);letter-spacing:-.2px;}
 .sys2{font-size:10px;color:#BA7517;margin-top:1px;}
-.synb{padding:16px 18px;}
+.synb{padding:16px 18px;border-radius:0 0 var(--r) var(--r);}
 .synb.scb{display:none;border-top:none;}
 .synb.scb.open{display:block;}
 .synta{
@@ -1018,10 +1020,10 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .hloading{text-align:center;padding:2rem 1rem;color:var(--cinza);font-size:13px;}
 /* === DIAGNÓSTICO E CONDUTA DEFINITIVOS (s16) === */
 .sdef{background:var(--branco);border:1.5px solid var(--verde-b);border-radius:var(--r);margin-bottom:.85rem;overflow:visible;box-shadow:var(--sh-sm);}
-.sdefh{padding:15px 18px;background:var(--verde-l);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.sdefh{padding:15px 18px;background:var(--verde-l);border-radius:var(--r) var(--r) 0 0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
 .sdeft{font-family:var(--font-serif);font-size:16px;font-weight:500;color:var(--verde-txt);letter-spacing:-.2px;}
 .sdefs2{font-size:10px;color:var(--cinza);margin-top:1px;}
-.sdefb{padding:16px 18px;display:flex;flex-direction:column;gap:12px;}
+.sdefb{padding:16px 18px;display:flex;flex-direction:column;gap:12px;border-radius:0 0 var(--r) var(--r);}
 .sdefb.scb{display:none;}
 .sdefb.scb.open{display:flex;}
 .sdef-field{display:flex;flex-direction:column;gap:4px;position:relative;}
@@ -1059,6 +1061,13 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
 .hback:hover{text-decoration:underline;}
 .hfolder-ico{flex-shrink:0;width:34px;height:34px;border-radius:8px;background:var(--verde-l);display:flex;align-items:center;justify-content:center;color:var(--verde);}
 .hfolder-ico svg{width:18px;height:18px;}
+.hfolder-grid{display:flex;flex-wrap:wrap;gap:12px;}
+.hfolder-avatar{width:56px;height:56px;border-radius:50%;background:var(--verde-l);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--verde);flex-shrink:0;}
+.hcard-avatar{background:var(--branco);border:1px solid var(--cinza-l);border-radius:16px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:box-shadow .15s,transform .15s;width:120px;text-align:center;box-sizing:border-box;position:relative;}
+.hcard-avatar:hover{box-shadow:0 4px 16px rgba(0,0,0,.10);transform:translateY(-2px);}
+.hcard-avatar-name{font-size:12px;font-weight:600;color:var(--preto);line-height:1.3;word-break:break-word;}
+.hcard-avatar-sub{font-size:10px;color:var(--cinza);margin-top:1px;}
+.hcard-avatar-menu{position:absolute;top:6px;right:6px;}
 .hcard-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
 /* Menu de 3 pontos */
 .hmenu-wrap{position:relative;flex-shrink:0;}
@@ -2143,6 +2152,8 @@ function onAuthSuccess(user) {
   profileInit().then(function(){ obShow(); });
   // Inicia no dashboard
   showView('dashboard');
+  // Inicia monitoramento de inatividade
+  inactivityStart();
 }
 
 async function authLogout() {
@@ -2164,8 +2175,64 @@ async function authLogout() {
   var _ri3 = document.getElementById('recordInputState'); if(_ri3) _ri3.style.display='flex';
   // Reseta flags de init para próximo login
   _viewInited = {};
+  inactivityStop();
   showView('dashboard');
 }
+
+// ── TIMEOUT DE INATIVIDADE ──────────────────────────────────────────
+// Faz logout automático após 30 minutos sem interação do usuário
+var _inactivityTimer = null;
+var INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutos em ms
+var _inactivityWarned = false;
+
+function inactivityReset() {
+  _inactivityWarned = false;
+  clearTimeout(_inactivityTimer);
+  if(!currentUser) return;
+  _inactivityTimer = setTimeout(function(){
+    // Avisa com 2 minutos de antecedência
+    if(!currentUser) return;
+    _inactivityWarned = true;
+    var continuar = confirm(
+      'Sua sessão está prestes a expirar por inatividade.\n\nDeseja continuar conectado?'
+    );
+    if(continuar){
+      inactivityReset();
+    } else {
+      inactivityLogout();
+    }
+  }, INACTIVITY_LIMIT - 2 * 60 * 1000); // avisa aos 28 min
+
+  // Logout definitivo se não responder ao aviso
+  setTimeout(function(){
+    if(_inactivityWarned && currentUser){
+      inactivityLogout();
+    }
+  }, INACTIVITY_LIMIT);
+}
+
+async function inactivityLogout() {
+  _inactivityWarned = false;
+  clearTimeout(_inactivityTimer);
+  alert('Sessão encerrada por inatividade. Faça login novamente.');
+  await authLogout();
+}
+
+function inactivityStop() {
+  clearTimeout(_inactivityTimer);
+  _inactivityTimer = null;
+  _inactivityWarned = false;
+}
+
+function inactivityStart() {
+  // Reinicia o timer a cada interação do usuário
+  var events = ['mousemove','mousedown','keydown','touchstart','scroll','click'];
+  events.forEach(function(ev){
+    document.addEventListener(ev, inactivityReset, { passive: true });
+  });
+  inactivityReset();
+}
+// ── FIM TIMEOUT DE INATIVIDADE ──────────────────────────────────────
 
 window.addEventListener('DOMContentLoaded', async function() {
   if(!initSupa()){
@@ -4078,30 +4145,31 @@ function renderFolders(){
     cards += '<div class="hempty">Nenhuma pasta encontrada para "' + escapeHTML(histState.search) + '".</div>';
   }
 
+  var avatarCards = '';
   for(var i=0; i<lista.length; i++){
     var p = lista[i];
     var nome = escapeHTML(p.nome || 'Paciente');
+    var iniciais = (p.nome||'P').trim().split(' ').filter(Boolean).slice(0,2).map(function(w){ return w[0].toUpperCase(); }).join('');
     var subParts = [];
     subParts.push(p.num_consultas + ' consulta' + (p.num_consultas!==1?'s':''));
-    if(p.ultima_consulta) subParts.push('última ' + fmtData(p.ultima_consulta));
+    if(p.ultima_consulta) subParts.push(fmtData(p.ultima_consulta));
     var sub = subParts.join(' · ');
-    cards += '<div class="hcard">'
-      + '<div class="hcard-left" onclick="abrirPasta(\'' + p.id + '\', \'' + escapeAttr(p.nome) + '\')">'
-      + '<div class="hfolder-ico"><svg viewBox="0 0 24 24" fill="none"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>'
-      + '<div class="hcard-main">'
-      + '<div class="hcard-name">' + nome + '</div>'
-      + '<div class="hcard-sub">' + sub + '</div>'
-      + '</div></div>'
-      + '<div class="hmenu-wrap">'
-      + '<button class="hmenu-btn" onclick="toggleMenu(event, \'pf-' + p.id + '\')"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg></button>'
-      + '<div class="hmenu" id="pf-' + p.id + '">'
-      + '<button class="hmenu-item" onclick="hModalRenomearPasta(\'' + p.id + '\', \'' + escapeAttr(p.nome) + '\')">Renomear pasta</button>'
-      + '<button class="hmenu-item danger" onclick="excluirPasta(\'' + p.id + '\', \'' + escapeAttr(p.nome) + '\', ' + p.num_consultas + ')">Excluir pasta</button>'
-      + '</div></div>'
+    avatarCards += '<div class="hcard-avatar" onclick="abrirPasta(\'' + p.id + '\', \'' + escapeAttr(p.nome) + '\')">'
+      + '<div class="hfolder-avatar" style="position:relative;">' + iniciais
+        + '<div class="hcard-avatar-menu" onclick="event.stopPropagation();">'
+          + '<button class="hmenu-btn" style="width:18px;height:18px;padding:0;font-size:9px;" onclick="toggleMenu(event, \'pf-' + p.id + '\')"><svg viewBox="0 0 24 24" fill="none" width="12" height="12"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg></button>'
+          + '<div class="hmenu" id="pf-' + p.id + '">'
+          + '<button class="hmenu-item" onclick="hModalRenomearPasta(\'' + p.id + '\', \'' + escapeAttr(p.nome) + '\')">Renomear</button>'
+          + '<button class="hmenu-item danger" onclick="excluirPasta(\'' + p.id + '\', \'' + escapeAttr(p.nome) + '\', ' + p.num_consultas + ')">Excluir</button>'
+          + '</div>'
+        + '</div>'
+      + '</div>'
+      + '<div class="hcard-avatar-name">' + nome + '</div>'
+      + '<div class="hcard-avatar-sub">' + sub + '</div>'
       + '</div>';
   }
 
-  box.innerHTML = tools + '<div class="hlist">' + cards + '</div>';
+  box.innerHTML = tools + '<div class="hfolder-grid">' + cards + avatarCards + '</div>';
 }
 
 // ── HISTORICO: dentro de uma pasta ──
@@ -7261,27 +7329,25 @@ function pacRenderList(pacs){
     return;
   }
   list.innerHTML = '';
+  var grid = document.createElement('div'); grid.className='pac-grid';
   pacs.forEach(function(p){
     var card = document.createElement('div'); card.className='pac-card';
-    var inicial = (p.nome||'?').trim()[0].toUpperCase();
+    var iniciais = (p.nome||'?').trim().split(' ').filter(Boolean).slice(0,2).map(function(w){ return w[0].toUpperCase(); }).join('');
     var meta = [];
-    if(p.cpf) meta.push('CPF: '+p.cpf);
     if(p.sexo) meta.push(p.sexo);
     if(p.data_nascimento){ var d=new Date(p.data_nascimento+'T00:00:00'); meta.push(calcIdadePac(d)+' anos'); }
-    if(p.telefone) meta.push(p.telefone);
     card.innerHTML =
-      '<div class="pac-avatar">'+inicial+'</div>'+
-      '<div class="pac-info">'+
-        '<div class="pac-nome">'+escapeHTML(p.nome)+'</div>'+
-        (meta.length ? '<div class="pac-meta">'+escapeHTML(meta.join(' · '))+'</div>' : '')+
-        (p.endereco ? '<div class="pac-meta">'+escapeHTML(p.endereco)+'</div>' : '')+
-      '</div>'+
-      '<div class="pac-acoes">'+
-        '<button class="bts" style="font-size:11px;padding:5px 10px;" onclick="pacEditar(\''+p.id+'\')"><i class="ti ti-pencil"></i></button>'+
-        '<button class="bts" style="font-size:11px;padding:5px 10px;color:var(--red);" onclick="pacDeletar(\''+p.id+'\',\''+escapeHTML(p.nome)+'\')"><i class="ti ti-trash"></i></button>'+
-      '</div>';
-    list.appendChild(card);
+      '<div class="pac-avatar" style="position:relative;">' + iniciais +
+        '<div style="position:absolute;top:-6px;right:-6px;display:flex;gap:2px;">' +
+          '<button class="bts" style="width:20px;height:20px;padding:0;font-size:9px;border-radius:50%;display:flex;align-items:center;justify-content:center;" title="Editar" onclick="event.stopPropagation();pacEditar(\'' + p.id + '\')"><i class="ti ti-pencil"></i></button>' +
+          '<button class="bts" style="width:20px;height:20px;padding:0;font-size:9px;border-radius:50%;color:var(--red);display:flex;align-items:center;justify-content:center;" title="Excluir" onclick="event.stopPropagation();pacDeletar(\'' + p.id + '\',\'' + escapeHTML(p.nome) + '\')"><i class="ti ti-trash"></i></button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pac-nome">' + escapeHTML(p.nome) + '</div>' +
+      (meta.length ? '<div class="pac-meta">' + escapeHTML(meta.join(' · ')) + '</div>' : '');
+    grid.appendChild(card);
   });
+  list.appendChild(grid);
 }
 
 function calcIdadePac(nasc){
