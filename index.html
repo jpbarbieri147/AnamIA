@@ -151,6 +151,7 @@ body{
 .vprescricao{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
 .vpacientes{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
 .vatestados{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
+.vexames{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
 .pac-card{background:var(--branco);border:1px solid var(--cinza-l);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:box-shadow .15s;margin-bottom:8px;}
 .pac-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08);}
 .pac-avatar{width:40px;height:40px;border-radius:50%;background:var(--verde-l);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--verde);flex-shrink:0;}
@@ -1279,6 +1280,10 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
       <span class="tn-item-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg></span>
       Atestados
     </button>
+    <button class="tn-item" id="sb-exames" onclick="showView('exames')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/><circle cx="17" cy="17" r="3"/><path d="M21 21l-1.5-1.5"/></svg></span>
+      Exames
+    </button>
     <button class="tn-item" id="sb-agenda" onclick="showView('agenda')">
       <span class="tn-item-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
       Agenda
@@ -1712,11 +1717,91 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
           </div>
         </div>
 
+        <!-- Dados no documento -->
+        <div class="pf-sec">
+          <div class="pf-sec-hdr"><i class="ti ti-settings"></i> Dados no documento</div>
+          <div class="pf-sec-body" style="display:flex;flex-direction:column;gap:8px;">
+            <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:10px;cursor:pointer;">
+              <input type="checkbox" id="atExibirCpfChk" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+              <div>
+                <div style="font-size:12px;font-weight:500;color:var(--preto);">Exibir meu CPF na receita</div>
+                <div style="font-size:11px;color:var(--cinza);margin-top:2px;">O CPF do médico aparecerá no cabeçalho do documento</div>
+              </div>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:10px;cursor:pointer;">
+              <input type="checkbox" id="atExibirEndChk" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+              <div>
+                <div style="font-size:12px;font-weight:500;color:var(--preto);">Exibir endereço do paciente na receita</div>
+                <div style="font-size:11px;color:var(--cinza);margin-top:2px;">O endereço cadastrado do paciente aparecerá no documento</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <!-- Ações -->
         <div class="pf-actions">
           <div id="atMsg" style="font-size:12px;flex:1;align-self:center;"></div>
           <button class="pbtn" style="width:auto;padding:9px 18px;" onclick="atGerarPdf()">
             <i class="ti ti-file-download" aria-hidden="true"></i> Gerar documento
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- EXAMES -->
+  <div class="vexames" id="vExames">
+    <div class="presc-hdr">
+      <div>
+        <h1>Solicitação de exames</h1>
+        <p>Solicite exames complementares para seus pacientes</p>
+      </div>
+    </div>
+    <div class="presc-body">
+      <div class="pf-wrap" style="max-width:680px;">
+
+        <!-- Paciente -->
+        <div class="pf-sec">
+          <div class="pf-sec-hdr"><i class="ti ti-user"></i> 1. Paciente</div>
+          <div class="pf-sec-body" id="exPacArea"></div>
+        </div>
+
+        <!-- Exames -->
+        <div class="pf-sec">
+          <div class="pf-sec-hdr"><i class="ti ti-pencil"></i> 2. Exames solicitados</div>
+          <div class="pf-sec-body">
+            <textarea class="pf-inp" id="exTexto" rows="6" style="resize:vertical;"
+              placeholder="Ex: Hemograma completo&#10;Glicemia de jejum&#10;TSH e T4 livre&#10;Colesterol total e frações"></textarea>
+          </div>
+        </div>
+
+        <!-- Dados no documento -->
+        <div class="pf-sec">
+          <div class="pf-sec-hdr"><i class="ti ti-settings"></i> Dados no documento</div>
+          <div class="pf-sec-body" style="display:flex;flex-direction:column;gap:8px;">
+            <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:10px;cursor:pointer;">
+              <input type="checkbox" id="exExibirCpfChk" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+              <div>
+                <div style="font-size:12px;font-weight:500;color:var(--preto);">Exibir meu CPF na solicitação</div>
+                <div style="font-size:11px;color:var(--cinza);margin-top:2px;">O CPF do médico aparecerá no cabeçalho do documento</div>
+              </div>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:10px;cursor:pointer;">
+              <input type="checkbox" id="exExibirEndChk" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+              <div>
+                <div style="font-size:12px;font-weight:500;color:var(--preto);">Exibir endereço do paciente</div>
+                <div style="font-size:11px;color:var(--cinza);margin-top:2px;">O endereço cadastrado do paciente aparecerá no documento</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="pf-actions">
+          <div id="exMsg" style="font-size:12px;flex:1;align-self:center;"></div>
+          <button class="pbtn" style="width:auto;padding:9px 18px;" onclick="exGerarPdf()">
+            <i class="ti ti-file-download" aria-hidden="true"></i> Gerar solicitação
           </button>
         </div>
 
@@ -2215,7 +2300,7 @@ function showView(v){
   // Fecha painel de agendamento ao navegar entre views
   if(typeof adpClose === 'function') adpClose();
   // Atualiza nav items
-  ['dashboard','record','history','customize','osler','profile','agenda','prescricao','pacientes','atestados'].forEach(function(id){
+  ['dashboard','record','history','customize','osler','profile','agenda','prescricao','pacientes','atestados','exames'].forEach(function(id){
     var el = document.getElementById('sb-'+id);
     if(el) el.classList.toggle('active', id===v);
   });
@@ -2235,6 +2320,8 @@ function showView(v){
   if(vDashboard){ vDashboard.style.display='none'; vDashboard.classList.remove('show'); }
   if(vPacientes){ vPacientes.style.display='none'; vPacientes.classList.remove('show'); }
   if(vAtestados){ vAtestados.style.display='none'; vAtestados.classList.remove('show'); }
+  var vExames = document.getElementById('vExames');
+  if(vExames){ vExames.style.display='none'; vExames.classList.remove('show'); }
 
   if(v === 'dashboard'){
     if(vDashboard){ vDashboard.style.display='flex'; vDashboard.classList.add('show'); }
@@ -2245,6 +2332,11 @@ function showView(v){
     if(vAgenda){ vAgenda.style.display='flex'; vAgenda.classList.add('show'); }
     // Agenda sempre recarrega pois dados mudam com frequência
     agendaLoad(); agendaLoadPacientes();
+    return;
+  }
+  if(v === 'exames'){
+    if(vExames){ vExames.style.display='flex'; vExames.classList.add('show'); }
+    if(!_viewInited['exames']){ exInit(); _viewInited['exames']=true; }
     return;
   }
   if(v === 'atestados'){
@@ -6810,6 +6902,153 @@ function pfGerarPdfDoc(dados, med, numeroEspecial) {
 }
 
 // ══════════════════════════════════════════════
+// MÓDULO EXAMES
+// ══════════════════════════════════════════════
+var exPaciente = null;
+
+function exInit(){
+  exPaciente = null;
+  var area = document.getElementById('exPacArea');
+  if(area) exRenderPacSearch(area);
+}
+
+function exRenderPacSearch(area){
+  area.innerHTML='';
+  var wrap=document.createElement('div'); wrap.className='pf-search-wrap';
+  var lbl=document.createElement('div'); lbl.className='pf-lbl'; lbl.textContent='Buscar por nome';
+  var inp=document.createElement('input'); inp.className='pf-inp'; inp.id='exPacSearch';
+  inp.placeholder='Digite o nome...'; inp.autocomplete='off';
+  var drop=document.createElement('div'); drop.className='pf-search-drop'; drop.id='exPacDrop';
+  inp.oninput=function(){ exPacBuscar(this.value); };
+  inp.onblur=function(){ setTimeout(function(){ exPacDropShow(false); },200); };
+  wrap.appendChild(lbl); wrap.appendChild(inp); wrap.appendChild(drop);
+  area.appendChild(wrap);
+}
+
+var _exPacTimer=null;
+function exPacBuscar(q){
+  clearTimeout(_exPacTimer);
+  if(q.length < 2){ exPacDropShow(false); return; }
+  _exPacTimer=setTimeout(async function(){
+    try{
+      var token=await getToken();
+      var res=await fetch('/api/gerenciar',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({access_token:token,acao:'pacientes_list',q:q})
+      });
+      var data=await res.json();
+      var pacs=data.pacientes||[];
+      var drop=document.getElementById('exPacDrop');
+      if(!drop) return;
+      if(!pacs.length){ drop.innerHTML='<div style="padding:8px 12px;font-size:12px;color:var(--cinza);">Nenhum paciente encontrado</div>'; exPacDropShow(true); return; }
+      drop.innerHTML='';
+      pacs.forEach(function(p){
+        var it=document.createElement('div'); it.className='pf-drop-item';
+        it.textContent=p.nome;
+        it.onmousedown=function(){ exSelecionarPac(p); };
+        drop.appendChild(it);
+      });
+      exPacDropShow(true);
+    }catch(e){ console.error('exPacBuscar',e); }
+  },300);
+}
+
+function exPacDropShow(v){
+  var drop=document.getElementById('exPacDrop');
+  if(drop) drop.style.display=v?'block':'none';
+}
+
+function exSelecionarPac(p){
+  exPaciente=p;
+  exPacDropShow(false);
+  var area=document.getElementById('exPacArea');
+  if(!area) return;
+  area.innerHTML='';
+  var card=document.createElement('div'); card.className='pf-pac-card';
+  card.innerHTML='<i class="ti ti-user-circle" style="font-size:18px;color:var(--verde);"></i>'+
+    '<div><div class="ppc-nome">'+escapeHTML(p.nome)+'</div>'+
+    (p.cpf?'<div class="ppc-info">CPF: '+escapeHTML(p.cpf)+'</div>':'')+
+    '</div>'+
+    '<button class="bts" style="margin-left:auto;font-size:11px;padding:4px 10px;" onclick="exInit()">Trocar</button>';
+  area.appendChild(card);
+}
+
+async function exGerarPdf(){
+  var msg=document.getElementById('exMsg');
+  if(!exPaciente){ if(msg){msg.textContent='Selecione um paciente.';msg.style.color='var(--red)';} return; }
+  var texto=(document.getElementById('exTexto')||{}).value||'';
+  if(!texto.trim()){ if(msg){msg.textContent='Preencha os exames solicitados.';msg.style.color='var(--red)';} return; }
+  if(msg) msg.textContent='';
+
+  if(!currentProfile||!currentProfile.nome) await profileInit();
+  var med=currentProfile||{};
+  var pac=exPaciente;
+  var local={}; try{ var arr=await prescApi({acao:'local_list'}); if(arr&&arr[0]) local=arr[0]; }catch(e){}
+
+  function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  var dataEmissao=new Date().toLocaleDateString('pt-BR');
+  var nomeMed=esc(med.nome||'');
+  var crmMed=esc((med.crm||'')+(med.uf_crm?' - '+med.uf_crm:''));
+  var cpfMed=(document.getElementById('exExibirCpfChk')&&document.getElementById('exExibirCpfChk').checked&&med.cpf)?esc(med.cpf):'';
+  var endLocal=[local.logradouro,local.numero,local.bairro,(local.cidade||'')+(local.uf?' - '+local.uf:'')].filter(Boolean).join(', ');
+  var nomePac=esc(pac.nome||'');
+  var cpfPac=pac.cpf?esc(pac.cpf):'';
+  var sexoPac=esc(pac.sexo||'');
+  function idadeStr(nasc){ if(!nasc) return ''; var d=new Date(nasc+'T00:00:00'),h=new Date(),a=h.getFullYear()-d.getFullYear(); if(h.getMonth()<d.getMonth()||(h.getMonth()===d.getMonth()&&h.getDate()<d.getDate())) a--; return a+' anos'; }
+  var idadePac=idadeStr(pac.data_nascimento);
+  var endPac=(document.getElementById('exExibirEndChk')&&document.getElementById('exExibirEndChk').checked&&pac.endereco)?esc(pac.endereco):'';
+
+  var baseStyle=[
+    'body{font-family:Arial,Helvetica,sans-serif;font-size:12px;margin:0;color:#000;background:#fff;}',
+    'table{width:100%;border-collapse:collapse;}',
+    '.lbl{font-weight:700;}',
+    '.sig{border-top:1px solid #000;text-align:center;font-size:10px;padding-top:3px;width:200px;display:inline-block;}',
+    '@media print{.no-print{display:none;}@page{margin:14mm 12mm;}}',
+    '.no-print{text-align:center;margin-top:18px;}'
+  ].join('');
+
+  var actionBtns='<div class="no-print"><button onclick="window.print()" style="padding:8px 22px;background:#2d5a27;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-right:8px;">🖨️ Imprimir / Salvar PDF</button>'+
+    '<button onclick="window.close()" style="padding:8px 16px;border:1px solid #bbb;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;">Fechar</button></div>';
+
+  var cabecalho='<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">'+
+    '<tr><td style="font-size:11px;font-weight:700;padding:3px 0;vertical-align:top;">'+esc(local.nome||'')+'</td>'+
+    '<td style="font-size:11px;text-align:right;vertical-align:top;white-space:nowrap;"><span style="font-weight:700;">Data de emissão:</span>&nbsp;&nbsp;'+dataEmissao+'</td></tr>'+
+    '<tr><td style="font-size:11px;padding:3px 0;vertical-align:top;"><span style="font-weight:700;">Endereço:</span>&nbsp;&nbsp;'+esc(endLocal)+'</td><td></td></tr>'+
+    '<tr><td style="font-size:13px;font-weight:700;padding:6px 0 0;vertical-align:top;">Dr(a). '+nomeMed+'</td>'+
+    '<td style="font-size:11px;text-align:right;vertical-align:top;white-space:nowrap;padding:6px 0 0;"><span style="font-weight:700;">CRM:</span>&nbsp;&nbsp;'+crmMed+'</td></tr>'+
+    (cpfMed?'<tr><td></td><td style="font-size:11px;text-align:right;white-space:nowrap;padding:2px 0 0;"><span style="font-weight:700;">CPF:</span>&nbsp;&nbsp;'+cpfMed+'</td></tr>':'')+
+    '</table>';
+
+  var sep='<hr style="border:none;border-top:1px solid #000;margin:6px 0 8px;">';
+
+  var pacPartes=[];
+  if(nomePac) pacPartes.push('<span class="lbl">Paciente:</span> '+nomePac);
+  if(cpfPac) pacPartes.push('<span class="lbl">CPF:</span> '+cpfPac);
+  if(sexoPac) pacPartes.push('<span class="lbl">Sexo:</span> '+sexoPac);
+  if(idadePac) pacPartes.push('<span class="lbl">Idade:</span> '+idadePac);
+  var pacHtml='<div style="font-size:11px;padding:4px 0;">'+pacPartes.join('&nbsp;&nbsp;&nbsp;&nbsp;')+
+    (endPac?'<div style="margin-top:2px;"><span class="lbl">Endereço:</span> '+endPac+'</div>':'')+
+    '</div>';
+
+  // Formata texto — cada linha vira um item
+  var linhas=texto.split('\n').filter(function(l){ return l.trim(); });
+  var textoHtml=linhas.map(function(l){ return '<div style="padding:3px 0;">'+esc(l.trim())+'</div>'; }).join('');
+
+  var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Solicitação de Exame</title>'+
+    '<style>'+baseStyle+'</style></head>'+
+    '<body style="padding:20px 28px;display:flex;flex-direction:column;min-height:257mm;box-sizing:border-box;">'+
+    '<div style="border:1px solid #000;text-align:center;font-weight:700;font-size:14px;padding:6px 0;margin-bottom:10px;">SOLICITAÇÃO DE EXAME</div>'+
+    cabecalho+sep+pacHtml+sep+
+    '<div style="font-size:12px;line-height:1.8;margin-top:10px;flex:1;">'+textoHtml+'</div>'+
+    '<div style="margin-top:auto;padding-top:40px;text-align:right;"><span class="sig">Assinatura e Carimbo do Médico</span></div>'+
+    actionBtns+'</body></html>';
+
+  var win=window.open('','_blank','width=760,height=960');
+  if(win){ win.document.write(html); win.document.close(); }
+}
+// ── FIM MÓDULO EXAMES ──
+
+// ══════════════════════════════════════════════
 // MÓDULO ATESTADOS
 // ══════════════════════════════════════════════
 var atTipo = 'atestado';
@@ -6914,8 +7153,9 @@ async function atGerarPdf(){
   var dataEmissao=new Date().toLocaleDateString('pt-BR');
   var nomeMed=esc(med.nome||'');
   var crmMed=esc((med.crm||'')+(med.uf_crm?' - '+med.uf_crm:''));
-  var cpfMed=(pfExibirCpf&&med.cpf)?esc(med.cpf):'';
+  var cpfMed=(document.getElementById('atExibirCpfChk')&&document.getElementById('atExibirCpfChk').checked&&med.cpf)?esc(med.cpf):'';
   var endLocal=[local.logradouro,local.numero,local.bairro,(local.cidade||'')+(local.uf?' - '+local.uf:'')].filter(Boolean).join(', ');
+  var endPac=(document.getElementById('atExibirEndChk')&&document.getElementById('atExibirEndChk').checked&&pac.endereco)?esc(pac.endereco):'';
   var nomePac=esc(pac.nome||'');
   var cpfPac=pac.cpf?esc(pac.cpf):'';
   var sexoPac=esc(pac.sexo||'');
@@ -6953,7 +7193,9 @@ async function atGerarPdf(){
   if(cpfPac) pacPartes.push('<span class="lbl">CPF:</span> '+cpfPac);
   if(sexoPac) pacPartes.push('<span class="lbl">Sexo:</span> '+sexoPac);
   if(idadePac) pacPartes.push('<span class="lbl">Idade:</span> '+idadePac);
-  var pacHtml='<div style="font-size:11px;padding:4px 0;">'+pacPartes.join('&nbsp;&nbsp;&nbsp;&nbsp;')+'</div>';
+  var pacHtml='<div style="font-size:11px;padding:4px 0;">'+pacPartes.join('&nbsp;&nbsp;&nbsp;&nbsp;')+
+    (endPac?'<div style="margin-top:2px;"><span class="lbl">Endereço:</span> '+endPac+'</div>':'')+
+    '</div>';
 
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+titulo+'</title>'+
     '<style>'+baseStyle+'</style></head>'+
