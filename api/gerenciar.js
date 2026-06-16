@@ -191,7 +191,9 @@ export default async function handler(req, res) {
       }
       const out = pacientes.map(function(p){
         const a = agg[p.id] || { count: 0, ultima: null };
-        return { id: p.id, nome: p.nome, created_at: p.created_at, updated_at: p.updated_at,
+        return { id: p.id, nome: p.nome, cpf: p.cpf, sexo: p.sexo,
+                 data_nascimento: p.data_nascimento, telefone: p.telefone,
+                 endereco: p.endereco, created_at: p.created_at, updated_at: p.updated_at,
                  num_consultas: a.count, ultima_consulta: a.ultima };
       });
       return res.status(200).json({ pacientes: out, sem_pasta: semPasta });
