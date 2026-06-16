@@ -2146,8 +2146,10 @@ async function authSubmit() {
 
   if(authCurrentMode === 'login') {
     var res = await supa.auth.signInWithPassword({email: email, password: pwd});
+    console.log('[MFA DEBUG] signInWithPassword result:', JSON.stringify({ error: res.error, hasSession: !!res.data?.session }));
 
     if(res.error){
+      console.log('[MFA DEBUG] error.code:', res.error.code, 'error.status:', res.error.status);
       // MFA obrigatório — o Supabase retorna este código específico
       if(res.error.code === 'mfa_challenge_required' || (res.error.message && res.error.message.toLowerCase().includes('mfa'))) {
         btn.disabled=false; btn.textContent='Entrar';
@@ -2170,9 +2172,11 @@ async function authSubmit() {
 
     // Sem erro — verifica se MFA ainda é necessário (caso o Supabase não retorne erro)
     var { data: aalData } = await supa.auth.mfa.getAuthenticatorAssuranceLevel();
+    console.log('[MFA DEBUG] AAL data:', JSON.stringify(aalData));
     if(aalData && aalData.nextLevel === 'aal2' && aalData.currentLevel !== 'aal2') {
       btn.disabled=false; btn.textContent='Entrar';
       var factors2 = await supa.auth.mfa.listFactors();
+      console.log('[MFA DEBUG] factors:', JSON.stringify(factors2.data));
       var totp2 = factors2.data && factors2.data.totp && factors2.data.totp.find(function(f){ return f.status === 'verified'; });
       _mfaFactorId = totp2 ? totp2.id : null;
       document.getElementById('authStepLogin').style.display = 'none';
