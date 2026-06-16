@@ -6009,7 +6009,8 @@ function prescFormAbrir(local){
   var tipos=document.createElement('div'); tipos.className='pf-tipos'; tipos.id='pfTipos';
   [['simples','ti-clipboard-text','Receita Simples','Medicamentos comuns'],
    ['antimicrobiano','ti-pill','Antimicrobiano','2 vias obrigatórias'],
-   ['especial_b','ti-license','Controle Especial','Receituário tipo B']
+   ['especial_b','ti-license','Controle Especial','Receituário tipo B'],
+   ['atestado','ti-file-certificate','Atestado Médico','Afastamento e declarações']
   ].forEach(function(t){
     var btn=document.createElement('button'); btn.className='pf-tipo-btn';
     btn.innerHTML='<i class="ti '+t[1]+' ptb-ico" aria-hidden="true"></i>'+
@@ -6026,6 +6027,7 @@ function prescFormAbrir(local){
 
   // Seção 3 — Medicamentos
   var s3=pfMkSec('ti-pill','3. Medicamentos');
+  s3.sec.id='pfSecMeds';
   var medList=document.createElement('div'); medList.id='pfMedList';
   var addBtn=document.createElement('button'); addBtn.className='bts';
   addBtn.style.cssText='font-size:12px;padding:6px 12px;margin-top:.25rem;';
@@ -6103,6 +6105,16 @@ function pfSetTipo(tipo, btn){
   pfTipo=tipo;
   document.querySelectorAll('.pf-tipo-btn').forEach(function(b){ b.classList.remove('active'); });
   if(btn) btn.classList.add('active');
+  // Oculta seção de medicamentos para atestado; mostra para os demais
+  var s3el = document.getElementById('pfSecMeds');
+  if(s3el) s3el.style.display = (tipo === 'atestado') ? 'none' : '';
+  // Ajusta placeholder e label da observação
+  var obsEl = document.getElementById('pfObs');
+  if(obsEl){
+    obsEl.placeholder = (tipo === 'atestado')
+      ? 'Ex: O paciente está incapacitado de realizar suas atividades laborais por ___ dias.'
+      : 'Orientações gerais, posologia adicional...';
+  }
 }
 
 // ── BUSCA PACIENTE ──
@@ -6298,8 +6310,12 @@ function pfColetarDados(){
 function pfValidar(dados){
   if(!dados.tipo) return 'Selecione o tipo de receita.';
   if(!dados.paciente) return 'Selecione um paciente.';
-  if(!dados.itens.length) return 'Adicione ao menos um medicamento.';
-  if(dados.itens.find(function(m){ return !m.posologia; })) return 'Preencha a posologia de todos os medicamentos.';
+  if(dados.tipo !== 'atestado'){
+    if(!dados.itens.length) return 'Adicione ao menos um medicamento.';
+    if(dados.itens.find(function(m){ return !m.posologia; })) return 'Preencha a posologia de todos os medicamentos.';
+  } else {
+    if(!dados.observacoes || !dados.observacoes.trim()) return 'Preencha o texto do atestado.';
+  }
   return null;
 }
 
@@ -6692,6 +6708,32 @@ function pfGerarPdfDoc(dados, med, numeroEspecial) {
     html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Receituário de Controle Especial</title>' +
       '<style>' + baseStyle + '</style></head><body>' +
       viaEspecial(1) + viaEspecial(2) +
+      actionBtns + '</body></html>';
+  }
+
+  // ════════════════════════════════════════════════
+  // ATESTADO MÉDICO
+  // ════════════════════════════════════════════════
+  else if (tipo === 'atestado') {
+    html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Atestado Médico</title>' +
+      '<style>' + baseStyle + '</style></head><body style="padding:20px 28px;display:flex;flex-direction:column;min-height:257mm;box-sizing:border-box;">' +
+
+      renderTituloBox('ATESTADO MÉDICO') +
+      renderCabecalhoSimples() +
+      renderSeparador() +
+      renderPaciente() +
+      renderSeparador() +
+
+      // Texto do atestado
+      '<div style="font-size:12px;line-height:1.8;margin-top:10px;flex:1;">' +
+        esc(dados.observacoes || '') +
+      '</div>' +
+
+      // Assinatura no rodapé
+      '<div style="margin-top:auto;padding-top:40px;text-align:right;">' +
+        '<span class="sig">Assinatura e Carimbo do Médico</span>' +
+      '</div>' +
+
       actionBtns + '</body></html>';
   }
 
