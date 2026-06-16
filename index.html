@@ -1650,36 +1650,38 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
           <button type="button" class="profile-save-btn" id="enderecoSaveBtn" onclick="event.stopPropagation();profileSave('enderecoSaveBtn')">Salvar endereço</button>
         </div>
       </div>
-      <!-- SEÇÃO SEGURANÇA -->
-      <div class="profile-section">
-        <div class="profile-section-title">Segurança</div>
-        <div class="profile-section-body">
+      <!-- Card: Segurança -->
+      <div class="vc" style="grid-column:1/-1;">
+        <div class="vc-hdr"><span class="vc-hdr-title">Segurança</span></div>
+        <div class="vc-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
 
-          <!-- 2FA -->
-          <div style="background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:12px;padding:14px 16px;margin-bottom:12px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-              <div>
-                <div style="font-size:13px;font-weight:600;color:var(--preto);">Autenticação de dois fatores (2FA)</div>
-                <div style="font-size:11px;color:var(--cinza);margin-top:3px;">Proteja sua conta com um código gerado pelo aplicativo Google Authenticator ou similar.</div>
+            <!-- 2FA -->
+            <div style="background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:12px;padding:14px 16px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--preto);">Autenticação de dois fatores (2FA)</div>
+                  <div style="font-size:11px;color:var(--cinza);margin-top:3px;">Proteja sua conta com um código gerado pelo aplicativo Google Authenticator ou similar.</div>
+                </div>
+                <div id="mfaStatusBadge" style="flex-shrink:0;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--cinza-l);color:var(--cinza);">Verificando...</div>
               </div>
-              <div id="mfaStatusBadge" style="flex-shrink:0;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--cinza-l);color:var(--cinza);">Verificando...</div>
+              <div id="mfaActions" style="margin-top:12px;display:flex;gap:8px;"></div>
+              <div id="mfaSetupArea" style="margin-top:14px;display:none;"></div>
             </div>
-            <div id="mfaActions" style="margin-top:12px;display:flex;gap:8px;"></div>
-            <div id="mfaSetupArea" style="margin-top:14px;display:none;"></div>
-          </div>
 
-          <!-- Alterar senha -->
-          <div style="background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:12px;padding:14px 16px;">
-            <div style="font-size:13px;font-weight:600;color:var(--preto);margin-bottom:10px;">Alterar senha</div>
-            <div style="display:flex;flex-direction:column;gap:8px;">
-              <input type="password" class="profile-input" id="pSenhaAtual" placeholder="Senha atual">
-              <input type="password" class="profile-input" id="pSenhaNova" placeholder="Nova senha (mín. 8 caracteres)">
-              <input type="password" class="profile-input" id="pSenhaConf" placeholder="Confirmar nova senha">
-              <div id="senhaMsg" style="font-size:11px;min-height:14px;"></div>
-              <button type="button" class="profile-save-btn" style="align-self:flex-start;" onclick="alterarSenha()">Alterar senha</button>
+            <!-- Alterar senha -->
+            <div style="background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:12px;padding:14px 16px;">
+              <div style="font-size:13px;font-weight:600;color:var(--preto);margin-bottom:10px;">Alterar senha</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <input type="password" class="profile-input" id="pSenhaAtual" placeholder="Senha atual">
+                <input type="password" class="profile-input" id="pSenhaNova" placeholder="Nova senha (mín. 8 caracteres)">
+                <input type="password" class="profile-input" id="pSenhaConf" placeholder="Confirmar nova senha">
+                <div id="senhaMsg" style="font-size:11px;min-height:14px;"></div>
+                <button type="button" class="profile-save-btn" onclick="alterarSenha()">Alterar senha</button>
+              </div>
             </div>
-          </div>
 
+          </div>
         </div>
       </div>
     </div>
@@ -2144,27 +2146,35 @@ async function authSubmit() {
 
   if(authCurrentMode === 'login') {
     var res = await supa.auth.signInWithPassword({email: email, password: pwd});
+
     if(res.error){
-      // Verifica se é MFA obrigatório
-      if(res.error.message && res.error.message.includes('MFA') || (res.data && res.data.session === null && res.error.status === 401)) {
-        // Supabase pode retornar NextFactor no erro — tenta verificar via listFactors
+      // MFA obrigatório — o Supabase retorna este código específico
+      if(res.error.code === 'mfa_challenge_required' || (res.error.message && res.error.message.toLowerCase().includes('mfa'))) {
         btn.disabled=false; btn.textContent='Entrar';
-        authShowError(res.error.message); return;
+        // Busca o factorId e mostra o step de verificação
+        var factors = await supa.auth.mfa.listFactors();
+        var totp = factors.data && factors.data.totp && factors.data.totp.find(function(f){ return f.status === 'verified'; });
+        _mfaFactorId = totp ? totp.id : null;
+        if(!_mfaFactorId){
+          authShowError('2FA ativo mas nenhum fator encontrado. Contate o suporte.'); return;
+        }
+        document.getElementById('authStepLogin').style.display = 'none';
+        document.getElementById('authStepMfa').style.display = 'block';
+        setTimeout(function(){ var c=document.getElementById('mfaCode'); if(c) c.focus(); }, 100);
+        return;
       }
       var msg = res.error.message === 'Invalid login credentials'
         ? 'E-mail ou senha incorretos.' : res.error.message;
       authShowError(msg); btn.disabled=false; btn.textContent='Entrar'; return;
     }
 
-    // Verifica se MFA é necessário após login
+    // Sem erro — verifica se MFA ainda é necessário (caso o Supabase não retorne erro)
     var { data: aalData } = await supa.auth.mfa.getAuthenticatorAssuranceLevel();
     if(aalData && aalData.nextLevel === 'aal2' && aalData.currentLevel !== 'aal2') {
-      // Usuário tem 2FA ativo — exige verificação
       btn.disabled=false; btn.textContent='Entrar';
-      var factors = await supa.auth.mfa.listFactors();
-      var totp = factors.data && factors.data.totp && factors.data.totp[0];
-      _mfaFactorId = totp ? totp.id : null;
-      // Mostra step de MFA
+      var factors2 = await supa.auth.mfa.listFactors();
+      var totp2 = factors2.data && factors2.data.totp && factors2.data.totp.find(function(f){ return f.status === 'verified'; });
+      _mfaFactorId = totp2 ? totp2.id : null;
       document.getElementById('authStepLogin').style.display = 'none';
       document.getElementById('authStepMfa').style.display = 'block';
       setTimeout(function(){ var c=document.getElementById('mfaCode'); if(c) c.focus(); }, 100);
