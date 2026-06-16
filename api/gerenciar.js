@@ -223,7 +223,7 @@ export default async function handler(req, res) {
           cpf: cpfLimpo || null,
           sexo: sexo || null,
           data_nascimento: data_nascimento || null,
-          telefone: telefone ? String(telefone).replace(/\D/g,'') : null,
+          telefone: telefone ? String(telefone).trim() : null,
           endereco: endereco ? String(endereco).trim() : null
         })
       });
@@ -249,7 +249,7 @@ export default async function handler(req, res) {
           cpf: cpfLimpo || null,
           sexo: sexo || null,
           data_nascimento: data_nascimento || null,
-          telefone: telefone ? String(telefone).replace(/\D/g,'') : null,
+          telefone: telefone ? String(telefone).trim() : null,
           endereco: endereco ? String(endereco).trim() : null,
           updated_at: new Date().toISOString()
         })

@@ -1715,7 +1715,7 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
           </div>
           <div>
             <div class="profile-label">Telefone</div>
-            <input type="text" class="profile-input" id="pacTel" placeholder="(11) 99999-9999" maxlength="15">
+            <input type="text" class="profile-input" id="pacTel" placeholder="(11) 99999-9999" maxlength="15" oninput="pacTelMask(this)">
           </div>
         </div>
         <div>
@@ -6790,7 +6790,7 @@ function pacAbriModal(id){
       if(p.cpf){ var el=document.getElementById('pacCpf'); if(el){ el.value=p.cpf; npCpfMask(el); } }
       set('pacNasc',p.data_nascimento);
       if(document.getElementById('pacSexo')) document.getElementById('pacSexo').value=p.sexo||'';
-      set('pacTel',p.telefone);
+      if(p.telefone){ var tel=document.getElementById('pacTel'); if(tel){ tel.value=p.telefone; pacTelMask(tel); } }
       set('pacEnd',p.endereco);
     }
   }
@@ -6977,6 +6977,15 @@ function npCpfMask(input){
   if(v.length>9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/,'$1.$2.$3-$4');
   else if(v.length>6) v=v.replace(/(\d{3})(\d{3})(\d{1,3})/,'$1.$2.$3');
   else if(v.length>3) v=v.replace(/(\d{3})(\d{1,3})/,'$1.$2');
+  input.value=v;
+}
+
+function pacTelMask(input){
+  var v=input.value.replace(/\D/g,'').substring(0,11);
+  if(v.length>10) v=v.replace(/(\d{2})(\d{5})(\d{4})/,'($1) $2-$3');
+  else if(v.length>6) v=v.replace(/(\d{2})(\d{4,5})(\d{0,4})/,'($1) $2-$3');
+  else if(v.length>2) v=v.replace(/(\d{2})(\d+)/,'($1) $2');
+  else if(v.length>0) v=v.replace(/(\d+)/,'($1');
   input.value=v;
 }
 
