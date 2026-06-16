@@ -5605,8 +5605,6 @@ function laOpen(id){
   ['laNome','laCnes','laCep','laRua','laNumero','laComplemento','laUf','laBairro','laCidade','laTelefone','laEmail'].forEach(function(f){
     var el=document.getElementById(f); if(el) el.value='';
   });
-  document.getElementById('laExibirCpf').checked = true;
-  document.getElementById('laExibirEndereco').checked = false;
   document.getElementById('laMsg').textContent = '';
   var preview = document.getElementById('laLogoPreview');
   if(preview) preview.innerHTML = '<i class="ti ti-building-hospital" style="font-size:24px;color:var(--cinza);" aria-hidden="true"></i>';
@@ -5635,8 +5633,7 @@ async function laLoadDados(id){
     set('laRua',d.logradouro); set('laNumero',d.numero); set('laComplemento',d.complemento);
     set('laUf',d.uf); set('laBairro',d.bairro); set('laCidade',d.cidade);
     set('laTelefone',d.telefone); set('laEmail',d.email);
-    document.getElementById('laExibirCpf').checked = d.exibir_cpf_medico !== false;
-    document.getElementById('laExibirEndereco').checked = !!d.exibir_endereco_paciente;
+    // CPF e endereço gerenciados pelos toggles no formulário de prescrição
     if(d.logo_url){
       var prev = document.getElementById('laLogoPreview');
       if(prev) prev.innerHTML = '<img src="'+escapeHTML(d.logo_url)+'" alt="Logo">';
@@ -5727,8 +5724,8 @@ async function laSave(){
       cep: get('laCep').replace(/\D/g,'')||null,
       telefone: get('laTelefone')||null,
       email: get('laEmail')||null,
-      exibir_cpf_medico: document.getElementById('laExibirCpf').checked,
-      exibir_endereco_paciente: document.getElementById('laExibirEndereco').checked,
+      exibir_cpf_medico: pfExibirCpf,
+      exibir_endereco_paciente: pfExibirEndereco,
       logo_url: null
     };
 
@@ -5878,28 +5875,36 @@ var pfPaciente = null;
 var pfMeds     = [];
 var pfRascId   = null;
 var pfMedCounter = 0;
-var pfExibirCpf = (localStorage.getItem('pf_exibir_cpf') !== 'false'); // default: true
+var pfExibirCpf      = (localStorage.getItem('pf_exibir_cpf') !== 'false');       // default: true
+var pfExibirEndereco = (localStorage.getItem('pf_exibir_endereco') === 'true');    // default: false
 
 function prescFormAbrir(local){
   pfLocal=local; pfTipo=null; pfPaciente=null; pfMeds=[]; pfRascId=null; pfMedCounter=0;
   var body=document.getElementById('prescEmpty');
   if(!body) return;
+  body.innerHTML = '';
   body.className=''; body.style.cssText='';
 
-  // Cabeçalho
+  // Atualiza título do cabeçalho principal da view
+  var hdrH1 = document.querySelector('.presc-hdr h1');
+  var hdrP  = document.querySelector('.presc-hdr p');
+  if(hdrH1) hdrH1.textContent = 'Nova prescrição';
+  if(hdrP) hdrP.innerHTML = '<i class="ti ti-building-hospital" aria-hidden="true"></i> ' + escapeHTML(local.nome);
+
+  // Cabeçalho do formulário — apenas botão Voltar
   var hdr=document.createElement('div');
-  hdr.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:.75rem;';
+  hdr.style.cssText='display:flex;align-items:center;margin-bottom:.75rem;';
   var btnVolt=document.createElement('button');
   btnVolt.className='bts'; btnVolt.style.cssText='padding:6px 10px;font-size:12px;';
   btnVolt.innerHTML='<i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar';
-  btnVolt.onclick=function(){ var e=document.getElementById('prescEmpty'); if(e){e.className='presc-empty';e.style.cssText='';} prescLoad(); };
-  var ttl=document.createElement('div');
-  ttl.style.cssText='font-family:var(--font-serif);font-size:18px;color:var(--preto);';
-  ttl.textContent='Nova prescrição';
-  var loc=document.createElement('div');
-  loc.style.cssText='font-size:11px;color:var(--cinza);margin-left:auto;';
-  loc.innerHTML='<i class="ti ti-building-hospital" aria-hidden="true"></i> '+escapeHTML(local.nome);
-  hdr.appendChild(btnVolt); hdr.appendChild(ttl); hdr.appendChild(loc);
+  btnVolt.onclick=function(){
+    var e=document.getElementById('prescEmpty');
+    if(e){ e.innerHTML=''; e.className='presc-empty'; e.style.cssText=''; }
+    var h=document.querySelector('.presc-hdr h1'); if(h) h.textContent='Prescrição';
+    var p=document.querySelector('.presc-hdr p'); if(p) p.textContent='Emita receitas digitais com assinatura eletrônica';
+    prescLoad();
+  };
+  hdr.appendChild(btnVolt);
 
   // Wrapper
   var wrap=document.createElement('div');
@@ -5942,22 +5947,43 @@ function prescFormAbrir(local){
   obs.placeholder='Orientações gerais, posologia adicional...';
   s4.body.appendChild(obs);
 
+  // ── Seção "Dados na receita" (toggles CPF + endereço) ──
+  var s5=pfMkSec('ti-settings','Dados na receita');
+  function mkToggleRow(id, label, desc, checked, onChange){
+    var lbl=document.createElement('label');
+    lbl.style.cssText='display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--pergaminho);border:1px solid var(--cinza-l);border-radius:10px;cursor:pointer;';
+    var chk=document.createElement('input'); chk.type='checkbox'; chk.id=id; chk.checked=checked;
+    chk.style.cssText='margin-top:2px;accent-color:var(--verde);flex-shrink:0;';
+    chk.onchange=onChange;
+    var txt=document.createElement('div');
+    txt.innerHTML='<div style="font-size:12px;font-weight:500;color:var(--preto);">'+label+'</div>'+
+                  '<div style="font-size:11px;color:var(--cinza);margin-top:2px;">'+desc+'</div>';
+    lbl.appendChild(chk); lbl.appendChild(txt);
+    return lbl;
+  }
+  var toggleBox=document.createElement('div');
+  toggleBox.style.cssText='display:flex;flex-direction:column;gap:8px;';
+  toggleBox.appendChild(mkToggleRow(
+    'pfExibirCpfChk','Exibir meu CPF na receita',
+    'O CPF do médico aparecerá no cabeçalho do documento',
+    pfExibirCpf, function(){ pfExibirCpf=this.checked; localStorage.setItem('pf_exibir_cpf', pfExibirCpf?'true':'false'); }
+  ));
+  toggleBox.appendChild(mkToggleRow(
+    'pfExibirEndChk','Exibir endereço do paciente na receita',
+    'O endereço cadastrado do paciente aparecerá no documento',
+    pfExibirEndereco, function(){ pfExibirEndereco=this.checked; localStorage.setItem('pf_exibir_endereco', pfExibirEndereco?'true':'false'); }
+  ));
+  s5.body.appendChild(toggleBox);
+
   // Ações
   var acts=document.createElement('div'); acts.className='pf-actions';
+  acts.style.cssText='display:flex;gap:.5rem;justify-content:flex-end;padding-top:.5rem;flex-wrap:wrap;align-items:center;';
   var msgEl=document.createElement('div'); msgEl.id='pfMsg'; msgEl.style.cssText='font-size:12px;flex:1;align-self:center;';
 
-  // Checkbox: exibir CPF do médico na receita
-  var cpfLbl=document.createElement('label');
-  cpfLbl.style.cssText='display:flex;align-items:center;gap:6px;font-size:12px;color:var(--cinza-d);cursor:pointer;align-self:center;white-space:nowrap;';
-  var cpfChk=document.createElement('input');
-  cpfChk.type='checkbox'; cpfChk.id='pfExibirCpfChk';
-  cpfChk.checked = pfExibirCpf;
-  cpfChk.onchange=function(){
-    pfExibirCpf = this.checked;
-    localStorage.setItem('pf_exibir_cpf', pfExibirCpf ? 'true' : 'false');
-  };
-  cpfLbl.appendChild(cpfChk);
-  cpfLbl.appendChild(document.createTextNode('Exibir meu CPF na receita'));
+  var btnPacs=document.createElement('button'); btnPacs.className='bts';
+  btnPacs.style.cssText='padding:9px 14px;font-size:12px;';
+  btnPacs.innerHTML='<i class="ti ti-users" aria-hidden="true"></i> Gerenciar pacientes';
+  btnPacs.onclick=pfGerenciarPacientes;
 
   var btnRasc=document.createElement('button'); btnRasc.className='bts'; btnRasc.id='pfBtnRasc';
   btnRasc.style.padding='9px 16px';
@@ -5967,10 +5993,10 @@ function prescFormAbrir(local){
   btnPdf.style.cssText='width:auto;padding:9px 18px;';
   btnPdf.innerHTML='<i class="ti ti-file-download" aria-hidden="true"></i> Gerar receita';
   btnPdf.onclick=pfGerarPdf;
-  acts.appendChild(msgEl); acts.appendChild(cpfLbl); acts.appendChild(btnRasc); acts.appendChild(btnPdf);
+  acts.appendChild(msgEl); acts.appendChild(btnPacs); acts.appendChild(btnRasc); acts.appendChild(btnPdf);
 
   wrap.appendChild(hdr); wrap.appendChild(s1.sec); wrap.appendChild(s2.sec);
-  wrap.appendChild(s3.sec); wrap.appendChild(s4.sec); wrap.appendChild(acts);
+  wrap.appendChild(s3.sec); wrap.appendChild(s4.sec); wrap.appendChild(s5.sec); wrap.appendChild(acts);
   body.appendChild(wrap);
   pfAddMed();
 }
@@ -6278,7 +6304,7 @@ function pfGerarPdfDoc(dados, med, numeroEspecial) {
   var cpfPac  = pac.cpf ? esc(pac.cpf) : '';
   var sexoPac = esc(pac.sexo || '');
   var idadePac = idade(pac.data_nascimento);
-  var endPac  = pac.endereco ? esc(pac.endereco) : '';
+  var endPac  = (pfExibirEndereco && pac.endereco) ? esc(pac.endereco) : '';
 
   // ── itens ──
   function renderItens(fontSz) {
@@ -6554,14 +6580,10 @@ function pfGerarPdfDoc(dados, med, numeroEspecial) {
   // CONTROLE ESPECIAL — TIPO B (2 vias)
   // ════════════════════════════════════════════════
   else if (tipo === 'especial_b') {
-    var numEspecial = numeroEspecial || '______';
-
     function viaEspecial(nVia) {
       return '<div style="padding:20px 28px;display:flex;flex-direction:column;min-height:235mm;box-sizing:border-box;' + (nVia === 1 ? 'page-break-after:always;' : '') + '">' +
 
         renderTituloBox('RECEITUÁRIO DE CONTROLE ESPECIAL') +
-
-        '<div style="font-size:10px;margin-bottom:4px;">N.º <strong>' + esc(String(numEspecial)) + '</strong></div>' +
 
         renderEmitenteBox() +
 
@@ -6593,7 +6615,74 @@ function pfGerarPdfDoc(dados, med, numeroEspecial) {
   if (win) { win.document.write(html); win.document.close(); }
 }
 
-// ── NOVO PACIENTE INLINE ──
+// ── GERENCIAR PACIENTES ──
+async function pfGerenciarPacientes(){
+  // Cria overlay e modal
+  var ovl = document.createElement('div');
+  ovl.id = 'pfPacOvl';
+  ovl.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  var modal = document.createElement('div');
+  modal.style.cssText = 'background:var(--branco);border-radius:16px;width:100%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.18);overflow:hidden;';
+
+  // Header do modal
+  var mhdr = document.createElement('div');
+  mhdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--cinza-l);flex-shrink:0;';
+  mhdr.innerHTML = '<div style="font-family:var(--font-serif);font-size:18px;color:var(--preto);">Pacientes cadastrados</div>'+
+    '<button onclick="document.getElementById(\'pfPacOvl\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--cinza);line-height:1;padding:2px 6px;">×</button>';
+
+  // Body do modal
+  var mbody = document.createElement('div');
+  mbody.style.cssText = 'overflow-y:auto;flex:1;padding:16px 20px;';
+  mbody.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--cinza);font-size:13px;"><i class="ti ti-loader"></i> Carregando...</div>';
+
+  modal.appendChild(mhdr); modal.appendChild(mbody);
+  ovl.appendChild(modal);
+  ovl.onclick = function(e){ if(e.target===ovl) ovl.remove(); };
+  document.body.appendChild(ovl);
+
+  try {
+    var token = await getToken();
+    var res = await fetch('/api/gerenciar', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ access_token: token, acao: 'pacientes_list' })
+    });
+    var data = await res.json();
+    var pacs = Array.isArray(data) ? data : (data.data || []);
+
+    if(!pacs.length){
+      mbody.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--cinza);font-size:13px;">Nenhum paciente cadastrado.</div>';
+      return;
+    }
+
+    // Tabela de pacientes
+    var html = '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+      '<thead><tr style="border-bottom:2px solid var(--cinza-l);text-align:left;">' +
+        '<th style="padding:6px 8px;font-weight:600;color:var(--cinza-d);">Nome</th>' +
+        '<th style="padding:6px 8px;font-weight:600;color:var(--cinza-d);">CPF</th>' +
+        '<th style="padding:6px 8px;font-weight:600;color:var(--cinza-d);">Sexo</th>' +
+        '<th style="padding:6px 8px;font-weight:600;color:var(--cinza-d);">Endereço</th>' +
+      '</tr></thead><tbody>';
+
+    pacs.forEach(function(p){
+      html += '<tr style="border-bottom:1px solid var(--cinza-l);">' +
+        '<td style="padding:8px;font-weight:500;color:var(--preto);">' + escapeHTML(p.nome||'—') + '</td>' +
+        '<td style="padding:8px;color:var(--cinza-d);">' + (p.cpf ? escapeHTML(p.cpf) : '—') + '</td>' +
+        '<td style="padding:8px;color:var(--cinza-d);">' + (p.sexo ? escapeHTML(p.sexo) : '—') + '</td>' +
+        '<td style="padding:8px;color:var(--cinza-d);">' + (p.endereco ? escapeHTML(p.endereco) : '—') + '</td>' +
+      '</tr>';
+    });
+
+    html += '</tbody></table>';
+    mbody.innerHTML = html;
+
+  } catch(e){
+    mbody.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--red);font-size:13px;">Erro ao carregar pacientes: ' + escapeHTML(e.message) + '</div>';
+  }
+}
+
+
 function pfNovoPacModal(){
   var area=document.getElementById('pfPacArea'); if(!area) return;
   area.innerHTML='';
@@ -7104,24 +7193,7 @@ buildCustomize();
         </div>
       </div>
 
-      <!-- Preferências da receita -->
-      <div>
-        <div class="la-sec">Dados na receita</div>
-        <div style="margin-top:.75rem;display:flex;flex-direction:column;gap:6px;">
-          <label class="la-chk-row">
-            <input type="checkbox" id="laExibirCpf" checked>
-            <div>Exibir meu CPF na receita
-              <span>O CPF do médico aparecerá no cabeçalho do documento</span>
-            </div>
-          </label>
-          <label class="la-chk-row">
-            <input type="checkbox" id="laExibirEndereco">
-            <div>Exibir endereço do paciente na receita
-              <span>O endereço cadastrado do paciente aparecerá no documento</span>
-            </div>
-          </label>
-        </div>
-      </div>
+
 
       <div class="la-msg" id="laMsg"></div>
     </div>
