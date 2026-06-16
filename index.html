@@ -150,6 +150,7 @@ body{
 .vagenda.show{display:flex;}
 .vprescricao{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
 .vpacientes{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
+.vatestados{display:none;flex-direction:column;width:100%;height:100%;overflow-y:auto;background:var(--pergaminho);animation:fadeIn .22s ease;}
 .pac-card{background:var(--branco);border:1px solid var(--cinza-l);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:box-shadow .15s;margin-bottom:8px;}
 .pac-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08);}
 .pac-avatar{width:40px;height:40px;border-radius:50%;background:var(--verde-l);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--verde);flex-shrink:0;}
@@ -1274,6 +1275,10 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
       <span class="tn-item-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg></span>
       Prescrição
     </button>
+    <button class="tn-item" id="sb-atestados" onclick="showView('atestados')">
+      <span class="tn-item-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg></span>
+      Atestados
+    </button>
     <button class="tn-item" id="sb-agenda" onclick="showView('agenda')">
       <span class="tn-item-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
       Agenda
@@ -1660,6 +1665,63 @@ body{padding-left:0;padding-top:76px;background:var(--pergaminho);}
       <div class="cal-dow">Sáb</div>
     </div>
     <div class="cal-grid" id="calGrid"></div>
+  </div>
+
+  <!-- ATESTADOS -->
+  <div class="vatestados" id="vAtestados">
+    <div class="presc-hdr">
+      <div>
+        <h1>Atestados e declarações</h1>
+        <p>Emita atestados médicos e declarações de comparecimento</p>
+      </div>
+    </div>
+    <div class="presc-body">
+      <div class="pf-wrap" style="max-width:680px;">
+
+        <!-- Paciente -->
+        <div class="pf-sec">
+          <div class="pf-sec-hdr"><i class="ti ti-user"></i> 1. Paciente</div>
+          <div class="pf-sec-body" id="atPacArea"></div>
+        </div>
+
+        <!-- Tipo -->
+        <div class="pf-sec">
+          <div class="pf-sec-hdr"><i class="ti ti-file-certificate"></i> 2. Tipo de documento</div>
+          <div class="pf-sec-body">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="pf-tipo-btn active" id="atTipoAtestado" onclick="atSetTipo('atestado',this)" style="flex:1;min-width:140px;">
+                <i class="ti ti-file-certificate ptb-ico"></i>
+                <span class="ptb-name">Atestado Médico</span>
+                <span class="ptb-desc">Afastamento de atividades</span>
+              </button>
+              <button class="pf-tipo-btn" id="atTipoDeclaracao" onclick="atSetTipo('declaracao',this)" style="flex:1;min-width:140px;">
+                <i class="ti ti-file-description ptb-ico"></i>
+                <span class="ptb-name">Declaração de comparecimento</span>
+                <span class="ptb-desc">Confirmação de consulta</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Texto -->
+        <div class="pf-sec">
+          <div class="pf-sec-hdr"><i class="ti ti-pencil"></i> 3. Texto do documento</div>
+          <div class="pf-sec-body">
+            <textarea class="pf-inp" id="atTexto" rows="5" style="resize:vertical;"
+              placeholder="Ex: Atesto para os devidos fins que o(a) paciente está incapacitado(a) de realizar suas atividades laborais pelo período de ___ dias."></textarea>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="pf-actions">
+          <div id="atMsg" style="font-size:12px;flex:1;align-self:center;"></div>
+          <button class="pbtn" style="width:auto;padding:9px 18px;" onclick="atGerarPdf()">
+            <i class="ti ti-file-download" aria-hidden="true"></i> Gerar documento
+          </button>
+        </div>
+
+      </div>
+    </div>
   </div>
 
   <!-- PACIENTES -->
@@ -2153,7 +2215,7 @@ function showView(v){
   // Fecha painel de agendamento ao navegar entre views
   if(typeof adpClose === 'function') adpClose();
   // Atualiza nav items
-  ['dashboard','record','history','customize','osler','profile','agenda','prescricao','pacientes'].forEach(function(id){
+  ['dashboard','record','history','customize','osler','profile','agenda','prescricao','pacientes','atestados'].forEach(function(id){
     var el = document.getElementById('sb-'+id);
     if(el) el.classList.toggle('active', id===v);
   });
@@ -2167,10 +2229,12 @@ function showView(v){
   var vPrescricao = document.getElementById('vPrescricao');
   var vDashboard = document.getElementById('vDashboard');
   var vPacientes = document.getElementById('vPacientes');
+  var vAtestados = document.getElementById('vAtestados');
   if(vAgenda){ vAgenda.style.display='none'; vAgenda.classList.remove('show'); }
   if(vPrescricao){ vPrescricao.style.display='none'; vPrescricao.classList.remove('show'); }
   if(vDashboard){ vDashboard.style.display='none'; vDashboard.classList.remove('show'); }
   if(vPacientes){ vPacientes.style.display='none'; vPacientes.classList.remove('show'); }
+  if(vAtestados){ vAtestados.style.display='none'; vAtestados.classList.remove('show'); }
 
   if(v === 'dashboard'){
     if(vDashboard){ vDashboard.style.display='flex'; vDashboard.classList.add('show'); }
@@ -2181,6 +2245,11 @@ function showView(v){
     if(vAgenda){ vAgenda.style.display='flex'; vAgenda.classList.add('show'); }
     // Agenda sempre recarrega pois dados mudam com frequência
     agendaLoad(); agendaLoadPacientes();
+    return;
+  }
+  if(v === 'atestados'){
+    if(vAtestados){ vAtestados.style.display='flex'; vAtestados.classList.add('show'); }
+    if(!_viewInited['atestados']){ atInit(); _viewInited['atestados']=true; }
     return;
   }
   if(v === 'pacientes'){
@@ -6009,8 +6078,7 @@ function prescFormAbrir(local){
   var tipos=document.createElement('div'); tipos.className='pf-tipos'; tipos.id='pfTipos';
   [['simples','ti-clipboard-text','Receita Simples','Medicamentos comuns'],
    ['antimicrobiano','ti-pill','Antimicrobiano','2 vias obrigatórias'],
-   ['especial_b','ti-license','Controle Especial','Receituário tipo B'],
-   ['atestado','ti-file-certificate','Atestado Médico','Afastamento e declarações']
+   ['especial_b','ti-license','Controle Especial','Receituário tipo B']
   ].forEach(function(t){
     var btn=document.createElement('button'); btn.className='pf-tipo-btn';
     btn.innerHTML='<i class="ti '+t[1]+' ptb-ico" aria-hidden="true"></i>'+
@@ -6740,6 +6808,166 @@ function pfGerarPdfDoc(dados, med, numeroEspecial) {
   var win = window.open('', '_blank', 'width=760,height=960');
   if (win) { win.document.write(html); win.document.close(); }
 }
+
+// ══════════════════════════════════════════════
+// MÓDULO ATESTADOS
+// ══════════════════════════════════════════════
+var atTipo = 'atestado';
+var atPaciente = null;
+
+function atInit(){
+  atPaciente = null;
+  atTipo = 'atestado';
+  var area = document.getElementById('atPacArea');
+  if(area) atRenderPacSearch(area);
+}
+
+function atSetTipo(tipo, btn){
+  atTipo = tipo;
+  ['atTipoAtestado','atTipoDeclaracao'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.classList.remove('active');
+  });
+  if(btn) btn.classList.add('active');
+  var obs = document.getElementById('atTexto');
+  if(obs){
+    obs.placeholder = tipo === 'declaracao'
+      ? 'Ex: Declaro para os devidos fins que o(a) paciente compareceu a esta clínica no dia ___/___/___ para consulta médica, permanecendo pelo período de ___ horas.'
+      : 'Ex: Atesto para os devidos fins que o(a) paciente está incapacitado(a) de realizar suas atividades laborais pelo período de ___ dias.';
+  }
+}
+
+function atRenderPacSearch(area){
+  area.innerHTML='';
+  var wrap=document.createElement('div'); wrap.className='pf-search-wrap';
+  var lbl=document.createElement('div'); lbl.className='pf-lbl'; lbl.textContent='Buscar por nome';
+  var inp=document.createElement('input'); inp.className='pf-inp'; inp.id='atPacSearch';
+  inp.placeholder='Digite o nome...'; inp.autocomplete='off';
+  var drop=document.createElement('div'); drop.className='pf-search-drop'; drop.id='atPacDrop';
+  inp.oninput=function(){ atPacBuscar(this.value); };
+  inp.onblur=function(){ setTimeout(function(){ atPacDropShow(false); },200); };
+  wrap.appendChild(lbl); wrap.appendChild(inp); wrap.appendChild(drop);
+  area.appendChild(wrap);
+}
+
+var _atPacTimer=null;
+function atPacBuscar(q){
+  clearTimeout(_atPacTimer);
+  if(q.length < 2){ atPacDropShow(false); return; }
+  _atPacTimer=setTimeout(async function(){
+    try{
+      var token=await getToken();
+      var res=await fetch('/api/gerenciar',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({access_token:token,acao:'pacientes_list',q:q})
+      });
+      var data=await res.json();
+      var pacs=data.pacientes||[];
+      var drop=document.getElementById('atPacDrop');
+      if(!drop) return;
+      if(!pacs.length){ drop.innerHTML='<div style="padding:8px 12px;font-size:12px;color:var(--cinza);">Nenhum paciente encontrado</div>'; atPacDropShow(true); return; }
+      drop.innerHTML='';
+      pacs.forEach(function(p){
+        var it=document.createElement('div'); it.className='pf-drop-item';
+        it.textContent=p.nome;
+        it.onmousedown=function(){ atSelecionarPac(p); };
+        drop.appendChild(it);
+      });
+      atPacDropShow(true);
+    }catch(e){ console.error('atPacBuscar',e); }
+  },300);
+}
+
+function atPacDropShow(v){
+  var drop=document.getElementById('atPacDrop');
+  if(drop) drop.style.display=v?'block':'none';
+}
+
+function atSelecionarPac(p){
+  atPaciente=p;
+  atPacDropShow(false);
+  var area=document.getElementById('atPacArea');
+  if(!area) return;
+  area.innerHTML='';
+  var card=document.createElement('div'); card.className='pf-pac-card';
+  card.innerHTML='<i class="ti ti-user-circle" style="font-size:18px;color:var(--verde);"></i>'+
+    '<div><div class="ppc-nome">'+escapeHTML(p.nome)+'</div>'+
+    (p.cpf?'<div class="ppc-info">CPF: '+escapeHTML(p.cpf)+'</div>':'')+
+    '</div>'+
+    '<button class="bts" style="margin-left:auto;font-size:11px;padding:4px 10px;" onclick="atInit()">Trocar</button>';
+  area.appendChild(card);
+}
+
+async function atGerarPdf(){
+  var msg=document.getElementById('atMsg');
+  if(!atPaciente){ if(msg){msg.textContent='Selecione um paciente.';msg.style.color='var(--red)';} return; }
+  var texto=(document.getElementById('atTexto')||{}).value||'';
+  if(!texto.trim()){ if(msg){msg.textContent='Preencha o texto do documento.';msg.style.color='var(--red)';} return; }
+  if(msg) msg.textContent='';
+
+  if(!currentProfile||!currentProfile.nome) await profileInit();
+  var med=currentProfile||{};
+  var pac=atPaciente;
+
+  var local={}; try{ var arr=await prescApi({acao:'local_list'}); if(arr&&arr[0]) local=arr[0]; }catch(e){}
+
+  function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  var dataEmissao=new Date().toLocaleDateString('pt-BR');
+  var nomeMed=esc(med.nome||'');
+  var crmMed=esc((med.crm||'')+(med.uf_crm?' - '+med.uf_crm:''));
+  var cpfMed=(pfExibirCpf&&med.cpf)?esc(med.cpf):'';
+  var endLocal=[local.logradouro,local.numero,local.bairro,(local.cidade||'')+(local.uf?' - '+local.uf:'')].filter(Boolean).join(', ');
+  var nomePac=esc(pac.nome||'');
+  var cpfPac=pac.cpf?esc(pac.cpf):'';
+  var sexoPac=esc(pac.sexo||'');
+  function idadeStr(nasc){ if(!nasc) return ''; var d=new Date(nasc+'T00:00:00'),h=new Date(),a=h.getFullYear()-d.getFullYear(); if(h.getMonth()<d.getMonth()||(h.getMonth()===d.getMonth()&&h.getDate()<d.getDate())) a--; return a+' anos'; }
+  var idadePac=idadeStr(pac.data_nascimento);
+
+  var titulo = atTipo==='declaracao' ? 'DECLARAÇÃO DE COMPARECIMENTO' : 'ATESTADO MÉDICO';
+
+  var baseStyle=[
+    'body{font-family:Arial,Helvetica,sans-serif;font-size:12px;margin:0;color:#000;background:#fff;}',
+    'table{width:100%;border-collapse:collapse;}',
+    '.lbl{font-weight:700;}',
+    '.sig{border-top:1px solid #000;text-align:center;font-size:10px;padding-top:3px;width:200px;display:inline-block;}',
+    '@media print{.no-print{display:none;}@page{margin:14mm 12mm;}}',
+    '.no-print{text-align:center;margin-top:18px;}'
+  ].join('');
+
+  var actionBtns='<div class="no-print"><button onclick="window.print()" style="padding:8px 22px;background:#2d5a27;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-right:8px;">🖨️ Imprimir / Salvar PDF</button>'+
+    '<button onclick="window.close()" style="padding:8px 16px;border:1px solid #bbb;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;">Fechar</button></div>';
+
+  // cabeçalho igual receita simples
+  var cabecalho='<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">'+
+    '<tr><td style="font-size:11px;font-weight:700;padding:3px 0;vertical-align:top;">'+esc(local.nome||'')+'</td>'+
+    '<td style="font-size:11px;text-align:right;vertical-align:top;white-space:nowrap;"><span style="font-weight:700;">Data de emissão:</span>&nbsp;&nbsp;'+dataEmissao+'</td></tr>'+
+    '<tr><td style="font-size:11px;padding:3px 0;vertical-align:top;"><span style="font-weight:700;">Endereço:</span>&nbsp;&nbsp;'+esc(endLocal)+'</td><td></td></tr>'+
+    '<tr><td style="font-size:13px;font-weight:700;padding:6px 0 0;vertical-align:top;">Dr(a). '+nomeMed+'</td>'+
+    '<td style="font-size:11px;text-align:right;vertical-align:top;white-space:nowrap;padding:6px 0 0;"><span style="font-weight:700;">CRM:</span>&nbsp;&nbsp;'+crmMed+'</td></tr>'+
+    (cpfMed?'<tr><td></td><td style="font-size:11px;text-align:right;white-space:nowrap;padding:2px 0 0;"><span style="font-weight:700;">CPF:</span>&nbsp;&nbsp;'+cpfMed+'</td></tr>':'')+
+    '</table>';
+
+  var sep='<hr style="border:none;border-top:1px solid #000;margin:6px 0 8px;">';
+
+  var pacPartes=[];
+  if(nomePac) pacPartes.push('<span class="lbl">Paciente:</span> '+nomePac);
+  if(cpfPac) pacPartes.push('<span class="lbl">CPF:</span> '+cpfPac);
+  if(sexoPac) pacPartes.push('<span class="lbl">Sexo:</span> '+sexoPac);
+  if(idadePac) pacPartes.push('<span class="lbl">Idade:</span> '+idadePac);
+  var pacHtml='<div style="font-size:11px;padding:4px 0;">'+pacPartes.join('&nbsp;&nbsp;&nbsp;&nbsp;')+'</div>';
+
+  var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+titulo+'</title>'+
+    '<style>'+baseStyle+'</style></head>'+
+    '<body style="padding:20px 28px;display:flex;flex-direction:column;min-height:257mm;box-sizing:border-box;">'+
+    '<div style="border:1px solid #000;text-align:center;font-weight:700;font-size:14px;padding:6px 0;margin-bottom:10px;">'+titulo+'</div>'+
+    cabecalho+sep+pacHtml+sep+
+    '<div style="font-size:12px;line-height:1.8;margin-top:10px;flex:1;">'+esc(texto)+'</div>'+
+    '<div style="margin-top:auto;padding-top:40px;text-align:right;"><span class="sig">Assinatura e Carimbo do Médico</span></div>'+
+    actionBtns+'</body></html>';
+
+  var win=window.open('','_blank','width=760,height=960');
+  if(win){ win.document.write(html); win.document.close(); }
+}
+// ── FIM MÓDULO ATESTADOS ──
 
 // ══════════════════════════════════════════════
 // MÓDULO PACIENTES
