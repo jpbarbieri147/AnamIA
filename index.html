@@ -6940,22 +6940,24 @@ function exPacBuscar(q){
       var pacs=data.pacientes||[];
       var drop=document.getElementById('exPacDrop');
       if(!drop) return;
-      if(!pacs.length){ drop.innerHTML='<div style="padding:8px 12px;font-size:12px;color:var(--cinza);">Nenhum paciente encontrado</div>'; exPacDropShow(true); return; }
+      if(!pacs.length){ drop.innerHTML='<div class="pf-ac-loading">Nenhum paciente encontrado</div>'; drop.classList.add('open'); return; }
       drop.innerHTML='';
       pacs.forEach(function(p){
-        var it=document.createElement('div'); it.className='pf-drop-item';
-        it.textContent=p.nome;
+        var info=[p.cpf||'',p.sexo||''].filter(Boolean).join(' · ');
+        var it=document.createElement('div'); it.className='pf-search-item';
+        it.innerHTML='<div class="psi-nome">'+escapeHTML(p.nome)+'</div>'+
+          (info?'<div class="psi-info">'+escapeHTML(info)+'</div>':'');
         it.onmousedown=function(){ exSelecionarPac(p); };
         drop.appendChild(it);
       });
-      exPacDropShow(true);
+      drop.classList.add('open');
     }catch(e){ console.error('exPacBuscar',e); }
   },300);
 }
 
 function exPacDropShow(v){
   var drop=document.getElementById('exPacDrop');
-  if(drop) drop.style.display=v?'block':'none';
+  if(drop){ if(v) drop.classList.add('open'); else drop.classList.remove('open'); }
 }
 
 function exSelecionarPac(p){
@@ -7103,22 +7105,24 @@ function atPacBuscar(q){
       var pacs=data.pacientes||[];
       var drop=document.getElementById('atPacDrop');
       if(!drop) return;
-      if(!pacs.length){ drop.innerHTML='<div style="padding:8px 12px;font-size:12px;color:var(--cinza);">Nenhum paciente encontrado</div>'; atPacDropShow(true); return; }
+      if(!pacs.length){ drop.innerHTML='<div class="pf-ac-loading">Nenhum paciente encontrado</div>'; drop.classList.add('open'); return; }
       drop.innerHTML='';
       pacs.forEach(function(p){
-        var it=document.createElement('div'); it.className='pf-drop-item';
-        it.textContent=p.nome;
+        var info=[p.cpf||'',p.sexo||''].filter(Boolean).join(' · ');
+        var it=document.createElement('div'); it.className='pf-search-item';
+        it.innerHTML='<div class="psi-nome">'+escapeHTML(p.nome)+'</div>'+
+          (info?'<div class="psi-info">'+escapeHTML(info)+'</div>':'');
         it.onmousedown=function(){ atSelecionarPac(p); };
         drop.appendChild(it);
       });
-      atPacDropShow(true);
+      drop.classList.add('open');
     }catch(e){ console.error('atPacBuscar',e); }
   },300);
 }
 
 function atPacDropShow(v){
   var drop=document.getElementById('atPacDrop');
-  if(drop) drop.style.display=v?'block':'none';
+  if(drop){ if(v) drop.classList.add('open'); else drop.classList.remove('open'); }
 }
 
 function atSelecionarPac(p){
