@@ -2148,6 +2148,7 @@ async function authSubmit() {
     var res = await supa.auth.signInWithPassword({email: email, password: pwd});
 
     if(res.error){
+      console.log('[MFA] login error code:', res.error.code, '| msg:', res.error.message);
       // MFA obrigatório — o Supabase retorna este código específico
       if(res.error.code === 'mfa_challenge_required' || (res.error.message && res.error.message.toLowerCase().includes('mfa'))) {
         btn.disabled=false; btn.textContent='Entrar';
@@ -2167,13 +2168,19 @@ async function authSubmit() {
       authShowError(msg); btn.disabled=false; btn.textContent='Entrar'; return;
     }
 
-    // Sem erro — verifica se MFA ainda é necessário
-    var { data: aalData } = await supa.auth.mfa.getAuthenticatorAssuranceLevel();
-    if(aalData && aalData.nextLevel === 'aal2' && aalData.currentLevel !== 'aal2') {
+    // Sem erro no login — verifica fatores MFA diretamente (fonte de verdade mais confiável que AAL)
+    var factorsRes = await supa.auth.mfa.listFactors();
+    console.log('[MFA] listFactors após login:', JSON.stringify(factorsRes.data));
+    var aalRes = await supa.auth.mfa.getAuthenticatorAssuranceLevel();
+    console.log('[MFA] AAL após login:', JSON.stringify(aalRes.data));
+
+    var totpVerificado = factorsRes.data && factorsRes.data.totp &&
+      factorsRes.data.totp.find(function(f){ return f.status === 'verified'; });
+
+    if(totpVerificado) {
+      // Há um fator TOTP verificado — exige código antes de entrar
       btn.disabled=false; btn.textContent='Entrar';
-      var factors2 = await supa.auth.mfa.listFactors();
-      var totp2 = factors2.data && factors2.data.totp && factors2.data.totp.find(function(f){ return f.status === 'verified'; });
-      _mfaFactorId = totp2 ? totp2.id : null;
+      _mfaFactorId = totpVerificado.id;
       document.getElementById('authStepLogin').style.display = 'none';
       document.getElementById('authStepMfa').style.display = 'block';
       setTimeout(function(){ var c=document.getElementById('mfaCode'); if(c) c.focus(); }, 100);
