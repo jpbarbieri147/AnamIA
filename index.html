@@ -2276,12 +2276,21 @@ async function authLogout() {
   if(supa) await supa.auth.signOut();
   currentUser = null;
   resultData = {};
+  _mfaFactorId = null;
   var topRight = document.getElementById('topNavRight');
   if(topRight) topRight.style.display = 'none';
   var topItems = document.getElementById('topNavItems');
   if(topItems) topItems.style.display = 'none';
   var topSep = document.getElementById('topNavSep');
   if(topSep) topSep.style.display = 'none';
+
+  // Garante que a tela de auth volte ao passo de login (nunca no passo MFA)
+  var stepLogin = document.getElementById('authStepLogin');
+  var stepMfa = document.getElementById('authStepMfa');
+  if(stepLogin) stepLogin.style.display = 'block';
+  if(stepMfa) stepMfa.style.display = 'none';
+  var mfaCodeEl = document.getElementById('mfaCode');
+  if(mfaCodeEl) mfaCodeEl.value = '';
 
   document.getElementById('authEmail').value = '';
   document.getElementById('authPwd').value = '';
